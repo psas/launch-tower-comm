@@ -1,0 +1,37 @@
+[analogSensorInput]
+0 	= temperatureEnclosure
+1 	= voltageIgnition
+2 	= temperatureTower
+3 	= humidityTower
+4 	= windDirection
+5 	= voltageSystem
+6 	= voltageSolar
+7 	= voltageRocket
+
+[digitalSensorInput]
+0 	= windSpeed
+1 	= z1
+2 	= z2
+3 	= z3
+4 	= z4
+5 	= z5
+6 	= z6
+7 	= z7
+
+
+[digitalRelayOutput]
+0 	= relayRocketFire
+1 	= relaySiren
+2 	= relayLight
+3 	= relayOther
+
+
+[gpioOutput]
+0 	= z0
+1 	= z1
+2 	= z2
+3 	= z3
+4 	= z4
+5 	= z5
+6 	= z6
+7 	= gpioUmbilical
