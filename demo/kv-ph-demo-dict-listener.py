@@ -143,7 +143,7 @@ class OutDevice(BoxLayout):
         self.status_ind.text = dictionary.getKey(self.ioindex)
         self.conn_ind.text = dictionary.getKey('dev_state') 
 
-class KvPhDictDemoListenerApp(App):
+class KvPhDemoDictListenerApp(App):
 
     def build(self):
         # The 'build' method is called when the object is run.
@@ -173,4 +173,4 @@ class KvPhDictDemoListenerApp(App):
 
 if __name__ == '__main__':
     dictionary = setup_ph_dict()
-    KvPhDictDemoListenerApp().run()
+    KvPhDemoDictListenerApp().run()
