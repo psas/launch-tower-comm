@@ -1,6 +1,18 @@
-# Launch Tower Comm, Demos
+# launch-tower-comm, Demos
 
-Several working programs demonstrating Phidgets into Kivy GUI's.
+Several programs demonstrating Phidgets integrated into Kivy GUI's.
+
+# How to Run Them
+
+* Install Kivy. (follow instructions at (kivy.org)[kivy.org]
+* Install the (Phidgets)[phidgets.com] libraries, Python module, and Webservice 
+
+## InterfaceKit Demo - `kv-ph-demo.py`
+You must have an Interface Kit board connected through the webservice.
+## Webservice Demo - `kv-ph-demo-dict-listener.py`
+You only need a working webservice. Follow instructions below.
+
+# The Demo Files
 
 ## `kv-ph-demo.py`
 
@@ -14,16 +26,9 @@ of the GUI layout.  Please refer to the Kivy documentation for more
 information about the Kivy language and how it works with the Python
 code.
 
-## `kv-ph-demo-dict-keychanger.py`
-
-Requires a running Phidgets webservice. Currently set to localhost:5001,
-may be changed.  
-
-Creates and updates four dictionary key/value pairs within the 
-webservices' internal dictionary.  To be used in conjuction with the 
-Kivy app.
-
 ## `kv-ph-demo-dict-listener.py`
+
+Run the Phidgets webservice, then the keychanger, then this app.
 
 A GUI indicator display of the four dictionary keys mentioned in 
 'keychanger'.  
@@ -31,6 +36,13 @@ A GUI indicator display of the four dictionary keys mentioned in
 The Kivy language file `kvphdemodictlistener.kv` contains a few custom
 widgets and layouts derived from the Kivy examples.  
 
-Run the Phidgets webservice, then the keychanger, then this app.
+### `kv-ph-demo-dict-keychanger.py`
+
+Requires a running Phidgets webservice. Currently set to localhost:5001,
+may be changed.  
+
+Creates and updates four dictionary key/value pairs within the 
+webservices' internal dictionary.  To be used in conjuction with the 
+Kivy app.
 
 
