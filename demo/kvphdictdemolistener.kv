@@ -8,7 +8,7 @@
 #:set conn_red (1, 0, 0, .8)
 
 # Derived from the Kivy Showcase example
-<KvPhDemo>:
+<LogoFrame>:
     content: content
     canvas:
         Color:
@@ -86,7 +86,6 @@
     pos_hint: {'x': 0, 'y': 0}
     padding: 10        
     
-    
     # COLUMN LABELS
     BoxLayout:
         orientation: 'horizontal'
@@ -138,12 +137,12 @@
         Label:
             id: status_ind
             text: ' '
-            font_size: 20
+            font_size: 40
             
-        ToggleButton:
+        Button:
             id: btn
             text: 'Toggle %s' % device_label.text # Kivy automatically updates this when device_label.text is changed
-            on_press: root.toggle_state(self.state)
+            
             
         Label:
             id: conn_ind
@@ -151,7 +150,7 @@
             font_size: 20
             canvas:
                 Color:
-                    rgba: conn_green if self.text == 'Connected' else conn_red
+                    rgba: conn_green if self.text == 'True' else conn_red
                 Rectangle:
                     size: self.size
                     pos: self.pos
