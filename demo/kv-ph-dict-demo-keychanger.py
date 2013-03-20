@@ -19,15 +19,17 @@ __version__ = '0.0.1'
 __date__ = 'March 20 2013'
 
 #Basic imports
-from ctypes import *
+import random
 import sys
+from ctypes import *
 from time import sleep
+
 #Phidget specific imports
-from Phidgets.PhidgetException import PhidgetErrorCodes, 
+from Phidgets.PhidgetException import PhidgetErrorCodes, \
                                       PhidgetException
-from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs,
+from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, \
                                 ServerConnectArgs, ServerDisconnectArgs
-from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, 
+from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, \
                                 KeyListener
 
 #Create a Dictionary object and a key listener object
@@ -93,7 +95,6 @@ try:
     dictionary.setServerDisconnectHandler(DictionaryServerDisconnected)
     
     keyListener.setKeyChangeHandler(KeyChanged)
-    keyListener.setKeyRemovalListener(KeyRemoved)
 except PhidgetException as e:
     print("Phidget Exception %i: %s" % (e.code, e.details))
     print("Exiting....")
@@ -123,28 +124,30 @@ try:
     print("Now we'll add some keys...")
     sleep(1)
     
-    ###  each valn needs to change at a different frequency
-    ###  val4 will be the complete device connection state
+    ai1, ai2, ai3, dev_state = 0, 0, 0, 1
+    dictionary.addKey("ai1", '0')
+    dictionary.addKey("ai2", '0')
+    dictionary.addKey("ai3", '0')
+    dictionary.addKey("dev_state", '1')
+    print("got here")
+    
+    # Update Values
     while True:
-        val1 = random.randint(-10,15)
-        val2 = random.randint(30, 50)
-        val3 = rand
-    
-    dictionary.addKey("test1", "ok", True)
-    dictionary.addKey("test2", "ok", False)
-    dictionary.addKey("test3", "ok", True)
-    sleep(2)
-    
-    print("Now we will test for key 'test2' being in the dictionary.")
-    sleep(1)
-    
-    value = dictionary.getKey("test2")
-    print("Key: test2  Value: %s" % (value))
-    
-    print("Now we will remove one of the keys...")
-    sleep(1)
-    
-    dictionary.removeKey("test4")
+        dice = random.random()
+        if dice < 1.0:
+            ai1 = random.randint(-100, 0)
+            dictionary.addKey("ai1", str(ai1))
+        if dice < 0.6:
+            ai2 = random.randint(0, 50)
+            dictionary.addKey("ai2", str(ai2))
+        if dice < 0.2:
+            ai3 = random.randint(101, 201)
+            dictionary.addKey("ai3", str(ai3))
+        if dice < 0.1:
+            dev_state = dev_state ^ 1
+            dictionary.addKey('dev_state', str(dev_state))
+        sleep(0.5)
+
     
 except PhidgetException as e:
     print("Phidget Exception %i: %s" % (e.code, e.details))
