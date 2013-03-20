@@ -19,17 +19,19 @@ General Issues:
 __author__ = 'John Boyle'
 __date__ = '22 Jan 2012'
 
-#Basic imports
-from ctypes import *
-import sys
+
 import random
+import sys
+from ctypes import *
+from time import sleep
 
 #Phidget specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, 
-                                ErrorEventArgs, InputChangeEventArgs,
+from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
+                                ErrorEventArgs, InputChangeEventArgs, \
                                 OutputChangeEventArgs, SensorChangeEventArgs
-from Phidgets.Devices.InterfaceKit import InterfaceKit
+from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason
+                                
 
 #Kivy specific imports
 import kivy
@@ -48,59 +50,43 @@ from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 
 
 ##### Phidgets Event Handler Callback Functions #####
-ik_attached = False
+def DictionaryError(e):
+    print("Dictionary Error %i: %s" % (e.eCode, e.description))
+    return 0
 
-def inferfaceKitAttached(e):
-    attached = e.device
-    print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
-
-    # Used for checking connection status within the Kivy app
-    global ik_attached
-    ik_attached = True
-
-def interfaceKitDetached(e):
-    detached = e.device
-    print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
-
-    # Used for checking connection status within the Kivy app
-    global ik_attached
-    ik_attached = False
-
-def interfaceKitError(self, e):
+def DictionaryServerConnected(e):
+    print("Dictionary connected to server %s" % (e.device.getServerAddress()))
     try:
-        source = e.device
-        print("InterfaceKit %i: Phidget Error %i: %s" % (source.getSerialNum(), e.eCode, e.description))
+        #keyListener.start()
+        pass
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
+    return 0
 
-def interfaceKitInputChanged(e):
-    source = e.device
-    print("InterfaceKit %i: Input %i: %s" % (source.getSerialNum(), e.index, e.state))
-
-def interfaceKitSensorChanged(e):
-    source = e.device
-    print("InterfaceKit %i: Sensor %i: %i" % (source.getSerialNum(), e.index, e.value))
-
-def interfaceKitOutputChanged(e):
-    source = e.device
-    print("InterfaceKit %i: Output %i: %s" % (source.getSerialNum(), e.index, e.state))
-
-def setup_interfaceKit():
-    #Create an interfacekit object
+def DictionaryServerDisconnected(e):
+    print("Dictionary disconnected from server")
     try:
-        interfaceKit = InterfaceKit()
+        #keyListener.stop()
+        pass
+    except PhidgetException as e:
+        print("Phidget Exception %i: %s" % (e.code, e.details))
+    return 0
+
+def setup_ph_dict():
+    #Create a Dictionary object and a key listener object
+    try:
+        dictionary = Dictionary()
+        
     except RuntimeError as e:
         print("Runtime Exception: %s" % e.details)
         print("Exiting....")
         exit(1)
 
     try:
-        interfaceKit.setOnAttachHandler(inferfaceKitAttached)
-        interfaceKit.setOnDetachHandler(interfaceKitDetached)
-        interfaceKit.setOnErrorhandler(interfaceKitError)
-        interfaceKit.setOnInputChangeHandler(interfaceKitInputChanged)
-        interfaceKit.setOnOutputChangeHandler(interfaceKitOutputChanged)
-        interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
+        dictionary.setErrorHandler(DictionaryError)
+        dictionary.setServerConnectHandler(DictionaryServerConnected)
+        dictionary.setServerDisconnectHandler(DictionaryServerDisconnected)
+
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Exiting....")
@@ -109,33 +95,28 @@ def setup_interfaceKit():
     print("Opening phidget object....")
 
     try:
-        #interfaceKit.openPhidget()
-        interfaceKit.openRemoteIP('192.168.1.100', port=5001)
+        dictionary.openRemoteIP('localhost', port=5001)
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Exiting....")
         exit(1)
-
-    print("Waiting for attach....")
 
     try:
-        interfaceKit.waitForAttach(10000)
+        while dictionary.isAttachedToServer() == False:
+            pass
+        else:
+            print("Connected: %s" % (dictionary.isAttachedToServer()))
+            print("Server: %s:%s" % (dictionary.getServerAddress(), dictionary.getServerPort()))
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
-        try:
-            interfaceKit.closePhidget()
-        except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (e.code, e.details))
-            print("Exiting....")
-            exit(1)
         print("Exiting....")
         exit(1)
-    return interfaceKit
+    return dictionary
 
 
 ########### KIVY Setup ############
 
-class KvPhDemo(FloatLayout):
+class LogoFrame(FloatLayout):
     ''' Loaded from the kv lang file
     '''
 
@@ -152,59 +133,44 @@ class OutDevice(BoxLayout):
     # That isn't to say that there is a more natural way of doing this
     # that is provided by Kivy.
 
-    def set_properties(self, name, iotype, ioindex):
-        self.device_label.text = name + ' ' + str(ioindex)# an attribute from kv file
-        self.iotype = iotype
-        self.ioindex = ioindex
-
-        # Explicitly set outputs to OFF (good habit in control situations)
-        # Just as easily could read the current status instead.
-        self.status_ind.text = 'OFF'
-        interfaceKit.setOutputState(self.ioindex, False)
-
+    def set_properties(self, name):
+        self.device_label.text = name # an attribute from kv file
+        self.ioindex = name.lower()
         # Check connection status every half second.
-        Clock.schedule_interval(self.check_connection, 0.5)
+        Clock.schedule_interval(self.check_status, 0.1)
 
-    def check_connection(self, instance):
-        # 'ik_attached' is set by the phidgets 'interfaceKitDetached' and
-        # 'interfaceKitAttached' event handlers
-        self.conn_ind.text = 'Connected' if bool(ik_attached) else 'disconnected'
+    def check_status(self, instance):
+        self.status_ind.text = dictionary.getKey(self.ioindex)
+        self.conn_ind.text = dictionary.getKey('dev_state') 
 
-    def toggle_state(self, state):
-        ledstate = interfaceKit.getOutputState(self.ioindex)
-        ledstate = not ledstate
-        interfaceKit.setOutputState(self.ioindex, ledstate)
-        self.status_ind.text = 'OFF' if state=='normal' else 'ON'
-
-
-class KvPhDemoApp(App):
+class KvPhDictDemoListenerApp(App):
 
     def build(self):
         # The 'build' method is called when the object is run.
 
-        kvphdemo = KvPhDemo()
+        dictlisten = LogoFrame()
         controlpanel = ControlPanel()
 
         #This LED setup may seem repetitive in this simple example.
         # It would be useful in more complex situations
-        led1 = OutDevice()
-        led4 = OutDevice()
-        led6 = OutDevice()
+        ai1 = OutDevice()
+        ai2 = OutDevice()
+        ai3 = OutDevice()
 
-        led1.set_properties(name='LED', iotype='output', ioindex=1)
-        led4.set_properties(name='LED', iotype='output', ioindex=4)
-        led6.set_properties(name='LED', iotype='output', ioindex=6)
+        ai1.set_properties(name='AI1')
+        ai2.set_properties(name='AI2')
+        ai3.set_properties(name='AI3')
 
-        controlpanel.add_widget(led1)
-        controlpanel.add_widget(led4)
-        controlpanel.add_widget(led6)
+        controlpanel.add_widget(ai1)
+        controlpanel.add_widget(ai2)
+        controlpanel.add_widget(ai3)
 
-        kvphdemo.content.add_widget(controlpanel) # 'content' is a reference to a
+        dictlisten.content.add_widget(controlpanel) # 'content' is a reference to a
                                                   # layout placeholder in the
                                                   # kv lang file
-        return kvphdemo
+        return dictlisten
 
 
 if __name__ == '__main__':
-    interfaceKit = setup_interfaceKit()
-    KvPhDemoApp().run()
+    dictionary = setup_ph_dict()
+    KvPhDictDemoListenerApp().run()
