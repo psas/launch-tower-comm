@@ -25,8 +25,7 @@ from ctypes import *
 from time import sleep
 
 #Phidget specific imports
-from Phidgets.PhidgetException import PhidgetErrorCodes, \
-                                      PhidgetException
+from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, \
                                 ServerConnectArgs, ServerDisconnectArgs
 from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, \
@@ -50,6 +49,7 @@ def DictionaryServerConnected(e):
     print("Dictionary connected to server %s" % (e.device.getServerAddress()))
     try:
         keyListener.start()
+        pass
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
     return 0
@@ -58,6 +58,7 @@ def DictionaryServerDisconnected(e):
     print("Dictionary disconnected from server")
     try:
         keyListener.stop()
+        pass
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
     return 0
@@ -124,11 +125,11 @@ try:
     print("Now we'll add some keys...")
     sleep(1)
     
-    ai1, ai2, ai3, dev_state = 0, 0, 0, 1
-    dictionary.addKey("ai1", '0')
-    dictionary.addKey("ai2", '0')
-    dictionary.addKey("ai3", '0')
-    dictionary.addKey("dev_state", '1')
+    ai1, ai2, ai3, dev_state = 0, 0, 0, True
+    dictionary.addKey("ai1", str(ai1))
+    dictionary.addKey("ai2", str(ai2))
+    dictionary.addKey("ai3", str(ai3))
+    dictionary.addKey("dev_state", str(dev_state))
     print("got here")
     
     # Update Values
@@ -144,7 +145,7 @@ try:
             ai3 = random.randint(101, 201)
             dictionary.addKey("ai3", str(ai3))
         if dice < 0.1:
-            dev_state = dev_state ^ 1
+            dev_state = not dev_state 
             dictionary.addKey('dev_state', str(dev_state))
         sleep(0.5)
 
@@ -154,6 +155,7 @@ except PhidgetException as e:
     print("Exiting....")
     exit(1)
 
+# Should Never Get Here?
 print("Press Enter to quit....")
 
 chr = sys.stdin.read(1)
