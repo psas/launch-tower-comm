@@ -1,0 +1,158 @@
+#:kivy 1.0
+#:import kivy kivy
+#:import ut kivy.utils
+
+## Set <key> <expr>
+#:set conn_green (0, 1, .5, .8)
+#:set conn_yellow (1, 1, 0, .8)
+#:set conn_red (1, 0, 0, .8)
+
+# Derived from the Kivy Showcase example
+<ltcContainer>:
+    content: content
+    canvas:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            source: 'data/images/background.jpg'
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            padding: '10dp'
+            spacing: '10dp'
+            size_hint: 1, None
+            pos_hint: {'top': 1}
+            height: '44dp'
+            Image:
+                size_hint: None, None
+                size: '24dp', '24dp'
+                source: 'data/logo/kivy-icon-64.png'
+				mipmap: True
+            Label:
+                height: '24dp'
+                text_size: self.width, None
+                color: (1, 1, 1, .8)
+                text: 'Launch Control - Kivy %s' % kivy.__version__
+
+        FloatLayout:
+            id: content
+
+
+# From the Kivy Showcase example
+[VSeparator@Widget]:
+    size_hint_x: None
+    width: 10
+    canvas:
+        Color:
+            rgba: .8, .8, .8, .3
+        Rectangle:
+            size: 1, self.height
+            pos: self.center_x, self.y
+
+# From the Kivy Showcase example
+[HSeparator@Widget]:
+    size_hint_y: None
+    width: 1
+    canvas:
+        Color:
+            rgba: .8, .8, .8, .3
+        Rectangle:
+            size: self.width, 10
+            pos: self.x, self.center_y
+
+# Derived from the Kivy Showcase example
+[MyLabel@Label]:
+    size_hint_y: 1
+    height: max(dp(45), self.texture_size[1] + dp(10))
+    text: ctx.text if 'text' in ctx else ''
+    text_size: self.width, self.height
+    font_size: ctx.font_size if 'font_size' in ctx else 30
+    valign: 'middle'
+    halign: 'center'
+    canvas.before:
+        Color:
+            rgba: .2, .2, .2, .8
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+
+<ControlPanel>:
+    orientation: 'vertical'
+    pos_hint: {'x': 0, 'y': 0}
+    padding: 10        
+    
+    
+    # COLUMN LABELS
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: 10
+        spacing: 10
+        
+        MyLabel:
+            text: 'DEVICE'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'INDICATOR'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'CONTROL'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'DEVICE \nCONNECTION \nSTATUS'
+            font_size: 20
+
+
+<OutDevice>:
+    # In the next three lines, the name on the left is used in the 
+    # python code, the name on the right is used within this Object 
+    # definition. They do not have to be the same. 
+    device_label: device_label
+    status_ind: status_ind
+    conn_ind: conn_ind
+        
+    BoxLayout:
+        id: dev0
+        
+        orientation: 'horizontal'
+        padding: 10
+        spacing: 10
+        
+        MyLabel:
+            id: device_label
+            text: 'device'
+            
+        Label:
+            id: status_ind
+            text: ' '
+            font_size: 20
+            
+        ToggleButton:
+            id: btn
+            text: 'Toggle %s' % device_label.text # Kivy automatically updates this when device_label.text is changed
+            on_press: root.toggle_state(self.state)
+            
+        Label:
+            id: conn_ind
+            text: ' ' 
+            font_size: 20
+            canvas:
+                Color:
+                    rgba: conn_green if self.text == 'Connected' else conn_red
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
