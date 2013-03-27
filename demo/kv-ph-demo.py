@@ -17,16 +17,16 @@ General Issues:
 __author__ = 'John Boyle'
 __date__ = '22 Jan 2012'
 
-#Basic imports
+# Basic imports
 from ctypes import *
 import sys
 import random
 
-#Phidget specific imports
+# Phidget specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, 
-									ErrorEventArgs, InputChangeEventArgs,
-									OutputChangeEventArgs, SensorChangeEventArgs
+                                    ErrorEventArgs, InputChangeEventArgs,
+                                    OutputChangeEventArgs, SensorChangeEventArgs
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 #Kivy specific imports

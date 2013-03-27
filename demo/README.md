@@ -1,6 +1,6 @@
 # launch-tower-comm, Demos
 
-Several programs demonstrating Phidgets integrated into Kivy GUI's.
+Several programs demonstrating Phidgets integrated into Kivy GUIs.
 
 # How to Run Them
 
@@ -8,8 +8,11 @@ Several programs demonstrating Phidgets integrated into Kivy GUI's.
 * Install the (Phidgets)[phidgets.com] libraries, Python module, and Webservice 
 
 ## InterfaceKit Demo - `kv-ph-demo.py`
+
 You must have an Interface Kit board connected through the webservice.
+
 ## Webservice Demo - `kv-ph-demo-dict-listener.py`
+
 You only need a working webservice. Follow instructions below.
 
 # The Demo Files
@@ -28,7 +31,7 @@ code.
 
 ## `kv-ph-demo-dict-listener.py`
 
-Run the Phidgets webservice, then the keychanger, then this app.
+Start the Phidgets webservice, then the keychanger, then this app.
 
 A GUI indicator display of the four dictionary keys mentioned in 
 'keychanger'.  
