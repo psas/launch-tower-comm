@@ -30,7 +30,7 @@
                 size_hint: None, None
                 size: '24dp', '24dp'
                 source: 'data/logo/kivy-icon-64.png'
-				mipmap: True
+                mipmap: True
             Label:
                 height: '24dp'
                 text_size: self.width, None
@@ -84,69 +84,68 @@
 <ControlPanel>:
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
-    padding: 10        
-    
+    padding: 10
+
     # COLUMN LABELS
     BoxLayout:
         orientation: 'horizontal'
         padding: 10
         spacing: 10
-        
+
         MyLabel:
             text: 'DEVICE'
             font_size: 20
-        
+
         VSeparator
-        
+
         MyLabel:
             text: 'INDICATOR'
             font_size: 20
-        
+
         VSeparator
-        
+
         MyLabel:
             text: 'CONTROL'
             font_size: 20
-        
+
         VSeparator
-        
+
         MyLabel:
             text: 'DEVICE \nCONNECTION \nSTATUS'
             font_size: 20
 
 
 <OutDevice>:
-    # In the next three lines, the name on the left is used in the 
-    # python code, the name on the right is used within this Object 
-    # definition. They do not have to be the same. 
+    # In the next three lines, the name on the left is used in the
+    # python code, the name on the right is used within this Object
+    # definition. They do not have to be the same.
     device_label: device_label
     status_ind: status_ind
     conn_ind: conn_ind
-        
+
     BoxLayout:
         id: dev0
-        
+
         orientation: 'horizontal'
         padding: 10
         spacing: 10
-        
+
         MyLabel:
             id: device_label
             text: 'device'
-            
+
         Label:
             id: status_ind
             text: ' '
             font_size: 40
-            
+
         Button:
             id: btn
             text: 'Toggle %s' % device_label.text # Kivy automatically updates this when device_label.text is changed
-            
-            
+
         Label:
             id: conn_ind
-            text: ' ' 
+            text: ' '
             font_size: 20
             canvas:
                 Color:
