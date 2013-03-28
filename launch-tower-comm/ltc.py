@@ -72,11 +72,8 @@ class LTC(FloatLayout):
     pass
 
 class Inputs(BoxLayout):
-    def __init__(self, **kwargs):
-        global INTERFACEKIT888
-        global WEBSERVICEIP
-        global WEBSERVICEPORT
-        global inputs_dict
+    def __init__(self, devserial, IP, port, **kwargs):
+        self.devserial = devserial
         
         super(Inputs, self).__init__(**kwargs)
         
@@ -93,14 +90,14 @@ class Inputs(BoxLayout):
             interfaceKit.setOnAttachHandler(inferfaceKitAttached)
             interfaceKit.setOnDetachHandler(interfaceKitDetached)
             interfaceKit.setOnErrorhandler(interfaceKitError)
-            interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
+            #interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
             exit(1)
             
         try:
-            interfaceKit.openRemoteIP(WEBSERVICEIP, port=WEBSERVICEPORT, serial=INTERFACEKIT888)
+            interfaceKit.openRemoteIP(IP, port=port, serial=devserial)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
@@ -123,34 +120,33 @@ class Inputs(BoxLayout):
         
         print("InterfaceKit Attached...")
         self.interfaceKit = interfaceKit
-
-class InputDevice(BoxLayout):
-    def set_properties(self, name, iotype, ioindex):
-        self.device_label.text = name + ' ' + str(ioindex)# an attribute from kv file
-        self.iotype = iotype
-        self.ioindex = ioindex
-
-        # Explicitly set outputs to OFF (good habit in control situations)
-        # Just as easily could read the current status instead.
-        self.status_ind.text = 'OFF'
-        interfaceKit.setOutputState(self.ioindex, False)
-
-        # Check connection status every half second.
-        Clock.schedule_interval(self.check_connection, 0.5)
-
-    def check_connection(self, instance):
-        # 'ik_attached' is set by the phidgets 'interfaceKitDetached' and
-        # 'interfaceKitAttached' event handlers
-        self.conn_ind.text = 'Connected' if bool(ik_attached) else 'disconnected'
-
-    def toggle_state(self, state):
-        ledstate = interfaceKit.getOutputState(self.ioindex)
-        ledstate = not ledstate
-        interfaceKit.setOutputState(self.ioindex, ledstate)
-        self.status_ind.text = 'OFF' if state=='normal' else 'ON'
-
-
+        self.num_sensors = self.interfaceKit.getSensorCount()
+        
+        Clock.schedule_interval(self.check_status, 0.5)
     
+    def check_status(self, instance):
+        for index in self.num_sensors:
+            sensor = "{} Sensor {}".format(self.devserial, index)
+            inputs_dict[sensor] = self.interfaceKit.getSensorRawValue(index)
+        
+
+class Sensor(BoxLayout):
+    
+    def __init__(self, name, devserial, sensor_index, **kwargs):
+    
+        super(Sensor, self).__init__(**kwargs)
+        self.devserial = devserial
+        self.device_label.text = name + ' ' + str(sensor_index)
+        self.iotype = iotype
+        self.ioindex = sensor_index
+
+        Clock.schedule_interval(self.check_status, 1)
+
+    def check_status(self, instance):
+        sensor = "{} Sensor {}".format(self.devserial, index)
+        self.conn_ind.text = input_dict[sensor]
+
+
 
 #class StandardWidgets(FloatLayout):
 
@@ -168,10 +164,19 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the object is run.
 
-        inputs = Inputs()
-
+        inputs = Inputs(devserial=INTERFACEKIT888, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
+        sens0 = Sensor(name='Temperature', INTERFACEKIT888, 0)
+        sens1 = Sensor(name='Voltage30', INTERFACEKIT888, 1)
+        sens5 = Sensor(name='Voltage30', INTERFACEKIT888, 5)
+        sens6 = Sensor(name='Voltage30', INTERFACEKIT888, 6)
+        
+        inputs.addwidget(sens0)
+        inputs.addwidget(sens1)
+        inputs.addwidget(sens5)
+        inputs.addwidget(sens6)
+            
         ltc = LTC()
-        ltc.content.add_widget(root) 
+        ltc.content.add_widget(inputs) 
         return ltc
     
     def build_config(self, config):

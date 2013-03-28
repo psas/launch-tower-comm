@@ -74,7 +74,40 @@
             text: 'DEVICE \nCONNECTION \nSTATUS'
             font_size: 20
 
+<Sensor>:
+    # In the next three lines, the name on the left is used in the
+    # python code, the name on the right is used within this Object
+    # definition. They do not have to be the same.
+    device_label: device_label
+    status_ind: status_ind
+    conn_ind: conn_ind
 
+    BoxLayout:
+        id: dev0
+
+        orientation: 'horizontal'
+        padding: 10
+        spacing: 10
+
+        MyLabel:
+            id: device_label
+            text: 'device'
+
+        Label:
+            id: status_ind
+            text: ' '
+            font_size: 20
+
+        Label:
+            id: conn_ind
+            text: ' '
+            font_size: 20
+            canvas:
+                Color:
+                    rgba: conn_green if self.text == 'Connected' else conn_red
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
 
 
 
@@ -132,43 +165,5 @@
             pos: self.pos
 
 
-<OutDevice>:
-    # In the next three lines, the name on the left is used in the
-    # python code, the name on the right is used within this Object
-    # definition. They do not have to be the same.
-    device_label: device_label
-    status_ind: status_ind
-    conn_ind: conn_ind
 
-    BoxLayout:
-        id: dev0
-
-        orientation: 'horizontal'
-        padding: 10
-        spacing: 10
-
-        MyLabel:
-            id: device_label
-            text: 'device'
-
-        Label:
-            id: status_ind
-            text: ' '
-            font_size: 20
-
-        ToggleButton:
-            id: btn
-            text: 'Toggle %s' % device_label.text # Kivy automatically updates this when device_label.text is changed
-            on_press: root.toggle_state(self.state)
-
-        Label:
-            id: conn_ind
-            text: ' '
-            font_size: 20
-            canvas:
-                Color:
-                    rgba: conn_green if self.text == 'Connected' else conn_red
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
 
