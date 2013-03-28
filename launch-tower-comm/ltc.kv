@@ -12,7 +12,7 @@
     # This declaration will make "content" available externally
     content: content
     canvas:
-        Color:t 
+        Color: 
             rgb: 1, 1, 1
         Rectangle:
             source: 'data/images/background.jpg'
@@ -42,9 +42,11 @@
             id: content
 
 <Inputs>:
+    #content: content
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
     padding: 10        
+    id: content
     
     # COLUMN LABELS
     BoxLayout:

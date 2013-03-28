@@ -11,7 +11,7 @@ import random
 
 #Phidgets specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \ 
+from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
         ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
         SensorChangeEventArgs
 from Phidgets.Devices.InterfaceKit import InterfaceKit
@@ -35,11 +35,17 @@ from kivy.config import ConfigParser
 from kivy.uix.settings import Settings
 
 
-global INTERFACEKIT888 = 178346
-global INTERFACEKIT004 = 259173
-global WEBSERVICEIP = "192.168.128.250"
-global WEBSERVICEPORT = 5001
-global inputs_dict = dict()
+#~ global INTERFACEKIT888 
+#~ global INTERFACEKIT004 
+#~ global WEBSERVICEIP
+#~ global WEBSERVICEPORT
+#~ global inputs_dict
+
+INTERFACEKIT888 = 178346
+INTERFACEKIT004 = 259173
+WEBSERVICEIP = "192.168.128.250"
+WEBSERVICEPORT = 5001
+inputs_dict = dict()
 
 ########### Phidgets Setup ########
 #Event Handler Callback Functions
@@ -72,6 +78,7 @@ class LTC(FloatLayout):
     pass
 
 class Inputs(BoxLayout):
+    
     def __init__(self, devserial, IP, port, **kwargs):
         self.devserial = devserial
         
@@ -121,13 +128,13 @@ class Inputs(BoxLayout):
         print("InterfaceKit Attached...")
         self.interfaceKit = interfaceKit
         self.num_sensors = self.interfaceKit.getSensorCount()
-        
+        print(self.num_sensors)
         Clock.schedule_interval(self.check_status, 0.5)
     
     def check_status(self, instance):
-        for index in self.num_sensors:
+        for index in range(self.num_sensors):
             sensor = "{} Sensor {}".format(self.devserial, index)
-            inputs_dict[sensor] = self.interfaceKit.getSensorRawValue(index)
+            inputs_dict[sensor] = self.interfaceKit.getSensorValue(index)
         
 
 class Sensor(BoxLayout):
@@ -137,14 +144,13 @@ class Sensor(BoxLayout):
         super(Sensor, self).__init__(**kwargs)
         self.devserial = devserial
         self.device_label.text = name + ' ' + str(sensor_index)
-        self.iotype = iotype
-        self.ioindex = sensor_index
+        self.sensor_index = sensor_index
 
         Clock.schedule_interval(self.check_status, 1)
 
     def check_status(self, instance):
-        sensor = "{} Sensor {}".format(self.devserial, index)
-        self.conn_ind.text = input_dict[sensor]
+        sensor = "{} Sensor {}".format(self.devserial, self.sensor_index)
+        self.status_ind.text = str(inputs_dict[sensor])
 
 
 
@@ -165,15 +171,15 @@ class LTCApp(App):
         # The 'build' method is called when the object is run.
 
         inputs = Inputs(devserial=INTERFACEKIT888, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
-        sens0 = Sensor(name='Temperature', INTERFACEKIT888, 0)
-        sens1 = Sensor(name='Voltage30', INTERFACEKIT888, 1)
-        sens5 = Sensor(name='Voltage30', INTERFACEKIT888, 5)
-        sens6 = Sensor(name='Voltage30', INTERFACEKIT888, 6)
+        sens0 = Sensor('Temperature', INTERFACEKIT888, 0)
+        sens1 = Sensor('Voltage30', INTERFACEKIT888, 1)
+        sens5 = Sensor('Voltage30', INTERFACEKIT888, 5)
+        sens6 = Sensor('Voltage30', INTERFACEKIT888, 6)
         
-        inputs.addwidget(sens0)
-        inputs.addwidget(sens1)
-        inputs.addwidget(sens5)
-        inputs.addwidget(sens6)
+        inputs.add_widget(sens0)
+        inputs.add_widget(sens1)
+        inputs.add_widget(sens5)
+        inputs.add_widget(sens6)
             
         ltc = LTC()
         ltc.content.add_widget(inputs) 
