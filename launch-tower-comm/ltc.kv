@@ -41,7 +41,38 @@
         FloatLayout:
             id: content
 
-
+<Inputs>:
+    orientation: 'vertical'
+    pos_hint: {'x': 0, 'y': 0}
+    padding: 10        
+    
+    # COLUMN LABELS
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: 10
+        spacing: 10
+        
+        MyLabel:
+            text: 'DEVICE'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'INDICATOR'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'CONTROL'
+            font_size: 20
+        
+        VSeparator
+        
+        MyLabel:
+            text: 'DEVICE \nCONNECTION \nSTATUS'
+            font_size: 20
 
 
 
