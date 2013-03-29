@@ -4,7 +4,8 @@
     * BoxLayout 'vertical'
         * BoxLayout (Logo & Program name)
         * FloatLayout (LTC.content - container for everything else)
-            * BoxLayout 'horizontal'
+            * DeviceSetup (FloatLayout)
+            * ControlPanel (BoxLayout) 'horizontal'
                 * Inputs (BoxLayout) 'vertical'
-                * Outputs (BoxLayout) 'vertical'
+
 
