@@ -61,20 +61,9 @@
         VSeparator
         
         MyLabel:
-            text: 'INDICATOR'
+            text: 'Status'
             font_size: 20
-        
-        VSeparator
-        
-        MyLabel:
-            text: 'CONTROL'
-            font_size: 20
-        
-        VSeparator
-        
-        MyLabel:
-            text: 'DEVICE \nCONNECTION \nSTATUS'
-            font_size: 20
+
 
 <Sensor>:
     # In the next three lines, the name on the left is used in the
@@ -82,7 +71,6 @@
     # definition. They do not have to be the same.
     device_label: device_label
     status_ind: status_ind
-    conn_ind: conn_ind
 
     BoxLayout:
         id: dev0
@@ -98,18 +86,16 @@
         Label:
             id: status_ind
             text: ' '
-            font_size: 20
-
-        Label:
-            id: conn_ind
-            text: ' '
-            font_size: 20
+            font_size: 30
             canvas:
                 Color:
-                    rgba: conn_green if self.text == 'Connected' else conn_red
+                    rgba: conn_green #if self.text == 'Connected' else conn_red
                 Rectangle:
                     size: self.size
                     pos: self.pos
+            
+            
+
 
 
 

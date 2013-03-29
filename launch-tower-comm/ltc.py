@@ -21,7 +21,7 @@ import kivy
 kivy.require('1.0.5')
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.config import ConfigParser
+from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -29,10 +29,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.label  import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
-from kivy.uix.codeinput import CodeInput
 from kivy.extras.highlight import KivyLexer
-from kivy.config import ConfigParser
-from kivy.uix.settings import Settings
 
 
 #~ global INTERFACEKIT888 
@@ -51,10 +48,14 @@ inputs_dict = dict()
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
     attached = e.device
+    ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
+    inputs_dict[ik] = "True"
     print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
 
 def interfaceKitDetached(e):
     detached = e.device
+    ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
+    inputs_dict[ik] = "False"
     print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
 def interfaceKitError(e):
@@ -97,7 +98,6 @@ class Inputs(BoxLayout):
             interfaceKit.setOnAttachHandler(inferfaceKitAttached)
             interfaceKit.setOnDetachHandler(interfaceKitDetached)
             interfaceKit.setOnErrorhandler(interfaceKitError)
-            #interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
@@ -175,11 +175,13 @@ class LTCApp(App):
         sens1 = Sensor('Voltage30', INTERFACEKIT888, 1)
         sens5 = Sensor('Voltage30', INTERFACEKIT888, 5)
         sens6 = Sensor('Voltage30', INTERFACEKIT888, 6)
+        sens7 = Sensor('Voltage30', INTERFACEKIT888, 7)
         
         inputs.add_widget(sens0)
         inputs.add_widget(sens1)
         inputs.add_widget(sens5)
         inputs.add_widget(sens6)
+        inputs.add_widget(sens7)
             
         ltc = LTC()
         ltc.content.add_widget(inputs) 
@@ -206,4 +208,8 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
+    Config.set('graphics', 'width', '600')
+    Config.set('graphics', 'height', '600')
+    Config.set('graphics', 'fullscreen', '1')
+    
     LTCApp().run()
