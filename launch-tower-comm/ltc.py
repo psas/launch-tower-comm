@@ -134,7 +134,7 @@ class Inputs(BoxLayout):
     def check_status(self, instance):
         for index in range(self.num_sensors):
             sensor = "{} Sensor {}".format(self.devserial, index)
-            inputs_dict[sensor] = self.interfaceKit.getSensorValue(index)
+            inputs_dict[sensor] = self.interfaceKit.getSensorRawValue(index)
         
 
 class Sensor(BoxLayout):
@@ -143,27 +143,28 @@ class Sensor(BoxLayout):
     
         super(Sensor, self).__init__(**kwargs)
         self.devserial = devserial
+        self.name = name
         self.device_label.text = name + ' ' + str(sensor_index)
         self.sensor_index = sensor_index
 
         Clock.schedule_interval(self.check_status, 1)
 
     def check_status(self, instance):
+        '''Retrieves sensor values from internal dict, converts to proper units
+        and updates the sensor widget value display
+        '''
+        
         sensor = "{} Sensor {}".format(self.devserial, self.sensor_index)
-        self.status_ind.text = str(inputs_dict[sensor])
+        val = inputs_dict[sensor]
+        
+        if 'voltage30' in self.name.lower():
+            newval = ((val / 200.0) - 2.5) / 0.0681
+            newval = '{:.0f} V'.format(newval)
+        if 'temp' in self.name.lower():
+            newval = ((val / 4.095) * 0.22222) - 61.111
+            newval = '{:.0f} Celsius'.format(newval)
+        self.status_ind.text = newval
 
-
-
-#class StandardWidgets(FloatLayout):
-
-    #value = NumericProperty(0)
-
-    #def __init__(self, **kwargs):
-        #super(StandardWidgets, self).__init__(**kwargs)
-        #Clock.schedule_interval(self.increment_value, 1 / 30.)
-
-    #def increment_value(self, dt):
-        #self.value += dt
 
 class LTCApp(App):
 
@@ -188,22 +189,22 @@ class LTCApp(App):
         return ltc
     
     def build_config(self, config):
-        config.add_section('kinect')
-        config.set('kinect', 'index', '0')
-        config.add_section('shader')
-        config.set('shader', 'theme', 'rgb')
+        config.add_section('rocket')
+        config.set('rocket', 'index', '0')
+        config.add_section('launch')
+        config.set('launch', 'type', 'success')
 
     def build_settings(self, settings):
         settings.add_json_panel('Testing', self.config, data='''[
-            { "type": "title", "title": "Kinect" },
-            { "type": "numeric", "title": "Index",
-              "desc": "Kinect index, from 0 to X",
-              "section": "kinect", "key": "index" },
-            { "type": "title", "title": "Shaders" },
-            { "type": "options", "title": "Theme",
-              "desc": "Shader to use for a specific visualization",
-              "section": "shader", "key": "theme",
-              "options": ["rgb", "hsv", "points"]}
+            { "type": "title", "title": "Rocket" },
+            { "type": "numeric", "title": "Size",
+              "desc": "Rocket size, from 0 to X",
+              "section": "rocket", "key": "index" },
+            { "type": "title", "title": "Launch" },
+            { "type": "options", "title": "Launch",
+              "desc": "The kind of launch you would like to have",
+              "section": "launch", "key": "type",
+              "options": ["success", "boom", "crunch"]}
         ]''')
 
 
