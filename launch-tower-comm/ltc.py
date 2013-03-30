@@ -23,10 +23,12 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
+from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
+from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.label  import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.extras.highlight import KivyLexer
@@ -78,6 +80,7 @@ class LTC(FloatLayout):
     # Loaded from the kv lang file
     pass
 
+
 class InterfaceKitPanel(BoxLayout):
 
     def __init__(self, devserial, IP, port, **kwargs):
@@ -85,11 +88,15 @@ class InterfaceKitPanel(BoxLayout):
         self.IP = IP
         self.port = port
         super(InterfaceKitPanel, self).__init__(**kwargs)
-        
+
         # Add extra column for a control indicator
         if '259173' in str(self.devserial):
-            self.content.add_widget(VSeperator)
-            self.content.add_widget(MyLabel(text='Toggle it', font_size=20))
+            # These widgets are from kv language templates. 
+            # This instantiates them.
+            vsep = Builder.template('VSeparator')
+            lbl = Builder.template('MyLabel', text='Toggle it', font_size=20)
+            self.labels.add_widget(vsep)
+            self.labels.add_widget(lbl)
         
         # Create an interfacekit object
         try:
@@ -141,7 +148,6 @@ class InterfaceKitPanel(BoxLayout):
         Clock.schedule_interval(self.check_status, 0.5)
         return
 
-
     def check_status(self, instance):
         if '8/8/8' in self.device_name:
             for index in xrange(self.num_sensors):
@@ -158,7 +164,7 @@ class InterfaceKitPanel(BoxLayout):
 
 class IOIndicator(BoxLayout):
 
-    def __init__(self, name, iotype, ioindex, devserial, **kwargs):
+    def __init__(self, name, iotype, devserial, ioindex, **kwargs):
         '''Indicator widget. Includes a name label, and status label.
         
         name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
@@ -198,12 +204,12 @@ class IOIndicator(BoxLayout):
 
 class Relay(IOIndicator):
 
-    def __init__(self, **kwargs):
-        super(IOIndicator, self).__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(Relay, self).__init__(*args, **kwargs)
         
         btn = ToggleButton(text='Toggle Relay')
-        btn.bind(state=check_relay_state)
-        self.dev0.addwidget(btn)
+        btn.bind(state=self.check_relay_state)
+        self.label_slot.add_widget(btn)
         return
     
     def check_relay_state(self, instance, value):
@@ -215,12 +221,13 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the object is run.
 
-        input_panel = InterfaceKit(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
-        sens0 = Sensor('Temperature', INTERFACEKIT888, 0)
-        sens1 = Sensor('Voltage30', INTERFACEKIT888, 1)
-        sens5 = Sensor('Voltage30', INTERFACEKIT888, 5)
-        sens6 = Sensor('Voltage30', INTERFACEKIT888, 6)
-        sens7 = Sensor('Voltage30', INTERFACEKIT888, 7)
+        input_panel = InterfaceKitPanel(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
+        # name, iotype, ioindex, devserial,
+        sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
+        sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
+        sens5 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 5)
+        sens6 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 6)
+        sens7 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 7)
         
         input_panel.add_widget(sens0)
         input_panel.add_widget(sens1)
@@ -229,9 +236,9 @@ class LTCApp(App):
         input_panel.add_widget(sens7)
         
         relay_panel = InterfaceKitPanel(devserial=INTERFACEKIT004, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
-        relay1 = Relay('Okay Relay', INTERFACEKIT004, 1)
-        relay2 = Relay('Fancy Relay', INTERFACEKIT004, 2)
-        relay3 = Relay('Nice Relay', INTERFACEKIT004, 3)
+        relay1 = Relay('Okay Relay', 'output', INTERFACEKIT004, 1)
+        relay2 = Relay('Fancy Relay', 'output', INTERFACEKIT004, 2)
+        relay3 = Relay('Nice Relay', 'output', INTERFACEKIT004, 3)
         
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)

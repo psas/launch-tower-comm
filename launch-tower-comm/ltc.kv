@@ -67,14 +67,12 @@
 
 
 <IOIndicator>:
-    # In the next three lines, the name on the left is used in the
-    # python code, the name on the right is used within this Object
-    # definition. They do not have to be the same.
+    label_slot: label_slot
     device_label: device_label
     status_ind: status_ind
 
     BoxLayout:
-        id: dev
+        id: label_slot
 
         orientation: 'horizontal'
         padding: 10
