@@ -12,8 +12,8 @@ import random
 #Phidgets specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
-        ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
-        SensorChangeEventArgs
+    ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
+    SensorChangeEventArgs
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 #Kivy specific imports
@@ -29,16 +29,10 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.label  import Label
+from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.extras.highlight import KivyLexer
 
-
-#~ global INTERFACEKIT888
-#~ global INTERFACEKIT004
-#~ global WEBSERVICEIP
-#~ global WEBSERVICEPORT
-#~ global app_dict
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
@@ -47,6 +41,8 @@ WEBSERVICEPORT = 5001
 app_dict = dict()
 
 ########### Phidgets Setup ########
+
+
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
     attached = e.device
@@ -54,24 +50,29 @@ def inferfaceKitAttached(e):
     app_dict[ik] = "True"
     print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
 
+
 def interfaceKitDetached(e):
     detached = e.device
     ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
     app_dict[ik] = "False"
     print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
+
 def interfaceKitError(e):
     try:
         source = e.device
-        print("InterfaceKit %i: Phidget Error %i: %s" % (source.getSerialNum(), e.eCode, e.description))
+        print("InterfaceKit %i: Phidget Error %i: %s"
+              % (source.getSerialNum(), e.eCode, e.description))
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
+
 
 def interfaceKitSensorChanged(e):
     source = e.device
     sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
     app_dict[sensor] = str(e.value)
-    print("InterfaceKit %i: Sensor %i: %i" % (source.getSerialNum(), e.index, e.value))
+    print("InterfaceKit %i: Sensor %i: %i"
+          % (source.getSerialNum(), e.index, e.value))
 
 
 ########### KIVY Setup ############
@@ -91,13 +92,13 @@ class InterfaceKitPanel(BoxLayout):
 
         # Add extra column for a control indicator
         if '259173' in str(self.devserial):
-            # These widgets are from kv language templates. 
+            # These widgets are from kv language templates.
             # This instantiates them.
             vsep = Builder.template('VSeparator')
             lbl = Builder.template('MyLabel', text='Toggle it', font_size=20)
             self.labels.add_widget(vsep)
             self.labels.add_widget(lbl)
-        
+
         # Create an interfacekit object
         try:
             interfaceKit = InterfaceKit()
@@ -117,7 +118,7 @@ class InterfaceKitPanel(BoxLayout):
             exit(1)
 
         try:
-            interfaceKit.openRemoteIP(self.IP, port=self.port, serial=self.devserial)
+            interfaceKit.openRemoteIP(self.IP, self.port, self.devserial)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
@@ -161,14 +162,13 @@ class InterfaceKitPanel(BoxLayout):
         return
 
 
-
 class IOIndicator(BoxLayout):
 
     def __init__(self, name, iotype, devserial, ioindex, **kwargs):
         '''Indicator widget. Includes a name label, and status label.
-        
+
         name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
-        iotype<str>:    Phidgets name for this channel. ex: "output" "sensor" "input"
+        iotype<str>:    Phidget name for channel. ex: "output" "sensor" "input"
         ioindex<int>:   Channel index.
         devserial<str>: Serial of InterfaceKit on which this channel is found.
         '''
@@ -177,7 +177,7 @@ class IOIndicator(BoxLayout):
         self.ioindex = ioindex
         self.devserial = devserial
         super(IOIndicator, self).__init__(**kwargs)
-        
+
         self.device_label.text = name + ' ' + str(ioindex)
         Clock.schedule_interval(self.check_status, 1)
         return
@@ -197,7 +197,7 @@ class IOIndicator(BoxLayout):
             newval = '{:.0f} Celsius'.format(newval)
         if 'relay' in self.name.lower():
             newval = 'OPEN' if val else 'CLOSED'
-            
+
         self.status_ind.text = newval
         return
 
@@ -206,44 +206,47 @@ class Relay(IOIndicator):
 
     def __init__(self, *args, **kwargs):
         super(Relay, self).__init__(*args, **kwargs)
-        
+
         btn = ToggleButton(text='Toggle Relay')
         btn.bind(state=self.check_relay_state)
         self.label_slot.add_widget(btn)
         return
-    
+
     def check_relay_state(self, instance, value):
         print 'My button <%s> state is <%s>' % (instance, value)
         return
+
 
 class LTCApp(App):
 
     def build(self):
         # The 'build' method is called when the object is run.
 
-        input_panel = InterfaceKitPanel(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
+        input_panel = InterfaceKitPanel(INTERFACEKIT888, WEBSERVICEIP,
+                                        WEBSERVICEPORT)
         # name, iotype, ioindex, devserial,
         sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
         sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
         sens5 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 5)
         sens6 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 6)
         sens7 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 7)
-        
+
         input_panel.add_widget(sens0)
         input_panel.add_widget(sens1)
         input_panel.add_widget(sens5)
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
-        
-        relay_panel = InterfaceKitPanel(devserial=INTERFACEKIT004, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
+
+        relay_panel = InterfaceKitPanel(INTERFACEKIT004, WEBSERVICEIP,
+                                        WEBSERVICEPORT)
         relay1 = Relay('Okay Relay', 'output', INTERFACEKIT004, 1)
         relay2 = Relay('Fancy Relay', 'output', INTERFACEKIT004, 2)
         relay3 = Relay('Nice Relay', 'output', INTERFACEKIT004, 3)
-        
+
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
         relay_panel.add_widget(relay3)
-        
+
         ltc = LTC()
         ltc.content.add_widget(input_panel)
         ltc.content.add_widget(relay_panel)
