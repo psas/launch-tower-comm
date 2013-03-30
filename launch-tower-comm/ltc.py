@@ -32,30 +32,30 @@ from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.extras.highlight import KivyLexer
 
 
-#~ global INTERFACEKIT888 
-#~ global INTERFACEKIT004 
+#~ global INTERFACEKIT888
+#~ global INTERFACEKIT004
 #~ global WEBSERVICEIP
 #~ global WEBSERVICEPORT
-#~ global inputs_dict
+#~ global app_dict
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
 WEBSERVICEIP = "192.168.128.250"
 WEBSERVICEPORT = 5001
-inputs_dict = dict()
+app_dict = dict()
 
 ########### Phidgets Setup ########
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
     attached = e.device
     ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
-    inputs_dict[ik] = "True"
+    app_dict[ik] = "True"
     print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
 
 def interfaceKitDetached(e):
     detached = e.device
     ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
-    inputs_dict[ik] = "False"
+    app_dict[ik] = "False"
     print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
 def interfaceKitError(e):
@@ -68,7 +68,7 @@ def interfaceKitError(e):
 def interfaceKitSensorChanged(e):
     source = e.device
     sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
-    inputs_dict[sensor] = str(e.value)
+    app_dict[sensor] = str(e.value)
     print("InterfaceKit %i: Sensor %i: %i" % (source.getSerialNum(), e.index, e.value))
 
 
@@ -78,14 +78,20 @@ class LTC(FloatLayout):
     # Loaded from the kv lang file
     pass
 
-class Inputs(BoxLayout):
-    
+class InterfaceKitPanel(BoxLayout):
+
     def __init__(self, devserial, IP, port, **kwargs):
         self.devserial = devserial
+        self.IP = IP
+        self.port = port
+        super(InterfaceKitPanel, self).__init__(**kwargs)
         
-        super(Inputs, self).__init__(**kwargs)
+        # Add extra column for a control indicator
+        if '259173' in str(self.devserial):
+            self.content.add_widget(VSeperator)
+            self.content.add_widget(MyLabel(text='Toggle it', font_size=20))
         
-        #Create an interfacekit object
+        # Create an interfacekit object
         try:
             interfaceKit = InterfaceKit()
         except RuntimeError as e:
@@ -102,16 +108,16 @@ class Inputs(BoxLayout):
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
             exit(1)
-            
+
         try:
-            interfaceKit.openRemoteIP(IP, port=port, serial=devserial)
+            interfaceKit.openRemoteIP(self.IP, port=self.port, serial=self.devserial)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
             exit(1)
-        
+
         print("Waiting for attach....")
-        
+
         try:
             interfaceKit.waitForAttach(10000)
         except PhidgetException as e:
@@ -124,70 +130,118 @@ class Inputs(BoxLayout):
                 exit(1)
             print("Exiting....")
             exit(1)
-        
+
         print("InterfaceKit Attached...")
+
         self.interfaceKit = interfaceKit
+        self.device_name = interfaceKit.getDeviceName()
         self.num_sensors = self.interfaceKit.getSensorCount()
-        print(self.num_sensors)
+        self.num_outputs = self.interfaceKit.getOutputCount()
+
         Clock.schedule_interval(self.check_status, 0.5)
-    
+        return
+
+
     def check_status(self, instance):
-        for index in range(self.num_sensors):
-            sensor = "{} Sensor {}".format(self.devserial, index)
-            inputs_dict[sensor] = self.interfaceKit.getSensorRawValue(index)
+        if '8/8/8' in self.device_name:
+            for index in xrange(self.num_sensors):
+                io = "{} SENSOR {}".format(self.devserial, index)
+                app_dict[io] = self.interfaceKit.getSensorRawValue(index)
+
+        if '0/0/4' in self.device_name:
+            for index in xrange(self.num_outputs):
+                io = "{} OUTPUT {}".format(self.devserial, index)
+                app_dict[io] = self.interfaceKit.getOutputState(index)
+        return
+
+
+
+class IOIndicator(BoxLayout):
+
+    def __init__(self, name, iotype, ioindex, devserial, **kwargs):
+        '''Indicator widget. Includes a name label, and status label.
         
-
-class Sensor(BoxLayout):
-    
-    def __init__(self, name, devserial, sensor_index, **kwargs):
-    
-        super(Sensor, self).__init__(**kwargs)
-        self.devserial = devserial
+        name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
+        iotype<str>:    Phidgets name for this channel. ex: "output" "sensor" "input"
+        ioindex<int>:   Channel index.
+        devserial<str>: Serial of InterfaceKit on which this channel is found.
+        '''
         self.name = name
-        self.device_label.text = name + ' ' + str(sensor_index)
-        self.sensor_index = sensor_index
-
+        self.iotype = iotype.upper()
+        self.ioindex = ioindex
+        self.devserial = devserial
+        super(IOIndicator, self).__init__(**kwargs)
+        
+        self.device_label.text = name + ' ' + str(ioindex)
         Clock.schedule_interval(self.check_status, 1)
+        return
 
     def check_status(self, instance):
-        '''Retrieves sensor values from internal dict, converts to proper units
+        '''Retrieves values from internal dict, converts to proper units
         and updates the sensor widget value display
         '''
-        
-        sensor = "{} Sensor {}".format(self.devserial, self.sensor_index)
-        val = inputs_dict[sensor]
-        
-        if 'voltage30' in self.name.lower():
+        io = "{} {} {}".format(self.devserial, self.iotype, self.ioindex)
+        val = app_dict[io]
+
+        if 'volt' in self.name.lower():
             newval = ((val / 200.0) - 2.5) / 0.0681
             newval = '{:.0f} V'.format(newval)
         if 'temp' in self.name.lower():
             newval = ((val / 4.095) * 0.22222) - 61.111
             newval = '{:.0f} Celsius'.format(newval)
+        if 'relay' in self.name.lower():
+            newval = 'OPEN' if val else 'CLOSED'
+            
         self.status_ind.text = newval
+        return
 
+
+class Relay(IOIndicator):
+
+    def __init__(self, **kwargs):
+        super(IOIndicator, self).__init__(**kwargs)
+        
+        btn = ToggleButton(text='Toggle Relay')
+        btn.bind(state=check_relay_state)
+        self.dev0.addwidget(btn)
+        return
+    
+    def check_relay_state(self, instance, value):
+        print 'My button <%s> state is <%s>' % (instance, value)
+        return
 
 class LTCApp(App):
 
     def build(self):
         # The 'build' method is called when the object is run.
 
-        inputs = Inputs(devserial=INTERFACEKIT888, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
+        input_panel = InterfaceKit(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
         sens0 = Sensor('Temperature', INTERFACEKIT888, 0)
         sens1 = Sensor('Voltage30', INTERFACEKIT888, 1)
         sens5 = Sensor('Voltage30', INTERFACEKIT888, 5)
         sens6 = Sensor('Voltage30', INTERFACEKIT888, 6)
         sens7 = Sensor('Voltage30', INTERFACEKIT888, 7)
         
-        inputs.add_widget(sens0)
-        inputs.add_widget(sens1)
-        inputs.add_widget(sens5)
-        inputs.add_widget(sens6)
-        inputs.add_widget(sens7)
-            
+        input_panel.add_widget(sens0)
+        input_panel.add_widget(sens1)
+        input_panel.add_widget(sens5)
+        input_panel.add_widget(sens6)
+        input_panel.add_widget(sens7)
+        
+        relay_panel = InterfaceKitPanel(devserial=INTERFACEKIT004, IP=WEBSERVICEIP, port=WEBSERVICEPORT)
+        relay1 = Relay('Okay Relay', INTERFACEKIT004, 1)
+        relay2 = Relay('Fancy Relay', INTERFACEKIT004, 2)
+        relay3 = Relay('Nice Relay', INTERFACEKIT004, 3)
+        
+        relay_panel.add_widget(relay1)
+        relay_panel.add_widget(relay2)
+        relay_panel.add_widget(relay3)
+        
         ltc = LTC()
-        ltc.content.add_widget(inputs) 
+        ltc.content.add_widget(input_panel)
+        ltc.content.add_widget(relay_panel)
         return ltc
-    
+
     def build_config(self, config):
         config.add_section('rocket')
         config.set('rocket', 'index', '0')
@@ -209,8 +263,4 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
-    Config.set('graphics', 'width', '600')
-    Config.set('graphics', 'height', '600')
-    Config.set('graphics', 'fullscreen', '1')
-    
     LTCApp().run()

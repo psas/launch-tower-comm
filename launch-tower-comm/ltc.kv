@@ -38,18 +38,19 @@
                 color: (1, 1, 1, .8)
                 text: 'Launch Tower Comm - Kivy %s' % kivy.__version__
 
-        FloatLayout:
+        BoxLayout:
             id: content
+            orientation: 'horizontal'
 
-<Inputs>:
-    #content: content
+<InterfaceKitPanel>:
+    labels: labels
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
     padding: 10        
-    id: content
     
     # COLUMN LABELS
     BoxLayout:
+        id: labels
         orientation: 'horizontal'
         padding: 10
         spacing: 10
@@ -65,7 +66,7 @@
             font_size: 20
 
 
-<Sensor>:
+<IOIndicator>:
     # In the next three lines, the name on the left is used in the
     # python code, the name on the right is used within this Object
     # definition. They do not have to be the same.
@@ -73,7 +74,7 @@
     status_ind: status_ind
 
     BoxLayout:
-        id: dev0
+        id: dev
 
         orientation: 'horizontal'
         padding: 10
@@ -93,23 +94,6 @@
                 Rectangle:
                     size: self.size
                     pos: self.pos
-            
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
