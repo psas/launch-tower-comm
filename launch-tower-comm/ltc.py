@@ -53,7 +53,7 @@ def inferfaceKitAttached(e):
 
 def interfaceKitDetached(e):
     detached = e.device
-    ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
+    ik = "InterfaceKit {} Attached".format(detached.getSerialNum())
     app_dict[ik] = "False"
     print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
@@ -145,7 +145,9 @@ class InterfaceKitPanel(BoxLayout):
         self.device_name = interfaceKit.getDeviceName()
         self.num_sensors = self.interfaceKit.getSensorCount()
         self.num_outputs = self.interfaceKit.getOutputCount()
-
+        # Voltage sensors are not ratiometric
+        if '8/8/8' in self.device_name:
+            interfaceKit.setRatiometric(False)
         Clock.schedule_interval(self.check_status, 0.5)
         return
 
@@ -153,7 +155,7 @@ class InterfaceKitPanel(BoxLayout):
         if '8/8/8' in self.device_name:
             for index in xrange(self.num_sensors):
                 io = "{} SENSOR {}".format(self.devserial, index)
-                app_dict[io] = self.interfaceKit.getSensorRawValue(index)
+                app_dict[io] = self.interfaceKit.getSensorValue(index)
 
         if '0/0/4' in self.device_name:
             for index in xrange(self.num_outputs):
@@ -190,7 +192,7 @@ class IOIndicator(BoxLayout):
         val = app_dict[io]
 
         if 'volt' in self.name.lower():
-            newval = ((val / 200.0) - 2.5) / 0.0681
+            newval = val / 13.62 - 36.7107
             newval = '{:.0f} V'.format(newval)
         if 'temp' in self.name.lower():
             newval = ((val / 4.095) * 0.22222) - 61.111
