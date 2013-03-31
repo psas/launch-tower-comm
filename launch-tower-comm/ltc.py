@@ -66,12 +66,12 @@ def interfaceKitError(e):
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
 
-
+# Maybe use this rather than polling?
 def interfaceKitSensorChanged(e):
     source = e.device
     sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
     app_dict[sensor] = str(e.value)
-    print("InterfaceKit %i: Sensor %i: %i"
+    print("InterfaceKit %i: SENSOR %i: %i"
           % (source.getSerialNum(), e.index, e.value))
 
 
@@ -196,7 +196,7 @@ class IOIndicator(BoxLayout):
             newval = ((val / 4.095) * 0.22222) - 61.111
             newval = '{:.0f} Celsius'.format(newval)
         if 'relay' in self.name.lower():
-            newval = 'OPEN' if val else 'CLOSED'
+            newval = 'CLOSED' if val else 'OPEN'
 
         self.status_ind.text = newval
         return
@@ -204,16 +204,20 @@ class IOIndicator(BoxLayout):
 
 class Relay(IOIndicator):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, ik, *args, **kwargs):
+        self.ikpanel = ik
         super(Relay, self).__init__(*args, **kwargs)
 
         btn = ToggleButton(text='Toggle Relay')
-        btn.bind(state=self.check_relay_state)
+        btn.bind(state=self.set_relay_state)
         self.label_slot.add_widget(btn)
         return
 
-    def check_relay_state(self, instance, value):
-        print 'My button <%s> state is <%s>' % (instance, value)
+    def set_relay_state(self, instance, value):
+        if value == 'down':
+            self.ikpanel.interfaceKit.setOutputState(self.ioindex, True)
+        elif value == 'normal':
+            self.ikpanel.interfaceKit.setOutputState(self.ioindex, False)
         return
 
 
@@ -224,7 +228,6 @@ class LTCApp(App):
 
         input_panel = InterfaceKitPanel(INTERFACEKIT888, WEBSERVICEIP,
                                         WEBSERVICEPORT)
-        # name, iotype, ioindex, devserial,
         sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
         sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
         sens5 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 5)
@@ -239,9 +242,9 @@ class LTCApp(App):
 
         relay_panel = InterfaceKitPanel(INTERFACEKIT004, WEBSERVICEIP,
                                         WEBSERVICEPORT)
-        relay1 = Relay('Okay Relay', 'output', INTERFACEKIT004, 1)
-        relay2 = Relay('Fancy Relay', 'output', INTERFACEKIT004, 2)
-        relay3 = Relay('Nice Relay', 'output', INTERFACEKIT004, 3)
+        relay1 = Relay(relay_panel, 'Okay Relay', 'output', INTERFACEKIT004, 1)
+        relay2 = Relay(relay_panel, 'Fancy Relay', 'output', INTERFACEKIT004, 2)
+        relay3 = Relay(relay_panel, 'Nice Relay', 'output', INTERFACEKIT004, 3)
 
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
