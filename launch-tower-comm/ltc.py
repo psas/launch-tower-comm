@@ -3,7 +3,7 @@
 '''ltc.py - the launch-tower-comm program.
 Runs on Phidgets and Kivy.
 
-Nearly all of the Phidgets code comes from
+Much of the Phidgets code comes from
 InterfaceKit-simple.py, written by Adam Stelmack of Phidgets Inc,
 Copyright 2010.  It is under the Creative Commons
 Attribution 2.5 Canada License.
