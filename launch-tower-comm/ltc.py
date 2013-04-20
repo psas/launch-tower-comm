@@ -6,8 +6,10 @@ Runs on Phidgets and Kivy.
 '''
 
 from ctypes import *
+from datetime import datetime
 import sys
 import random
+
 
 #Phidgets specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
@@ -24,6 +26,7 @@ from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
@@ -38,7 +41,7 @@ INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
 WEBSERVICEIP = "192.168.128.250"
 WEBSERVICEPORT = 5001
-app_dict = dict()
+central_dict = dict()
 
 ########### Phidgets Setup ########
 
@@ -46,15 +49,15 @@ app_dict = dict()
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
     attached = e.device
-    ik = "InterfaceKit {} Attached".format(attached.getSerialNum())
-    app_dict[ik] = "True"
+    ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
+    central_dict[ik] = "True"
     print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
 
 
 def interfaceKitDetached(e):
     detached = e.device
-    ik = "InterfaceKit {} Attached".format(detached.getSerialNum())
-    app_dict[ik] = "False"
+    ik = "{} InterfaceKit Attached".format(detached.getSerialNum())
+    central_dict[ik] = "False"
     print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
 
@@ -70,7 +73,7 @@ def interfaceKitError(e):
 def interfaceKitSensorChanged(e):
     source = e.device
     sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
-    app_dict[sensor] = str(e.value)
+    central_dict[sensor] = str(e.value)
     print("InterfaceKit %i: SENSOR %i: %i"
           % (source.getSerialNum(), e.index, e.value))
 
@@ -101,7 +104,7 @@ class InterfaceKitPanel(BoxLayout):
 
         # Create an interfacekit object
         try:
-            interfaceKit = InterfaceKit()
+            self.ik = InterfaceKit()
         except RuntimeError as e:
             print("Runtime Exception: %s" % e.details)
             print("Exiting....")
@@ -109,16 +112,16 @@ class InterfaceKitPanel(BoxLayout):
 
         # Set Event Handlers
         try:
-            interfaceKit.setOnAttachHandler(inferfaceKitAttached)
-            interfaceKit.setOnDetachHandler(interfaceKitDetached)
-            interfaceKit.setOnErrorhandler(interfaceKitError)
+            self.ik.setOnAttachHandler(inferfaceKitAttached)
+            self.ik.setOnDetachHandler(interfaceKitDetached)
+            self.ik.setOnErrorhandler(interfaceKitError)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
             exit(1)
 
         try:
-            interfaceKit.openRemoteIP(self.IP, self.port, self.devserial)
+            self.ik.openRemoteIP(self.IP, self.port, self.devserial)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             print("Exiting....")
@@ -127,11 +130,11 @@ class InterfaceKitPanel(BoxLayout):
         print("Waiting for attach....")
 
         try:
-            interfaceKit.waitForAttach(10000)
+            self.ik.waitForAttach(10000)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
             try:
-                interfaceKit.closePhidget()
+                self.ik.closePhidget()
             except PhidgetException as e:
                 print("Phidget Exception %i: %s" % (e.code, e.details))
                 print("Exiting....")
@@ -141,26 +144,34 @@ class InterfaceKitPanel(BoxLayout):
 
         print("InterfaceKit Attached...")
 
-        self.interfaceKit = interfaceKit
-        self.device_name = interfaceKit.getDeviceName()
-        self.num_sensors = self.interfaceKit.getSensorCount()
-        self.num_outputs = self.interfaceKit.getOutputCount()
+        self.device_name = self.ik.getDeviceName()
+        self.num_sensors = self.ik.getSensorCount()
+        self.num_outputs = self.ik.getOutputCount()
+
         # Voltage sensors are not ratiometric
         if '8/8/8' in self.device_name:
-            interfaceKit.setRatiometric(False)
+            self.ik.setRatiometric(False)
+
+        # Schedule sensor polling
         Clock.schedule_interval(self.check_status, 0.5)
+        Clock.schedule_interval(self.log_sensor_values, 1)
         return
 
     def check_status(self, instance):
         if '8/8/8' in self.device_name:
             for index in xrange(self.num_sensors):
                 io = "{} SENSOR {}".format(self.devserial, index)
-                app_dict[io] = self.interfaceKit.getSensorValue(index)
+                central_dict[io] = self.ik.getSensorValue(index)
 
         if '0/0/4' in self.device_name:
             for index in xrange(self.num_outputs):
                 io = "{} OUTPUT {}".format(self.devserial, index)
-                app_dict[io] = self.interfaceKit.getOutputState(index)
+                central_dict[io] = self.ik.getOutputState(index)
+        return
+
+    def log_sensor_values(self, instance):
+        for key, value in central_dict.iteritems():
+            Logger.info('{}: {}, {}'.format(key, value, datetime.now()))
         return
 
 
@@ -170,9 +181,9 @@ class IOIndicator(BoxLayout):
         '''Indicator widget. Includes a name label, and status label.
 
         name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
-        iotype<str>:    Phidget name for channel. ex: "output" "sensor" "input"
+        iotype<str>:    Phidget name for channel: "output" "sensor" "input"
         ioindex<int>:   Channel index.
-        devserial<str>: Serial of InterfaceKit on which this channel is found.
+        devserial<str>: Serial # of InterfaceKit where this channel is found.
         '''
         self.name = name
         self.iotype = iotype.upper()
@@ -189,7 +200,7 @@ class IOIndicator(BoxLayout):
         and updates the sensor widget value display
         '''
         io = "{} {} {}".format(self.devserial, self.iotype, self.ioindex)
-        val = app_dict[io]
+        val = central_dict[io]
 
         if 'volt' in self.name.lower():
             newval = val / 13.62 - 36.7107
@@ -217,9 +228,9 @@ class Relay(IOIndicator):
 
     def set_relay_state(self, instance, value):
         if value == 'down':
-            self.ikpanel.interfaceKit.setOutputState(self.ioindex, True)
+            self.ikpanel.ik.setOutputState(self.ioindex, True)
         elif value == 'normal':
-            self.ikpanel.interfaceKit.setOutputState(self.ioindex, False)
+            self.ikpanel.ik.setOutputState(self.ioindex, False)
         return
 
 
@@ -242,6 +253,7 @@ class LTCApp(App):
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
 
+
         relay_panel = InterfaceKitPanel(INTERFACEKIT004, WEBSERVICEIP,
                                         WEBSERVICEPORT)
         relay1 = Relay(relay_panel, 'Okay Relay', 'output', INTERFACEKIT004, 1)
@@ -251,6 +263,7 @@ class LTCApp(App):
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
         relay_panel.add_widget(relay3)
+
 
         ltc = LTC()
         ltc.content.add_widget(input_panel)
