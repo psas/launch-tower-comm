@@ -16,14 +16,14 @@ import sys
 import random
 
 
-#Phidgets specific imports
+# Phidgets specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
     ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
     SensorChangeEventArgs
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
-#Kivy specific imports
+# Kivy specific imports
 import kivy
 kivy.require('1.0.5')
 from kivy.app import App
@@ -50,62 +50,12 @@ central_dict = dict()
 
 ########### Phidgets Setup ########
 
+class LTCbackend(object):
 
-#Event Handler Callback Functions
-def inferfaceKitAttached(e):
-    attached = e.device
-    ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
-    central_dict[ik] = "True"
-    print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
-
-
-def interfaceKitDetached(e):
-    detached = e.device
-    ik = "{} InterfaceKit Attached".format(detached.getSerialNum())
-    central_dict[ik] = "False"
-    print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
-
-
-def interfaceKitError(e):
-    try:
-        source = e.device
-        print("InterfaceKit %i: Phidget Error %i: %s"
-              % (source.getSerialNum(), e.eCode, e.description))
-    except PhidgetException as e:
-        print("Phidget Exception %i: %s" % (e.code, e.details))
-
-# Maybe use this rather than polling?
-def interfaceKitSensorChanged(e):
-    source = e.device
-    sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
-    central_dict[sensor] = str(e.value)
-    print("InterfaceKit %i: SENSOR %i: %i"
-          % (source.getSerialNum(), e.index, e.value))
-
-
-########### KIVY Setup ############
-
-class LTC(FloatLayout):
-    # Loaded from the kv lang file
-    pass
-
-
-class InterfaceKitPanel(BoxLayout):
-
-    def __init__(self, devserial, IP, port, **kwargs):
+    def __init__(self, devserial, IP, port):
         self.devserial = devserial
         self.IP = IP
         self.port = port
-        super(InterfaceKitPanel, self).__init__(**kwargs)
-
-        # Add extra column for a control indicator
-        if '259173' in str(self.devserial):
-            # These widgets are from kv language templates.
-            # This instantiates them.
-            vsep = Builder.template('VSeparator')
-            lbl = Builder.template('MyLabel', text='Toggle it', font_size=20)
-            self.labels.add_widget(vsep)
-            self.labels.add_widget(lbl)
 
         # Create an interfacekit object
         try:
@@ -117,15 +67,10 @@ class InterfaceKitPanel(BoxLayout):
 
         # Set Event Handlers
         try:
-            self.ik.setOnAttachHandler(inferfaceKitAttached)
-            self.ik.setOnDetachHandler(interfaceKitDetached)
-            self.ik.setOnErrorhandler(interfaceKitError)
-        except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (e.code, e.details))
-            print("Exiting....")
-            exit(1)
+            self.ik.setOnAttachHandler(self.inferfaceKitAttached)
+            self.ik.setOnDetachHandler(self.interfaceKitDetached)
+            self.ik.setOnErrorhandler(self.interfaceKitError)
 
-        try:
             self.ik.openRemoteIP(self.IP, self.port, self.devserial)
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
@@ -134,20 +79,36 @@ class InterfaceKitPanel(BoxLayout):
 
         print("Waiting for attach....")
 
+
+    def close_ltc(self):  # TODO: this should probably be called somewhere
         try:
-            self.ik.waitForAttach(10000)
+            self.ik.closePhidget()
         except PhidgetException as e:
             print("Phidget Exception %i: %s" % (e.code, e.details))
-            try:
-                self.ik.closePhidget()
-            except PhidgetException as e:
-                print("Phidget Exception %i: %s" % (e.code, e.details))
-                print("Exiting....")
-                exit(1)
             print("Exiting....")
             exit(1)
 
-        print("InterfaceKit Attached...")
+    def check_status(self, instance):
+        if '8/8/8' in self.device_name:
+            for index in xrange(self.num_sensors):
+                io = "{} SENSOR {}".format(self.devserial, index)
+                central_dict[io] = self.ik.getSensorValue(index)
+
+        if '0/0/4' in self.device_name:
+            for index in xrange(self.num_outputs):
+                io = "{} OUTPUT {}".format(self.devserial, index)
+                central_dict[io] = self.ik.getOutputState(index)
+
+    def log_sensor_values(self, instance):
+        for key, value in central_dict.iteritems():
+            Logger.info('{}: {}, {}'.format(key, value, datetime.now()))
+
+    # Event Handler Callback Functions
+    def inferfaceKitAttached(self, e):
+        attached = e.device
+        ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
+        central_dict[ik] = "True"
+        print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
 
         self.device_name = self.ik.getDeviceName()
         self.num_sensors = self.ik.getSensorCount()
@@ -160,24 +121,51 @@ class InterfaceKitPanel(BoxLayout):
         # Schedule sensor polling
         Clock.schedule_interval(self.check_status, 0.5)
         Clock.schedule_interval(self.log_sensor_values, 1)
-        return
 
-    def check_status(self, instance):
-        if '8/8/8' in self.device_name:
-            for index in xrange(self.num_sensors):
-                io = "{} SENSOR {}".format(self.devserial, index)
-                central_dict[io] = self.ik.getSensorValue(index)
 
-        if '0/0/4' in self.device_name:
-            for index in xrange(self.num_outputs):
-                io = "{} OUTPUT {}".format(self.devserial, index)
-                central_dict[io] = self.ik.getOutputState(index)
-        return
+    def interfaceKitDetached(self, e):
+        detached = e.device
+        ik = "{} InterfaceKit Attached".format(detached.getSerialNum())
+        central_dict[ik] = "False"
+        print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
 
-    def log_sensor_values(self, instance):
-        for key, value in central_dict.iteritems():
-            Logger.info('{}: {}, {}'.format(key, value, datetime.now()))
-        return
+
+    def interfaceKitError(self, e):
+        try:
+            source = e.device
+            print("InterfaceKit %i: Phidget Error %i: %s"
+                  % (source.getSerialNum(), e.eCode, e.description))
+        except PhidgetException as e:
+            print("Phidget Exception %i: %s" % (e.code, e.details))
+
+    # Maybe use this rather than polling?
+    def interfaceKitSensorChanged(self, e):
+        source = e.device
+        sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
+        central_dict[sensor] = str(e.value)
+        print("InterfaceKit %i: SENSOR %i: %i"
+              % (source.getSerialNum(), e.index, e.value))
+
+########### KIVY Setup ############
+
+class LTC(FloatLayout):
+    # Loaded from the kv lang file
+    pass
+
+
+class InterfaceKitPanel(BoxLayout):
+
+    def __init__(self, devserial, **kwargs):
+        super(InterfaceKitPanel, self).__init__(**kwargs)
+
+        # Add extra column for a control indicator
+        if '259173' in str(devserial):
+            # These widgets are from kv language templates.
+            # This instantiates them.
+            vsep = Builder.template('VSeparator')
+            lbl = Builder.template('MyLabel', text='Toggle it', font_size=20)
+            self.labels.add_widget(vsep)
+            self.labels.add_widget(lbl)
 
 
 class IOIndicator(BoxLayout):
@@ -205,7 +193,10 @@ class IOIndicator(BoxLayout):
         and updates the sensor widget value display
         '''
         io = "{} {} {}".format(self.devserial, self.iotype, self.ioindex)
-        val = central_dict[io]
+        try:
+            val = central_dict[io]
+        except KeyError:
+            val = 0  # default value if sensor doesn't exist
 
         if 'volt' in self.name.lower():
             newval = val / 13.62 - 36.7107
@@ -244,8 +235,7 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the object is run.
 
-        input_panel = InterfaceKitPanel(INTERFACEKIT888, WEBSERVICEIP,
-                                        WEBSERVICEPORT)
+        input_panel = InterfaceKitPanel(INTERFACEKIT888)
         sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
         sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
         sens5 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 5)
@@ -259,8 +249,7 @@ class LTCApp(App):
         input_panel.add_widget(sens7)
 
 
-        relay_panel = InterfaceKitPanel(INTERFACEKIT004, WEBSERVICEIP,
-                                        WEBSERVICEPORT)
+        relay_panel = InterfaceKitPanel(INTERFACEKIT888)
         relay1 = Relay(relay_panel, 'Okay Relay', 'output', INTERFACEKIT004, 1)
         relay2 = Relay(relay_panel, 'Fancy Relay', 'output', INTERFACEKIT004, 2)
         relay3 = Relay(relay_panel, 'Nice Relay', 'output', INTERFACEKIT004, 3)
@@ -273,6 +262,8 @@ class LTCApp(App):
         ltc = LTC()
         ltc.content.add_widget(input_panel)
         ltc.content.add_widget(relay_panel)
+
+        LTCbackend(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
         return ltc
 
     def build_config(self, config):
