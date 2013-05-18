@@ -41,6 +41,7 @@ from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.extras.highlight import KivyLexer
 
+VERSION = '0.2'
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
@@ -148,9 +149,12 @@ class LTCbackend(object):
 
 ########### KIVY Setup ############
 
-class LTC(FloatLayout):
-    # Loaded from the kv lang file
-    pass
+class LTC(Widget):
+    # Loaded from the kv lang file and here.
+    app = ObjectProperty(None)
+    box_layout = ObjectProperty(None)
+    version = StringProperty(VERSION)
+    
 
 
 class InterfaceKitPanel(BoxLayout):
@@ -262,8 +266,8 @@ class LTCApp(App):
 
 
         ltc = LTC()
-        ltc.content.add_widget(input_panel)
-        ltc.content.add_widget(relay_panel)
+        ltc.box_layout.add_widget(input_panel)
+        ltc.box_layout.add_widget(relay_panel)
 
         return ltc
 
