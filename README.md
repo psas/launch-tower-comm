@@ -1,5 +1,9 @@
 # launch-tower-comm
 
+## Installation
+
+* `sudo pip install kivy`
+
 ## Dependencies
 
 * [Phidgets C library, Python module and Phidgets Webservice](http://www.phidgets.com/docs/Software_Overview#Operating_System_Support)
