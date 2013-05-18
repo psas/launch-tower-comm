@@ -44,7 +44,7 @@ from kivy.extras.highlight import KivyLexer
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
-WEBSERVICEIP = "192.168.128.250"
+WEBSERVICEIP = "192.168.128.251"
 WEBSERVICEPORT = 5001
 central_dict = dict()
 
@@ -201,9 +201,11 @@ class IOIndicator(BoxLayout):
         if 'volt' in self.name.lower():
             newval = val / 13.62 - 36.7107
             newval = '{:.0f} V'.format(newval)
+
         if 'temp' in self.name.lower():
             newval = ((val / 4.095) * 0.22222) - 61.111
             newval = '{:.0f} Celsius'.format(newval)
+
         if 'relay' in self.name.lower():
             newval = 'CLOSED' if val else 'OPEN'
 
@@ -213,8 +215,8 @@ class IOIndicator(BoxLayout):
 
 class Relay(IOIndicator):
 
-    def __init__(self, ik, *args, **kwargs):
-        self.ikpanel = ik
+    def __init__(self, ltcbackend, *args, **kwargs):
+        self.ltcbackend = ltcbackend
         super(Relay, self).__init__(*args, **kwargs)
 
         btn = ToggleButton(text='Toggle Relay')
@@ -224,16 +226,16 @@ class Relay(IOIndicator):
 
     def set_relay_state(self, instance, value):
         if value == 'down':
-            self.ikpanel.ik.setOutputState(self.ioindex, True)
+            self.ltcbackend.ik.setOutputState(self.ioindex, True)
         elif value == 'normal':
-            self.ikpanel.ik.setOutputState(self.ioindex, False)
+            self.ltcbackend.ik.setOutputState(self.ioindex, False)
         return
 
 
 class LTCApp(App):
 
     def build(self):
-        # The 'build' method is called when the object is run.
+        # The 'build' method is called when the app is run.
 
         input_panel = InterfaceKitPanel(INTERFACEKIT888)
         sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
@@ -248,12 +250,12 @@ class LTCApp(App):
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
 
+        relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
+        relay1 = Relay(relay_ik, 'Relay Foo', 'output', INTERFACEKIT004, 1)
+        relay2 = Relay(relay_ik, 'Relay Bar', 'output', INTERFACEKIT004, 2)
+        relay3 = Relay(relay_ik, 'Relay Baz', 'output', INTERFACEKIT004, 3)
 
-        relay_panel = InterfaceKitPanel(INTERFACEKIT888)
-        relay1 = Relay(relay_panel, 'Okay Relay', 'output', INTERFACEKIT004, 1)
-        relay2 = Relay(relay_panel, 'Fancy Relay', 'output', INTERFACEKIT004, 2)
-        relay3 = Relay(relay_panel, 'Nice Relay', 'output', INTERFACEKIT004, 3)
-
+        relay_panel = InterfaceKitPanel(INTERFACEKIT004)
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
         relay_panel.add_widget(relay3)
@@ -263,7 +265,6 @@ class LTCApp(App):
         ltc.content.add_widget(input_panel)
         ltc.content.add_widget(relay_panel)
 
-        LTCbackend(INTERFACEKIT888, WEBSERVICEIP, WEBSERVICEPORT)
         return ltc
 
     def build_config(self, config):
