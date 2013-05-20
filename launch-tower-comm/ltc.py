@@ -1,15 +1,33 @@
 #!/usr/bin/env python
 
-'''ltc.py - the launch-tower-comm program.
-Runs on Phidgets and Kivy.
+'''ltc.py
 
-Much of the Phidgets code comes from
-InterfaceKit-simple.py, written by Adam Stelmack of Phidgets Inc,
-Copyright 2010.  It is under the Creative Commons
+Copyright (C) 2013 John K. Boyle
+
+This file is part of launch-tower-comm.
+
+launch-tower-comm is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+launch-tower-comm is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with launch-tower-comm.  If not, see <http://www.gnu.org/licenses/>.
+
+Much of the Phidgets code comes from InterfaceKit-simple.py, written by Adam
+Stelmack of Phidgets Inc, Copyright 2010.  It is under the Creative Commons
 Attribution 2.5 Canada License.
 
+Some of the kv language code in ltc.kv is copied from IcarusTouch,
+written by Cyril Stoller, (C) 2011, under GPLv3.
+
 '''
-USE_PHIDGETS = False
+# USE_PHIDGETS = False
 
 
 from ctypes import *
@@ -296,4 +314,6 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
+    USE_PHIDGETS = True
+
     LTCApp().run()

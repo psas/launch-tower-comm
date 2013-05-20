@@ -12,16 +12,16 @@
 <LTC>:
     box_layout: box_layout
     settings_button: settings_button
-    
+
     FloatLayout:
         size: root.size
-        
+
         # Application name and Kivy Logo are on the top-left:
         BoxLayout:
             padding: 10
             spacing: 10
             size_hint: 1, None
-            pos_hint: {'top':1,}
+            pos_hint: {'top':1.,}
             height: 24
             Image:
                 size_hint: None, None
@@ -32,7 +32,7 @@
                 text_size: self.size
                 color: (1, 1, 1, .8)
                 text: 'Launch Tower Comm v%s- Kivy %s' % (root.version, kivy.__version__)
-        
+
         # Copyright and author name are on the bottom-left:
         Label:
             height: 24
@@ -40,7 +40,7 @@
             text_size: self.size
             color: (1, 1, 1, .8)
             text: '© 2013 by John Boyle'
-        
+
         # The two big buttons in the middle of the bottom:
         BoxLayout:
             height: 24
@@ -70,7 +70,7 @@
             Button:
                 id: settings_button
 
-        
+
         # Maybe we could also add an "Exit" button on the top-right?
         Button:
         	size_hint: None, None
@@ -79,7 +79,8 @@
         	pos_hint: {'right':0.98, 'top': 0.95}
         	text: "X"
         	on_press: root.app.stop()
-        
+
+        # Parent widget of the indicators
         BoxLayout
             id: box_layout
             orientation: 'horizontal'
@@ -92,7 +93,7 @@
     # This declaration will make "content" available externally
     content: content
     canvas:
-        Color: 
+        Color:
             rgb: 1, 1, 1
         Rectangle:
             source: 'data/images/background.jpg'
@@ -126,21 +127,21 @@
     labels: labels
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
-    padding: 10        
-    
+    padding: 10
+
     # COLUMN LABELS
     BoxLayout:
         id: labels
         orientation: 'horizontal'
         padding: 10
         spacing: 10
-        
+
         MyLabel:
             text: 'DEVICE'
             font_size: 20
-        
+
         VSeparator
-        
+
         MyLabel:
             text: 'Status'
             font_size: 20
@@ -211,7 +212,3 @@
         Rectangle:
             size: self.size
             pos: self.pos
-
-
-
-
