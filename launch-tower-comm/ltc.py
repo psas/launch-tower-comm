@@ -27,7 +27,8 @@ Some of the kv language code in ltc.kv is copied from IcarusTouch,
 written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
-# USE_PHIDGETS = False
+
+USE_PHIDGETS = False
 
 
 from ctypes import *
@@ -276,7 +277,11 @@ class LTCApp(App):
         input_panel.add_widget(sens7)
 
         #relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
-        relay_ik = Widget()
+        if USE_PHIDGETS:
+            relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
+        else:
+            relay_ik = Widget()
+
         relay1 = Relay(relay_ik, 'Relay Foo', 'output', INTERFACEKIT004, 1)
         relay2 = Relay(relay_ik, 'Relay Bar', 'output', INTERFACEKIT004, 2)
         relay3 = Relay(relay_ik, 'Relay Baz', 'output', INTERFACEKIT004, 3)
@@ -314,6 +319,6 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
-    USE_PHIDGETS = True
+    #USE_PHIDGETS = False
 
     LTCApp().run()
