@@ -9,6 +9,8 @@ Copyright 2010.  It is under the Creative Commons
 Attribution 2.5 Canada License.
 
 '''
+USE_PHIDGETS = False
+
 
 from ctypes import *
 from datetime import datetime
@@ -17,11 +19,12 @@ import random
 
 
 # Phidgets specific imports
-from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
-    ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
-    SensorChangeEventArgs
-from Phidgets.Devices.InterfaceKit import InterfaceKit
+if USE_PHIDGETS:
+    from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
+    from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
+        ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
+        SensorChangeEventArgs
+    from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 # Kivy specific imports
 import kivy
@@ -57,28 +60,28 @@ class LTCbackend(object):
         self.devserial = devserial
         self.IP = IP
         self.port = port
-
-        # Create an interfacekit object
-        try:
-            self.ik = InterfaceKit()
-        except RuntimeError as e:
-            print("Runtime Exception: %s" % e.details)
-            print("Exiting....")
-            exit(1)
+        if USE_PHIDGETS:
+            # Create an interfacekit object
+            try:
+                self.ik = InterfaceKit()
+            except RuntimeError as e:
+                print("Runtime Exception: %s" % e.details)
+                print("Exiting....")
+                exit(1)
 
         # Set Event Handlers
-        try:
-            self.ik.setOnAttachHandler(self.inferfaceKitAttached)
-            self.ik.setOnDetachHandler(self.interfaceKitDetached)
-            self.ik.setOnErrorhandler(self.interfaceKitError)
+            try:
+                self.ik.setOnAttachHandler(self.inferfaceKitAttached)
+                self.ik.setOnDetachHandler(self.interfaceKitDetached)
+                self.ik.setOnErrorhandler(self.interfaceKitError)
 
-            self.ik.openRemoteIP(self.IP, self.port, self.devserial)
-        except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (e.code, e.details))
-            print("Exiting....")
-            exit(1)
+                self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+            except PhidgetException as e:
+                print("Phidget Exception %i: %s" % (e.code, e.details))
+                print("Exiting....")
+                exit(1)
 
-        print("Waiting for attach....")
+            print("Waiting for attach....")
 
 
     def close_ltc(self):  # TODO: this should probably be called somewhere
@@ -154,7 +157,7 @@ class LTC(Widget):
     app = ObjectProperty(None)
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
-    
+
 
 
 class InterfaceKitPanel(BoxLayout):
@@ -254,7 +257,8 @@ class LTCApp(App):
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
 
-        relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
+        #relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
+        relay_ik = Widget()
         relay1 = Relay(relay_ik, 'Relay Foo', 'output', INTERFACEKIT004, 1)
         relay2 = Relay(relay_ik, 'Relay Bar', 'output', INTERFACEKIT004, 2)
         relay3 = Relay(relay_ik, 'Relay Baz', 'output', INTERFACEKIT004, 3)
