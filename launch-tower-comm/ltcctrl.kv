@@ -1,0 +1,61 @@
+#: import pop kivy.uix.popup.Popup
+#: import IgnitionPopup ltcctrl.IgnitionPopup
+#: import LTCAccordionItem ltcctrl.LTCAccordionItem
+<ltcctrl>
+    armed: armed
+    unarmed: unarmed
+    shorepower: shorepower
+    reset: reset
+    ignite: ignite
+    FloatLayout:
+        size: root.size
+        Accordion:
+            AccordionItem:
+                id: unarmed
+                title: 'Unarmed'
+                collapse: False
+                BoxLayout:
+                    orientation: 'vertical'
+                    ToggleButton:
+                        text: 'Enable Shore Power'
+                        group: 'Shore Power'
+                        on_release:  root.shorepowerfunc(False)
+                    ToggleButton:
+                        id: shorepower
+                        text: 'Disable Shore Power'
+                        group: 'Shore Power'
+                        state: 'down'
+                        on_release: root.shorepowerfunc(False)
+                    Button:
+                        text: 'Arm'
+                        on_release: if shorepower.state == 'down': root.armed.collapse = False
+            LTCAccordionItem:
+                id: armed
+                title: 'Armed'
+                on_collapse: root.on_armed_collapse(self.collapse)
+                BoxLayout:
+                    orientation: 'vertical'
+                    Button:
+                        id: reset
+                        text: 'Abort'
+                        on_release: root.unarmed.collapse = False
+                    ToggleButton:
+                        id: ignite
+                        text: 'Ignite'
+                        on_release: root.on_ignite()
+                        
+<IgnitionPopup>
+    size: root.size
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Are you sure you want to launch the rocket?"
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                text: 'Cancel'
+                on_release: root.abort(), root.dismiss()
+            Button:
+                text: 'Ignite'
+                on_release: root.ignitefunc(), root.dismiss()
+

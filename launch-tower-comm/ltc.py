@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+
+# TODO: start phidgets service on startup
 '''ltc.py
 
 Copyright (C) 2013 John K. Boyle
@@ -28,23 +30,15 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
-USE_PHIDGETS = False
-
-
 from ctypes import *
 from datetime import datetime
 import sys
 import random
+# import logging
+from kivy.logger import Logger
+# logging.root = Logger  # Make kivy play nice with python logging module
 
-
-# Phidgets specific imports
-if USE_PHIDGETS:
-    from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-    from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
-        ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
-        SensorChangeEventArgs
-    from Phidgets.Devices.InterfaceKit import InterfaceKit
-
+from ltcbackend import LTCbackend
 # Kivy specific imports
 import kivy
 kivy.require('1.0.5')
@@ -53,7 +47,7 @@ from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.logger import Logger
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
@@ -62,6 +56,8 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 from kivy.extras.highlight import KivyLexer
+
+
 
 VERSION = '0.2'
 
@@ -73,101 +69,7 @@ central_dict = dict()
 
 ########### Phidgets Setup ########
 
-class LTCbackend(object):
 
-    def __init__(self, devserial, IP, port):
-        self.devserial = devserial
-        self.IP = IP
-        self.port = port
-        if USE_PHIDGETS:
-            # Create an interfacekit object
-            try:
-                self.ik = InterfaceKit()
-            except RuntimeError as e:
-                print("Runtime Exception: %s" % e.details)
-                print("Exiting....")
-                exit(1)
-
-        # Set Event Handlers
-            try:
-                self.ik.setOnAttachHandler(self.inferfaceKitAttached)
-                self.ik.setOnDetachHandler(self.interfaceKitDetached)
-                self.ik.setOnErrorhandler(self.interfaceKitError)
-
-                self.ik.openRemoteIP(self.IP, self.port, self.devserial)
-            except PhidgetException as e:
-                print("Phidget Exception %i: %s" % (e.code, e.details))
-                print("Exiting....")
-                exit(1)
-
-            print("Waiting for attach....")
-
-
-    def close_ltc(self):  # TODO: this should probably be called somewhere
-        try:
-            self.ik.closePhidget()
-        except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (e.code, e.details))
-            print("Exiting....")
-            exit(1)
-
-    def check_status(self, instance):
-        if '8/8/8' in self.device_name:
-            for index in xrange(self.num_sensors):
-                io = "{} SENSOR {}".format(self.devserial, index)
-                central_dict[io] = self.ik.getSensorValue(index)
-
-        if '0/0/4' in self.device_name:
-            for index in xrange(self.num_outputs):
-                io = "{} OUTPUT {}".format(self.devserial, index)
-                central_dict[io] = self.ik.getOutputState(index)
-
-    def log_sensor_values(self, instance):
-        for key, value in central_dict.iteritems():
-            Logger.info('{}: {}, {}'.format(key, value, datetime.now()))
-
-    # Event Handler Callback Functions
-    def inferfaceKitAttached(self, e):
-        attached = e.device
-        ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
-        central_dict[ik] = "True"
-        print("InterfaceKit %i Attached!" % (attached.getSerialNum()))
-
-        self.device_name = self.ik.getDeviceName()
-        self.num_sensors = self.ik.getSensorCount()
-        self.num_outputs = self.ik.getOutputCount()
-
-        # Voltage sensors are not ratiometric
-        if '8/8/8' in self.device_name:
-            self.ik.setRatiometric(False)
-
-        # Schedule sensor polling
-        Clock.schedule_interval(self.check_status, 0.5)
-        Clock.schedule_interval(self.log_sensor_values, 1)
-
-
-    def interfaceKitDetached(self, e):
-        detached = e.device
-        ik = "{} InterfaceKit Attached".format(detached.getSerialNum())
-        central_dict[ik] = "False"
-        print("InterfaceKit %i Detached!" % (detached.getSerialNum()))
-
-
-    def interfaceKitError(self, e):
-        try:
-            source = e.device
-            print("InterfaceKit %i: Phidget Error %i: %s"
-                  % (source.getSerialNum(), e.eCode, e.description))
-        except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (e.code, e.details))
-
-    # Maybe use this rather than polling?
-    def interfaceKitSensorChanged(self, e):
-        source = e.device
-        sensor = "{} Sensor {}".format(source.getSerialNum(), e.index)
-        central_dict[sensor] = str(e.value)
-        print("InterfaceKit %i: SENSOR %i: %i"
-              % (source.getSerialNum(), e.index, e.value))
 
 ########### KIVY Setup ############
 
@@ -241,8 +143,8 @@ class IOIndicator(BoxLayout):
 
 class Relay(IOIndicator):
 
-    def __init__(self, ltcbackend, *args, **kwargs):
-        self.ltcbackend = ltcbackend
+    def __init__(self, action, *args, **kwargs):
+        self.action = action
         super(Relay, self).__init__(*args, **kwargs)
 
         btn = ToggleButton(text='Toggle Relay')
@@ -251,18 +153,20 @@ class Relay(IOIndicator):
         return
 
     def set_relay_state(self, instance, value):
-        if value == 'down':
-            self.ltcbackend.ik.setOutputState(self.ioindex, True)
-        elif value == 'normal':
-            self.ltcbackend.ik.setOutputState(self.ioindex, False)
-        return
-
+        try:
+            if value == 'down':
+                self.action(True)
+            elif value == 'normal':
+                self.action(False)
+        except PhidgetException:
+            pass
 
 class LTCApp(App):
 
     def build(self):
         # The 'build' method is called when the app is run.
-
+        backend = LTCbackend(central_dict)
+        self.bind(on_stop=backend.close)
         input_panel = InterfaceKitPanel(INTERFACEKIT888)
         sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
         sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
@@ -276,15 +180,10 @@ class LTCApp(App):
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
 
-        #relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
-        if USE_PHIDGETS:
-            relay_ik = LTCbackend(INTERFACEKIT004, WEBSERVICEIP, WEBSERVICEPORT)
-        else:
-            relay_ik = Widget()
-
-        relay1 = Relay(relay_ik, 'Relay Foo', 'output', INTERFACEKIT004, 1)
-        relay2 = Relay(relay_ik, 'Relay Bar', 'output', INTERFACEKIT004, 2)
-        relay3 = Relay(relay_ik, 'Relay Baz', 'output', INTERFACEKIT004, 3)
+        action = backend.relay.setIgnitionRelayState
+        relay1 = Relay(action, 'Relay Foo', 'output', INTERFACEKIT004, 1)
+        relay2 = Relay(action, 'Relay Bar', 'output', INTERFACEKIT004, 2)
+        relay3 = Relay(action, 'Relay Baz', 'output', INTERFACEKIT004, 3)
 
         relay_panel = InterfaceKitPanel(INTERFACEKIT004)
         relay_panel.add_widget(relay1)
@@ -319,6 +218,8 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
-    #USE_PHIDGETS = False
+#     for a in dir(Logger):
+#         print a
 
+#     logging.basicConfig(level=logging.INFO)
     LTCApp().run()
