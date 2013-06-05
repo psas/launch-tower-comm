@@ -11,7 +11,7 @@ from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.uix.accordion import AccordionItem
+from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
@@ -34,9 +34,10 @@ class LTCAccordionItem(AccordionItem):
 
 # TODO: exception safe. On exception don't change gui state
 
-class ltcctrl(Widget):
-    def __init__(self, ignite, shorepower, **kwargs):
+class ltcctrl(Accordion):
+    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, **kwargs):
         super(ltcctrl, self).__init__(**kwargs)
+        self.unarmed.collapse = False
         self.ignitefunc = ignite
         self.spfunc = shorepower
 

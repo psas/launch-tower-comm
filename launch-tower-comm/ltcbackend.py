@@ -9,6 +9,7 @@ from datetime import datetime
 import sys
 import random
 import time
+# kivy logger because kivy breaks with normal python logger
 from kivy.logger import Logger
 # import logging
 # log = Logger.getLogger(__name__)
@@ -16,31 +17,8 @@ from kivy.logger import Logger
 log = Logger
 
 # Phidgets specific imports
-from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
-    ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, \
-    SensorChangeEventArgs
+from Phidgets.PhidgetException import PhidgetException
 from Phidgets.Devices.InterfaceKit import InterfaceKit
-
-
-# # Kivy specific imports
-import kivy
-kivy.require('1.0.5')
-from kivy.app import App
-from kivy.clock import Clock
-from kivy.config import Config, ConfigParser
-from kivy.core.window import Window
-from kivy.lang import Builder
-# from kivy.logger import Logger
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.label import Label
-from kivy.properties import *
-from kivy.extras.highlight import KivyLexer
-from kivy.graphics import *
 
 ########### Phidgets Setup ########
 
@@ -75,7 +53,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+#         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -125,7 +103,7 @@ class TemperatureSensor(Sensor):
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
     devserial = 178346
-    IP = "192.168.128.251"
+    IP = "192.168.128.250"
     port = 5001
 
     output24v = 1
@@ -163,7 +141,7 @@ class CorePhidget(LTCPhidget):
 class IgnitionRelay(LTCPhidget):
     # Interface Kit 0/0/4 with relays
     devserial = 259173
-    IP = "192.168.128.251"
+    IP = "192.168.128.250"
     port = 5001
     relay_index = 1
 
@@ -243,89 +221,3 @@ class LTCbackend(object):
 
     def shorepower(self, state):
         self.core.set24vState(state)
-
-class RelayLabel(Label):
-    # TODO: ref Error, on click pop up detailed description
-    background_color = ListProperty([1, 1, 1, 1])
-    states = {"Detached": [1, 1, 1, 1],
-            "Thinking": [0, 1, 1, 1],
-            "Open": [0, 1, .5, 1],
-            "Closed": [1, 0, 0, 1],
-            "Error": [1, 1, 0, 1]}
-    def __init__(self, **kwargs):
-        super(RelayLabel, self).__init__(**kwargs)
-        self.set_state("Detached")
-
-    def set_state(self, state):
-        self.background_color = self.states[state]
-        if state == "Thinking":
-            self.text = ""
-        else:
-            self.text = state
-
-    def on_attach(self, event):
-        self.set_state("Thinking")
-
-    def on_detach(self, event):
-        self.set_state("Detached")
-
-    def on_output_changed(self, event):
-        if event.state:
-            self.set_state("Open")
-        else:
-            self.set_state("Closed")
-
-    def on_error(self, event):
-        self.set_state("Error")
-
-    def on_button(self, event):
-        self.set_state("Thinking")
-
-class ltcbackendApp(App):
-    def build(self):
-        box = BoxLayout()
-        rl = RelayLabel()
-        button = Button(text="Toggle Relay")
-        ir = IgnitionRelay(attach=rl.on_attach,
-                           detach=rl.on_detach,
-                           output=rl.on_output_changed,
-                           error=rl.on_error)
-        button.bind(on_press=ir.toggleIgnitionRelayState)
-        box.add_widget(rl)
-        box.add_widget(button)
-
-        def on_stop_event(event):
-            ir.close()
-        self.bind(on_stop=on_stop_event)
-
-        return box
-
-if __name__ == '__main__':
-
-    ltcbackendApp().run()
-#     print "starting"
-#     a = CorePhidget()
-#     while not a.ik.isAttached():
-#         pass
-#     a.ik.setRatiometric(True)
-#     for i in range(2):
-#         print (a.ik.getSensorValue(0) * 2 / 9) - 61.111
-# #         print (a.ik.getSensorValue(0) / 200 - 2.5) / 0.0681
-#         time.sleep(1)
-#
-#     a.close()
-#
-#     a = Relays()
-#     while not a.isAttached():
-#         pass
-#
-#     time.sleep(100)
-#     a.closePhidget()
-#     time.sleep(1)
-#     try:
-#         pass
-# #         a.print_info()
-# #         a.test_outstate()
-#     finally:
-#         a.close_ltc()
-

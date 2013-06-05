@@ -39,6 +39,7 @@ from kivy.logger import Logger
 # logging.root = Logger  # Make kivy play nice with python logging module
 
 from ltcbackend import LTCbackend
+from ltcctrl import ltcctrl
 # Kivy specific imports
 import kivy
 kivy.require('1.0.5')
@@ -55,9 +56,8 @@ from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.label import Label
 from kivy.uix.image import AsyncImage
-from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
+from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.extras.highlight import KivyLexer
-
 
 
 VERSION = '0.2'
@@ -80,6 +80,43 @@ class LTC(Widget):
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
 
+
+class RelayLabel(Label):
+    # TODO: ref Error, on click pop up detailed description
+    background_color = ListProperty([1, 1, 1, 1])
+    states = {"Detached": [1, 1, 1, 1],
+            "Thinking": [0, 1, 1, 1],
+            "Open": [0, 1, .5, 1],
+            "Closed": [1, 0, 0, 1],
+            "Error": [1, 1, 0, 1]}
+    def __init__(self, **kwargs):
+        super(RelayLabel, self).__init__(**kwargs)
+        self.set_state("Detached")
+
+    def set_state(self, state):
+        self.background_color = self.states[state]
+        if state == "Thinking":
+            self.text = ""
+        else:
+            self.text = state
+
+    def on_attach(self, event):
+        self.set_state("Thinking")
+
+    def on_detach(self, event):
+        self.set_state("Detached")
+
+    def on_output_changed(self, event):
+        if event.state:
+            self.set_state("Open")
+        else:
+            self.set_state("Closed")
+
+    def on_error(self, event):
+        self.set_state("Error")
+
+    def on_button(self, event):
+        self.set_state("Thinking")
 
 
 class InterfaceKitPanel(BoxLayout):
@@ -166,6 +203,7 @@ class LTCApp(App):
 
     def build(self):
         # The 'build' method is called when the app is run.
+        Builder.load_file("ltcctrl.kv")
         backend = LTCbackend(central_dict)
         self.bind(on_stop=backend.close)
         input_panel = InterfaceKitPanel(INTERFACEKIT888)
@@ -194,10 +232,13 @@ class LTCApp(App):
         ltc = LTC()
         ltc.indicators.add_widget(input_panel)
         ltc.indicators.add_widget(relay_panel)
-        
+        ltc.toplayout.add_widget(ltcctrl())
+
         for i in range(10):
-            src = "http://placehold.it/480x270.png&text=StateInfo-%d&.png" % i
-            image = AsyncImage(source=src, allow_stretch=True)
+            src = "http://placekitten.com/g/480/270"
+#             src = "http://placehold.it/480x270.png&text=StateInfo-%d&.png" % i
+# AsyncImage(source=src, allow_stretch=True)
+            image = Label(text="State Info - %d" % i, font_size=40)
             ltc.status_info.add_widget(image)
 
         return ltc

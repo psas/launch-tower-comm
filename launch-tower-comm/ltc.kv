@@ -11,9 +11,9 @@
 # Derived from the Kivy Showcase example
 <LTC>:
     status_info: status_info
-    controls: controls
+#    controls: controls
     indicators: indicators
-
+    toplayout: toplayout
     BoxLayout:
         size: root.size
         orientation: 'vertical'
@@ -22,6 +22,7 @@
 
         # Parent widget of the status info and the indicators
         BoxLayout:
+            id:toplayout
             orientation: 'horizontal'
             padding: 5
             size_hint_x: 1
@@ -31,12 +32,11 @@
             Carousel:
                 id: status_info
                 direction: 'right'
-                loop: True
-
-            Label
-                id: controls
-                font_size: 40
-                text: 'CONTROLS'
+                loop: True            
+#            Label:
+#                id: controls
+#                font_size: 40
+#                text: 'CONTROLS'
                 
         HSeparator
         
@@ -160,6 +160,22 @@
                 Rectangle:
                     size: self.size
                     pos: self.pos
+
+
+<RelayLabel>:
+    canvas:
+        Color:
+            rgba: self.background_color
+        BorderImage:
+            pos: self.pos
+            size: self.size
+            source: 'atlas://data/images/defaulttheme/button'
+        Color:
+            rgba: self.color
+        Rectangle:
+            texture: self.texture
+            size: self.texture_size
+            pos: int(self.center_x - self.texture_size[0] / 2.), int(self.center_y - self.texture_size[1] / 2.)
 
 
 # From the Kivy Showcase example
