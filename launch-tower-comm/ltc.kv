@@ -10,83 +10,69 @@
 # Root widget description:
 # Derived from the Kivy Showcase example
 <LTC>:
-    box_layout: box_layout
-    settings_button: settings_button
+    status_info: status_info
+    controls: controls
+    indicators: indicators
 
-    FloatLayout:
+    BoxLayout:
         size: root.size
+        orientation: 'vertical'
+        padding: 5
+        spacing: 10
 
-        # Application name and Kivy Logo are on the top-left:
+        # Parent widget of the status info and the indicators
         BoxLayout:
-            padding: 10
-            spacing: 10
-            size_hint: 1, None
-            pos_hint: {'top':1.,}
-            height: 24
+            orientation: 'horizontal'
+            padding: 5
+            size_hint_x: 1
+            size_hint_y: 0.45
+            pos_hint: {'x': 0, 'center_y': 0.5}
+
+            Carousel:
+                id: status_info
+                direction: 'right'
+                loop: True
+
+            Label
+                id: controls
+                font_size: 40
+                text: 'CONTROLS'
+                
+        HSeparator
+        
+        # Parent widget of the indicators
+        BoxLayout:
+            id: indicators
+            orientation: 'horizontal'
+            size_hint_x: 1
+            size_hint_y: 0.45
+        
+        HSeparator
+        # Application name, Kivy Logo, and Copyright
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.04
+            #height: 24
             Image:
                 size_hint: None, None
                 size: 24, 24
                 source: 'data/logo/kivy-icon-32.png'
             Label:
                 height: 24
-                text_size: self.size
+                size_hint: 0.5, None
+                text_size: (None, 24)
                 color: (1, 1, 1, .8)
                 text: 'Launch Tower Comm v%s- Kivy %s' % (root.version, kivy.__version__)
+            Label:
+                height: 24
+                size_hint: 0.5, None
+            Label:
+                height: 24
+                size_hint: 0.5, None
+                text_size: self.size
+                color: (1, 1, 1, .8)
+                text: '© 2013 by John Boyle and Theo Hill'
 
-        # Copyright and author name are on the bottom-left:
-        Label:
-            height: 24
-            pos: 10, 10
-            text_size: self.size
-            color: (1, 1, 1, .8)
-            text: '© 2013 by John Boyle'
-
-        # The two big buttons in the middle of the bottom:
-        BoxLayout:
-            height: 24
-            spacing: 30
-            padding: 10
-            size_hint_y: 0.18
-            size_hint_x: None
-            #width: 2*(self.height - 2*self.padding) + self.spacing + 2*self.padding
-            pos_hint: {'center_x':0.5}
-            ToggleButton:
-                id: pitch_lock_button
-            ToggleButton:
-                id: y_axis_volume_button
-
-        # The two little buttons on the bottom-right:
-        BoxLayout:
-            height: 24
-            spacing: 15
-            padding: 10
-            size_hint_y: 0.15
-            size_hint_x: None
-            #width: 2*(self.height - 2*self.padding) + self.spacing + 2*self.padding
-            pos_hint: {'right':1}
-            Button:
-                id: look_button
-
-            Button:
-                id: settings_button
-
-
-        # Maybe we could also add an "Exit" button on the top-right?
-        Button:
-        	size_hint: None, None
-        	width: root.width / 30
-        	height: self.width
-        	pos_hint: {'right':0.98, 'top': 0.95}
-        	text: "X"
-        	on_press: root.app.stop()
-
-        # Parent widget of the indicators
-        BoxLayout
-            id: box_layout
-            orientation: 'horizontal'
-            size_hint_x: 1
-            size_hint_y: 0.7
-            pos_hint: {'x': 0, 'center_y': 0.5}
 
 # The custom settingspanel for the appearance settings:
 <MySettingsPanel>:
@@ -123,17 +109,18 @@
             id: content
             orientation: 'horizontal'
 
+
 <InterfaceKitPanel>:
     labels: labels
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
-    padding: 10
+    padding: 5
 
     # COLUMN LABELS
     BoxLayout:
         id: labels
         orientation: 'horizontal'
-        padding: 10
+        padding: 5
         spacing: 10
 
         MyLabel:
@@ -156,7 +143,7 @@
         id: label_slot
 
         orientation: 'horizontal'
-        padding: 10
+        padding: 5
         spacing: 10
 
         MyLabel:
@@ -188,13 +175,13 @@
 
 # From the Kivy Showcase example
 [HSeparator@Widget]:
-    size_hint_y: None
+    size_hint_y: 0.005
     width: 1
     canvas:
         Color:
-            rgba: .8, .8, .8, .3
+            rgba: .8, .8, .8, .9
         Rectangle:
-            size: self.width, 10
+            size: self.width * 0.99, 2
             pos: self.x, self.center_y
 
 # Derived from the Kivy Showcase example
