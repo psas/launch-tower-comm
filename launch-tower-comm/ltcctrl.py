@@ -1,14 +1,8 @@
 
 import kivy
 kivy.require('1.0.5')
-from kivy.app import App
 from kivy.uix.accordion import Accordion, AccordionItem
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from kivy.clock import Clock
 
 from Phidgets.PhidgetException import PhidgetException
 
@@ -19,6 +13,20 @@ class LTCAccordionItem(AccordionItem):
         if not self.collide_point(*touch.pos):
             return
         return super(AccordionItem, self).on_touch_down(touch)
+
+class IgnitionPopup(Popup):
+    def __init__(self, ignite, abort, **kwargs):
+        self.ignite = ignite
+        self.abort = abort
+        super(IgnitionPopup, self).__init__(auto_dismiss=False, **kwargs)
+
+    def ignitefunc(self):
+        try:
+            self.ignite(True)
+        except PhidgetException:
+            self.abort()
+
+# TODO: change button state on callback from ltcbackend
 
 class LTCctrl(Accordion):
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, **kwargs):
@@ -56,26 +64,21 @@ class LTCctrl(Accordion):
         except PhidgetException:
             button.state = 'normal'
 
-class IgnitionPopup(Popup):
-    def __init__(self, ignite, abort, **kwargs):
-        self.ignite = ignite
-        self.abort = abort
-        super(IgnitionPopup, self).__init__(**kwargs)
+#########Module test########
 
-    def ignitefunc(self):
-        try:
-            self.ignite(True)
-        except PhidgetException:
-            pass
-            self.abort()
-
+import sys
+from kivy.app import App
 class ltcctrlApp(App):
     def build(self):
-        cdict = dict()
-        ltc = LTCbackend(cdict)
-
-        return LTCctrl(ltc.ignite, ltc.shorepower)
-
+        try:
+            if sys.argv[1] == '-t':
+                cdict = dict()
+                ltc = LTCbackend(cdict)
+                return LTCctrl(ltc.ignite, ltc.shorepower)
+            else:
+                return LTCctrl()
+        except IndexError:
+            return LTCctrl()
 
 if __name__ == '__main__':
     ltcctrlApp().run()
