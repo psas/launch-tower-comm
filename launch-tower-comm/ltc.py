@@ -39,7 +39,7 @@ from kivy.logger import Logger
 # logging.root = Logger  # Make kivy play nice with python logging module
 
 from ltcbackend import LTCbackend
-from ltcctrl import ltcctrl
+from ltcctrl import LTCctrl
 # Kivy specific imports
 import kivy
 kivy.require('1.0.5')
@@ -124,16 +124,6 @@ class InterfaceKitPanel(BoxLayout):
     def __init__(self, devserial, **kwargs):
         super(InterfaceKitPanel, self).__init__(**kwargs)
 
-        # Add extra column for a control indicator
-        if '259173' in str(devserial):
-            # These widgets are from kv language templates.
-            # This instantiates them.
-            vsep = Builder.template('VSeparator')
-            lbl = Builder.template('MyLabel', text='Toggle it', font_size=20)
-            self.labels.add_widget(vsep)
-            self.labels.add_widget(lbl)
-
-
 class IOIndicator(BoxLayout):
 
     def __init__(self, name, iotype, devserial, ioindex, **kwargs):
@@ -178,27 +168,6 @@ class IOIndicator(BoxLayout):
         self.status_ind.text = newval
         return
 
-
-class Relay(IOIndicator):
-
-    def __init__(self, action, *args, **kwargs):
-        self.action = action
-        super(Relay, self).__init__(*args, **kwargs)
-
-        btn = ToggleButton(text='Toggle Relay')
-        btn.bind(state=self.set_relay_state)
-        self.label_slot.add_widget(btn)
-        return
-
-    def set_relay_state(self, instance, value):
-        try:
-            if value == 'down':
-                self.action(True)
-            elif value == 'normal':
-                self.action(False)
-        except PhidgetException:
-            pass
-
 class LTCApp(App):
 
     def build(self):
@@ -219,10 +188,9 @@ class LTCApp(App):
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
 
-        action = backend.relay.setIgnitionRelayState
-        relay1 = Relay(action, 'Relay Foo', 'output', INTERFACEKIT004, 1)
-        relay2 = Relay(action, 'Relay Bar', 'output', INTERFACEKIT004, 2)
-        relay3 = Relay(action, 'Relay Baz', 'output', INTERFACEKIT004, 3)
+        relay1 = IOIndicator('Relay Foo', 'output', INTERFACEKIT004, 1)
+        relay2 = IOIndicator('Relay Bar', 'output', INTERFACEKIT004, 2)
+        relay3 = IOIndicator('Relay Baz', 'output', INTERFACEKIT004, 3)
 
         relay_panel = InterfaceKitPanel(INTERFACEKIT004)
         relay_panel.add_widget(relay1)
@@ -232,10 +200,10 @@ class LTCApp(App):
         ltc = LTC()
         ltc.indicators.add_widget(input_panel)
         ltc.indicators.add_widget(relay_panel)
-        ltc.toplayout.add_widget(ltcctrl())
+        ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower))
 
         for i in range(10):
-            src = "http://placekitten.com/g/480/270"
+#             src = "http://placekitten.com/g/480/270"
 #             src = "http://placehold.it/480x270.png&text=StateInfo-%d&.png" % i
 # AsyncImage(source=src, allow_stretch=True)
             image = Label(text="State Info - %d" % i, font_size=40)
