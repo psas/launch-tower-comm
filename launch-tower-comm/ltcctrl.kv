@@ -1,13 +1,11 @@
-#: import pop kivy.uix.popup.Popup
-#: import IgnitionPopup ltcctrl.IgnitionPopup
 #: import LTCAccordionItem ltcctrl.LTCAccordionItem
 
 <ltcctrl>
     armed: armed
     unarmed: unarmed
-    shorepower: shorepower
+    shorepower_button: shorepower_button
     reset: reset
-    ignite: ignite
+    ignite_button: ignite_button
     AccordionItem:
         font_size: 40
         id: unarmed
@@ -18,33 +16,32 @@
                 font_size: 40
                 text: 'Enable Shore Power'
                 group: 'Shore Power'
-                on_release:  root.shorepowerfunc(False)
+                on_release:  root.on_shorepower(self, True)
             ToggleButton:
                 font_size: 40
-                id: shorepower
+                id: shorepower_button
                 text: 'Disable Shore Power'
                 group: 'Shore Power'
                 state: 'down'
-                on_release: root.shorepowerfunc(False)
+                on_release: root.on_shorepower(self, False)
             Button:
                 font_size: 40
                 text: 'Arm'
-                on_release: if shorepower.state == 'down': root.armed.collapse = False
+                on_release: root.on_arm()
     LTCAccordionItem:
         font_size: 40
         id: armed
         title: 'Armed'
-        on_collapse: root.on_armed_collapse(self.collapse)
         BoxLayout:
             orientation: 'vertical'
             Button:
                 font_size: 40
                 id: reset
                 text: 'Abort'
-                on_release: root.unarmed.collapse = False
+                on_release: root.on_abort()
             ToggleButton:
                 font_size: 40
-                id: ignite
+                id: ignite_button
                 text: 'Ignite'
                 on_release: root.on_ignite()
                         
