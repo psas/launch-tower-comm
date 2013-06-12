@@ -53,7 +53,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-#         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -173,6 +173,7 @@ class LTCbackend(object):
                                 input=self.input,
                                 sensor=self.sensor)
     def attach(self, event):
+        self.ignite(False)
         attached = event.device
         ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
         log.info(ik)
@@ -212,6 +213,7 @@ class LTCbackend(object):
 
     def close(self, event):
         log.debug("Closing LTCBackend")
+        self.ignite(False)
         self.relay.close()
         self.core.close()
 

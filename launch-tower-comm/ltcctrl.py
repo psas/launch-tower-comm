@@ -50,8 +50,8 @@ class LTCctrl(Accordion):
 
     def on_abort(self):
         try:
+            self.ignite(False)
             if self.ignite_button.state == 'down':
-                self.ignite(False)
                 self.ignite_button.state = 'normal'
             self.unarmed.collapse = False
         except PhidgetException:
