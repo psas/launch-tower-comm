@@ -7,7 +7,6 @@ Created on May 22, 2013
 from ctypes import *
 from datetime import datetime
 import sys
-import random
 import time
 # kivy logger because kivy breaks with normal python logger
 from kivy.logger import Logger

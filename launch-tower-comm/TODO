@@ -1,12 +1,17 @@
 # TODO
 
-* Wire up sensors & relays, Test indicators and controls
+## Software Related
+
 * Display State Info
 * Display Messages
-* Write `on_startup` function
-* Make WiFi connection monitor service on LTC
 * Make the `attach` functions set Ignite to known states
 * On close, set `not ignite`
 * `on_startup`, inspect current state, set buttons accordingly
 * `on_close`, don't change touch state, except as stated before
+
+
+## Hardware Related
+
+* Wire up sensors & relays, Test indicators and controls
 * No sensor logging on LTC
+* Make WiFi connection monitor service on LTC

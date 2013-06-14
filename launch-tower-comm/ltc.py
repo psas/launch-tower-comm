@@ -31,7 +31,6 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 from ctypes import *
 from datetime import datetime
 import sys
-import random
 # import logging
 from kivy.logger import Logger
 # logging.root = Logger  # Make kivy play nice with python logging module
@@ -44,7 +43,6 @@ kivy.require('1.0.5')
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
-# Config.set('graphics', 'fullscreen', 'auto')
 from kivy.core.window import Window
 from kivy.lang import Builder
 
@@ -67,11 +65,8 @@ WEBSERVICEIP = "192.168.128.251"
 WEBSERVICEPORT = 5001
 central_dict = dict()
 
-########### Phidgets Setup ########
+# Config.set('graphics', 'fullscreen', 'auto')
 
-
-
-########### KIVY Setup ############
 
 class LTC(Widget):
     # Loaded from the kv lang file and here.
