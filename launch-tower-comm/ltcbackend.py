@@ -193,21 +193,22 @@ class LTCbackend(object):
 
     def output(self, event):
         source = event.device
-        output = "{} Output {}".format(source.getSerialNum(), event.index)
+        output = "{} OUTPUT {}".format(source.getSerialNum(), event.index)
         log.info(output)
-        self.central_dict[output] = str(event.state)
+        self.central_dict[output] = event.state
 
     def input(self, event):
         source = event.device
-        input = "{} Input {}".format(source.getSerialNum(), event.index)
+        input = "{} INPUT {}".format(source.getSerialNum(), event.index)
         log.info(input)
-        self.central_dict[input] = str(event.state)
+        print input
+        self.central_dict[input] = event.state
 
     def sensor(self, event):
         source = event.device
-        sensor = "{} Sensor {}".format(source.getSerialNum(), event.index)
+        sensor = "{} SENSOR {}".format(source.getSerialNum(), event.index)
         log.info(sensor)
-        self.central_dict[sensor] = str(event.value)
+        self.central_dict[sensor] = event.value
 
     def close(self, event):
         log.debug("Closing LTCBackend")

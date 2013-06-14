@@ -166,7 +166,7 @@ class IOIndicator(BoxLayout):
         and updates the sensor widget value display
         '''
         if central_dict[str(self.devserial) + " InterfaceKit"]:
-            self.status_ind.set_state('Attached')
+            self.status_ind.set_state('Open')
         else:
             self.status_ind.set_state('Detached')
             return
@@ -199,8 +199,8 @@ class LTCApp(App):
         sens7 = IOIndicator(backend.core.sensor[5], 'sensor', INTERFACEKIT888)
         sens8 = IOIndicator(backend.core.sensor[6], 'sensor', INTERFACEKIT888)
         sens9 = IOIndicator(backend.core.sensor[7], 'sensor', INTERFACEKIT888)
-        relay1 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
-        relay2 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT004)
+        relay1 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT888)
+        relay2 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
 
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
