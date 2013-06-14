@@ -109,13 +109,13 @@ class CorePhidget(LTCPhidget):
 
     sensor = dict()
     sensor[0] = TemperatureSensor("Internal Temperature", 0)
-    sensor[1] = VoltageSensor("vBatt", 1)
+    sensor[1] = VoltageSensor("Ignition Battery", 1)
     sensor[2] = Sensor("Humidity", 2)
     sensor[3] = TemperatureSensor("External Temperature", 3)
     sensor[4] = Sensor("Unused", 4)
-    sensor[5] = VoltageSensor("vChargeBatt", 5)
-    sensor[6] = VoltageSensor("5v", 6)
-    sensor[7] = VoltageSensor("24v", 7)
+    sensor[5] = VoltageSensor("System Battery", 5)
+    sensor[6] = VoltageSensor("Internal 5v", 6)
+    sensor[7] = VoltageSensor("Shore Power", 7)
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)

@@ -116,9 +116,7 @@ class RelayLabel(Label):
 
 
 class InterfaceKitPanel(BoxLayout):
-
-    def __init__(self, devserial, **kwargs):
-        super(InterfaceKitPanel, self).__init__(**kwargs)
+    pass
 
 class IOIndicator(BoxLayout):
 
@@ -170,7 +168,7 @@ class LTCApp(App):
         Builder.load_file("ltcctrl.kv")
         backend = LTCbackend(central_dict)
         self.bind(on_stop=backend.close)
-        input_panel = InterfaceKitPanel(INTERFACEKIT888)
+
         sens0 = IOIndicator(backend.core.sensor[0], 'sensor', INTERFACEKIT888)
         sens1 = IOIndicator(backend.core.sensor[3], 'sensor', INTERFACEKIT888)
         sens5 = IOIndicator(backend.core.sensor[2], 'sensor', INTERFACEKIT888)
@@ -178,19 +176,20 @@ class LTCApp(App):
         sens7 = IOIndicator(backend.core.sensor[5], 'sensor', INTERFACEKIT888)
         sens8 = IOIndicator(backend.core.sensor[6], 'sensor', INTERFACEKIT888)
         sens9 = IOIndicator(backend.core.sensor[7], 'sensor', INTERFACEKIT888)
+        relay1 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
+        relay2 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT004)
+
+        input_panel = InterfaceKitPanel()
+        relay_panel = InterfaceKitPanel()
 
         input_panel.add_widget(sens0)
         input_panel.add_widget(sens1)
         input_panel.add_widget(sens5)
-        input_panel.add_widget(sens6)
-        input_panel.add_widget(sens7)
         input_panel.add_widget(sens8)
         input_panel.add_widget(sens9)
 
-        relay1 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
-        relay2 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT004)
-
-        relay_panel = InterfaceKitPanel(INTERFACEKIT004)
+        relay_panel.add_widget(sens6)
+        relay_panel.add_widget(sens7)
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
 
