@@ -2,16 +2,28 @@
 
 ## Software Related
 
-* Display State Info
-* Display Messages
-* Make the `attach` functions set Ignite to known states
-* On close, set `not ignite`
-* `on_startup`, inspect current state, set buttons accordingly
-* `on_close`, don't change touch state, except as stated before
+### Critical
+
+* Display State (state_info)
+* Display Messages (state_message)
+* `on_startup` set shore power indicator
+
+### Non-critical
+* define nominal sensor ranges
+* colors for nominal sensor values
+* remove bottom title/author bar
 
 
 ## Hardware Related
 
+### Critical
+
 * Wire up sensors & relays, Test indicators and controls
-* No sensor logging on LTC
 * Make WiFi connection monitor service on LTC
+* Set Phidgets webservice to automatically start and restart if needed.
+* Practice connecting all external devices to LTC
+
+### Non-critical
+
+* No sensor logging on LTC
+
