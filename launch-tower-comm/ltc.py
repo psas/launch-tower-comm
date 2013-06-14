@@ -83,7 +83,7 @@ class LTC(Widget):
 class RelayLabel(Label):
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty([1, 1, 1, 1])
-    states = {"Detached": [1, 1, 1, 1],
+    states = {"Detached": [.1, .1, .1, 1],
             "Thinking": [0, 1, 1, 1],
             "Open": [0, 1, .5, 1],
             "Closed": [1, 0, 0, 1],
@@ -150,6 +150,12 @@ class IOIndicator(BoxLayout):
         '''Retrieves values from internal dict, converts to proper units
         and updates the sensor widget value display
         '''
+        if central_dict[str(self.devserial) + " InterfaceKit"]:
+            self.status_ind.set_state('Attached')
+        else:
+            self.status_ind.set_state('Detached')
+            return
+
         io = "{} {} {}".format(self.devserial, self.iotype, self.ioindex)
         try:
             val = central_dict[io]
@@ -206,26 +212,6 @@ class LTCApp(App):
             ltc.status_info.add_widget(image)
 
         return ltc
-
-    def build_config(self, config):
-        config.add_section('rocket')
-        config.set('rocket', 'index', '0')
-        config.add_section('launch')
-        config.set('launch', 'type', 'success')
-
-    def build_settings(self, settings):
-        settings.add_json_panel('Testing', self.config, data='''[
-            { "type": "title", "title": "Rocket" },
-            { "type": "numeric", "title": "Size",
-              "desc": "Rocket size, from 0 to X",
-              "section": "rocket", "key": "index" },
-            { "type": "title", "title": "Launch" },
-            { "type": "options", "title": "Launch",
-              "desc": "The kind of launch you would like to have",
-              "section": "launch", "key": "type",
-              "options": ["success", "boom", "crunch"]}
-        ]''')
-
 
 if __name__ == '__main__':
 #     for a in dir(Logger):

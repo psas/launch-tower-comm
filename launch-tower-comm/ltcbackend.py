@@ -1,9 +1,3 @@
-'''
-Created on May 22, 2013
-
-@author: theo
-'''
-
 from ctypes import *
 from datetime import datetime
 import sys
@@ -53,7 +47,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-#         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -174,17 +168,20 @@ class LTCbackend(object):
                                 output=self.output,
                                 input=self.input,
                                 sensor=self.sensor)
+        self.central_dict[str(self.relay.devserial) + " InterfaceKit"] = False
+        self.central_dict[str(self.core.devserial) + " InterfaceKit"] = False
+
     def attach(self, event):
         self.ignite(False)
         attached = event.device
-        ik = "{} InterfaceKit Attached".format(attached.getSerialNum())
-        log.info(ik)
+        ik = "{} InterfaceKit".format(attached.getSerialNum())
+        log.info(ik + " Attached")
         self.central_dict[ik] = "True"
 
     def detach(self, event):
         attached = event.device
-        ik = "{} InterfaceKit Detached".format(attached.getSerialNum())
-        log.info(ik)
+        ik = "{} InterfaceKit".format(attached.getSerialNum())
+        log.info(ik + " Detached")
         self.central_dict[ik] = "False"
 
     def error(self, event):
