@@ -201,6 +201,7 @@ class LTCbackend(object):
         source = event.device
         input = "{} INPUT {}".format(source.getSerialNum(), event.index)
         log.info(input)
+        print input
         self.central_dict[input] = event.state
 
     def sensor(self, event):

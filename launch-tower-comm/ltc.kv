@@ -47,33 +47,6 @@
             orientation: 'horizontal'
             size_hint_x: 1
             size_hint_y: 0.45
-        
-        HSeparator
-        # Application name, Kivy Logo, and Copyright
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint: 1, 0.04
-            #height: 24
-            Image:
-                size_hint: None, None
-                size: 24, 24
-                source: 'data/logo/kivy-icon-32.png'
-            Label:
-                height: 24
-                size_hint: 0.5, None
-                text_size: (None, 24)
-                color: (1, 1, 1, .8)
-                text: 'Launch Tower Comm v%s- Kivy %s' % (root.version, kivy.__version__)
-            Label:
-                height: 24
-                size_hint: 0.5, None
-            Label:
-                height: 24
-                size_hint: 0.5, None
-                text_size: self.size
-                color: (1, 1, 1, .8)
-                text: '© 2013 by John Boyle and Theo Hill'
-
 
 # The custom settingspanel for the appearance settings:
 <MySettingsPanel>:
