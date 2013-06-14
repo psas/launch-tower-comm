@@ -31,6 +31,7 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 from ctypes import *
 from datetime import datetime
 import sys
+import random
 # import logging
 from kivy.logger import Logger
 # logging.root = Logger  # Make kivy play nice with python logging module
@@ -118,14 +119,23 @@ class StatusDisplay(BoxLayout):
 
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''
+        self.states = {"Nominal": [.1, .1, .1, 1],
+                    "ARMED": [0, 1, 1, 1],
+                    "IGNITED!": [0, 1, .5, 1],
+                    "Phidget Call Failed": [1, 0, 0, 1],
+                    "Disconnected": [1, 1, 0, 1]}
         super(StatusDisplay, self).__init__(**kwargs)
 
         Clock.schedule_interval(self.check_status, 1)
 
     def check_status(self, instance):
-        pass
+        num = random.randint(1,5)
+        self.state_info.text = "Your number: {}".format(num)
+        self.set_state(num)
 
-
+    def set_state(self, num):
+        self.state_info.color = self.states.values()[num-1]
+        self.status_message.text = self.states.keys()[num-1]
 
 class InterfaceKitPanel(BoxLayout):
     pass
