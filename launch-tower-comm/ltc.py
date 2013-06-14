@@ -114,6 +114,18 @@ class RelayLabel(Label):
     def on_button(self, event):
         self.set_state("Thinking")
 
+class StatusDisplay(BoxLayout):
+
+    def __init__(self, **kwargs):
+        '''Displays the state and a (hopefully) helpful message.'''
+        super(StatusDisplay, self).__init__(**kwargs)
+
+        Clock.schedule_interval(self.check_status, 1)
+
+    def check_status(self, instance):
+        pass
+
+
 
 class InterfaceKitPanel(BoxLayout):
     pass
@@ -161,6 +173,7 @@ class IOIndicator(BoxLayout):
         else:
             self.status_ind.text = '{:.0f} {}'.format(newval, self.unit)
 
+
 class LTCApp(App):
 
     def build(self):
@@ -196,14 +209,8 @@ class LTCApp(App):
         ltc = LTC()
         ltc.indicators.add_widget(input_panel)
         ltc.indicators.add_widget(relay_panel)
+        ltc.toplayout.add_widget(StatusDisplay())
         ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower))
-
-        for i in range(10):
-#             src = "http://placekitten.com/g/480/270"
-#             src = "http://placehold.it/480x270.png&text=StateInfo-%d&.png" % i
-# AsyncImage(source=src, allow_stretch=True)
-            image = Label(text="State Info - %d" % i, font_size=40)
-            ltc.status_info.add_widget(image)
 
         return ltc
 
