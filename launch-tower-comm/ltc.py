@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-
-# TODO: start phidgets service on startup
 '''ltc.py
 
 Copyright (C) 2013 John K. Boyle
@@ -46,6 +44,7 @@ kivy.require('1.0.5')
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config, ConfigParser
+# Config.set('graphics', 'fullscreen', 'auto')
 from kivy.core.window import Window
 from kivy.lang import Builder
 
@@ -93,10 +92,12 @@ class RelayLabel(Label):
         super(RelayLabel, self).__init__(**kwargs)
         self.set_state("Detached")
 
-    def set_state(self, state):
+    def set_state(self, state, text=''):
         self.background_color = self.states[state]
         if state == "Thinking":
             self.text = ""
+        elif text:
+            self.text = text
         else:
             self.text = state
 
@@ -126,7 +127,7 @@ class InterfaceKitPanel(BoxLayout):
 
 class IOIndicator(BoxLayout):
 
-    def __init__(self, name, iotype, devserial, ioindex, **kwargs):
+    def __init__(self, sensor, iotype, devserial, **kwargs):
         '''Indicator widget. Includes a name label, and status label.
 
         name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
@@ -134,15 +135,16 @@ class IOIndicator(BoxLayout):
         ioindex<int>:   Channel index.
         devserial<str>: Serial # of InterfaceKit where this channel is found.
         '''
-        self.name = name
+        self.name = sensor.name
+        self.unit = sensor.unit
         self.iotype = iotype.upper()
-        self.ioindex = ioindex
+        self.ioindex = sensor.index
         self.devserial = devserial
+        self.conversion = sensor.convert
         super(IOIndicator, self).__init__(**kwargs)
 
-        self.device_label.text = name + ' ' + str(ioindex)
+        self.device_label.text = sensor.name
         Clock.schedule_interval(self.check_status, 1)
-        return
 
     def check_status(self, instance):
         '''Retrieves values from internal dict, converts to proper units
@@ -154,19 +156,11 @@ class IOIndicator(BoxLayout):
         except KeyError:
             val = 0  # default value if sensor doesn't exist
 
-        if 'volt' in self.name.lower():
-            newval = val / 13.62 - 36.7107
-            newval = '{:.0f} V'.format(newval)
-
-        if 'temp' in self.name.lower():
-            newval = ((val / 4.095) * 0.22222) - 61.111
-            newval = '{:.0f} Celsius'.format(newval)
-
-        if 'relay' in self.name.lower():
-            newval = 'CLOSED' if val else 'OPEN'
-
-        self.status_ind.text = newval
-        return
+        newval = self.conversion(val)
+        if isinstance(newval, str):
+            self.status_ind.text = '{} {}'.format(newval, self.unit)
+        else:
+            self.status_ind.text = '{:.0f} {}'.format(newval, self.unit)
 
 class LTCApp(App):
 
@@ -176,26 +170,28 @@ class LTCApp(App):
         backend = LTCbackend(central_dict)
         self.bind(on_stop=backend.close)
         input_panel = InterfaceKitPanel(INTERFACEKIT888)
-        sens0 = IOIndicator('Temperature', 'sensor', INTERFACEKIT888, 0)
-        sens1 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 1)
-        sens5 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 5)
-        sens6 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 6)
-        sens7 = IOIndicator('Voltage30', 'sensor', INTERFACEKIT888, 7)
+        sens0 = IOIndicator(backend.core.sensor[0], 'sensor', INTERFACEKIT888)
+        sens1 = IOIndicator(backend.core.sensor[3], 'sensor', INTERFACEKIT888)
+        sens5 = IOIndicator(backend.core.sensor[2], 'sensor', INTERFACEKIT888)
+        sens6 = IOIndicator(backend.core.sensor[1], 'sensor', INTERFACEKIT888)
+        sens7 = IOIndicator(backend.core.sensor[5], 'sensor', INTERFACEKIT888)
+        sens8 = IOIndicator(backend.core.sensor[6], 'sensor', INTERFACEKIT888)
+        sens9 = IOIndicator(backend.core.sensor[7], 'sensor', INTERFACEKIT888)
 
         input_panel.add_widget(sens0)
         input_panel.add_widget(sens1)
         input_panel.add_widget(sens5)
         input_panel.add_widget(sens6)
         input_panel.add_widget(sens7)
+        input_panel.add_widget(sens8)
+        input_panel.add_widget(sens9)
 
-        relay1 = IOIndicator('Relay Foo', 'output', INTERFACEKIT004, 1)
-        relay2 = IOIndicator('Relay Bar', 'output', INTERFACEKIT004, 2)
-        relay3 = IOIndicator('Relay Baz', 'output', INTERFACEKIT004, 3)
+        relay1 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
+        relay2 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT004)
 
         relay_panel = InterfaceKitPanel(INTERFACEKIT004)
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(relay2)
-        relay_panel.add_widget(relay3)
 
         ltc = LTC()
         ltc.indicators.add_widget(input_panel)

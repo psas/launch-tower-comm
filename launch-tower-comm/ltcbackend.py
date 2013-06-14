@@ -53,7 +53,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+#         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -80,8 +80,9 @@ class LTCPhidget(object):
 class Sensor(object):
     isRatiometric = None
     unit = ""
-    def __init__(self, name):
+    def __init__(self, name, index):
         self.name = name
+        self.index = index
 
     def convert(self, sample):
         return sample
@@ -100,27 +101,28 @@ class TemperatureSensor(Sensor):
     def convert(self, sample):
         return (sample * 2.0 / 9.0) - 61.111
 
+class Relay(Sensor):
+    def convert(self, sample):
+        return "Open" if sample else "Closed"
+
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
     devserial = 178346
     IP = "192.168.128.250"
     port = 5001
 
-    output24v = 1
+    shorepower = Relay('Shore Power Relay', 1)
     inputWindspeed = 7  # make a sensor?
 
-    def __init__(self, **kwargs):
-        self.sensor = dict()
-        self.sensor[1] = VoltageSensor("vBatt")
-        self.sensor[0] = TemperatureSensor("Internal Temperature")
-        self.sensor[2] = Sensor("Humidity")
-        self.sensor[3] = TemperatureSensor("External Temperature")
-        self.sensor[4] = Sensor("Unused")
-        self.sensor[5] = VoltageSensor("vChargeBatt")
-        self.sensor[6] = VoltageSensor("5v")
-        self.sensor[7] = VoltageSensor("24v")
-
-        super(CorePhidget, self).__init__(**kwargs)
+    sensor = dict()
+    sensor[0] = TemperatureSensor("Internal Temperature", 0)
+    sensor[1] = VoltageSensor("vBatt", 1)
+    sensor[2] = Sensor("Humidity", 2)
+    sensor[3] = TemperatureSensor("External Temperature", 3)
+    sensor[4] = Sensor("Unused", 4)
+    sensor[5] = VoltageSensor("vChargeBatt", 5)
+    sensor[6] = VoltageSensor("5v", 6)
+    sensor[7] = VoltageSensor("24v", 7)
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)
@@ -136,26 +138,26 @@ class CorePhidget(LTCPhidget):
         self.sense(event)
 
     def set24vState(self, state):
-        self.ik.setOutputState(self.output24v, state)
+        self.ik.setOutputState(self.shorepower.index, state)
 
 class IgnitionRelay(LTCPhidget):
     # Interface Kit 0/0/4 with relays
     devserial = 259173
     IP = "192.168.128.250"
     port = 5001
-    relay_index = 1
+    relay = Relay('Ignition Relay', 1)
 
     def _onOutput(self, event):
-        if event.index == self.relay_index:
+        if event.index == self.relay.index:
             self.output(event)
 
     def toggleIgnitionRelayState(self, event):
         if self.ik.isAttached():
-            state = self.ik.getOutputState(self.relay_index)
+            state = self.ik.getOutputState(self.relay.index)
             self.setIgnitionRelayState(not state)
 
     def setIgnitionRelayState(self, state):
-        self.ik.setOutputState(self.relay_index, state)
+        self.ik.setOutputState(self.relay.index, state)
 
 class LTCbackend(object):
 

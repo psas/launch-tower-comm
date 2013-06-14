@@ -1,6 +1,7 @@
 #:kivy 1.0
 #:import kivy kivy
 #:import ut kivy.utils
+#:import RelayLabel ltc.RelayLabel
 
 ## Set <key> <expr>
 #:set conn_green (0, 1, .5, .8)
@@ -150,7 +151,7 @@
             id: device_label
             text: 'device'
 
-        Label:
+        RelayLabel:
             id: status_ind
             text: ' '
             font_size: 30
