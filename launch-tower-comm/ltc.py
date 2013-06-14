@@ -144,7 +144,7 @@ class IOIndicator(BoxLayout):
         and updates the sensor widget value display
         '''
         if central_dict[str(self.devserial) + " InterfaceKit"]:
-            self.status_ind.set_state('Attached')
+            self.status_ind.set_state('Open')
         else:
             self.status_ind.set_state('Detached')
             return
