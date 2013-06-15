@@ -116,29 +116,32 @@ class RelayLabel(Label):
         self.set_state("Thinking")
 
 class StatusDisplay(BoxLayout):
-
+    states = {
+            "Nominal": ("Disable Shore power to arm.", [.1, .1, .1, 1]),
+            "ARMED": ("You could abort.", [0, 1, 1, 1]),
+            "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
+            "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
+            "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
+            }
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''
-        self.states = {
-                    "Nominal": ("Disable Shore power to arm.", [.1, .1, .1, 1]),
-                    "ARMED": ("You could abort.", [0, 1, 1, 1]),
-                    "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
-                    "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
-                    "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
-                    }
-        super(StatusDisplay, self).__init__(**kwargs)
 
-        Clock.schedule_interval(self.check_status, 2)
+        super(StatusDisplay, self).__init__(**kwargs)
+        central_dict['state'] = 'Disconnected'
+        Clock.schedule_interval(self.check_status, .5)
 
     def check_status(self, instance):
-        num = random.randint(0,4)
-        self.set_state(num)
+        core = str(INTERFACEKIT888) + ' InterfaceKit'
+        relay = str(INTERFACEKIT004) + ' InterfaceKit'
+        if central_dict[core] and central_dict[relay]:
+            self.set_state(central_dict['state'])
+        else:
+            self.set_state('Disconnected')
 
-    def set_state(self, num):
-        self.state_info.text = self.states.keys()[num]
-        self.state_info.color = self.states.values()[num][1]
-
-        self.status_message.text = self.states.values()[num][0]
+    def set_state(self, state):
+        self.state_info.text = state
+        self.state_info.color = self.states[state][1]
+        self.status_message.text = self.states[state][0]
 
 
 class InterfaceKitPanel(BoxLayout):
@@ -164,7 +167,7 @@ class IOIndicator(BoxLayout):
         super(IOIndicator, self).__init__(**kwargs)
 
         self.device_label.text = sensor.name
-        Clock.schedule_interval(self.check_status, 1)
+        Clock.schedule_interval(self.check_status, 0.5)
 
     def check_status(self, instance):
         '''Retrieves values from internal dict, converts to proper units
@@ -186,7 +189,7 @@ class IOIndicator(BoxLayout):
         if isinstance(newval, str):
             self.status_ind.text = '{} {}'.format(newval, self.unit)
         else:
-            self.status_ind.text = '{:.0f} {}'.format(newval, self.unit)
+            self.status_ind.text = '{:.1f} {}'.format(newval, self.unit)
 
 
 class LTCApp(App):
