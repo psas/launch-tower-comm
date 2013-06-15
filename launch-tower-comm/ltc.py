@@ -119,26 +119,31 @@ class StatusDisplay(BoxLayout):
 
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''
-        self.states = {"Nominal": [.1, .1, .1, 1],
-                    "ARMED": [0, 1, 1, 1],
-                    "IGNITED!": [0, 1, .5, 1],
-                    "Phidget Call Failed": [1, 0, 0, 1],
-                    "Disconnected": [1, 1, 0, 1]}
+        self.states = {
+                    "Nominal": ("Disable Shore power to arm.", [.1, .1, .1, 1]),
+                    "ARMED": ("You could abort.", [0, 1, 1, 1]),
+                    "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
+                    "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
+                    "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
+                    }
         super(StatusDisplay, self).__init__(**kwargs)
 
-        Clock.schedule_interval(self.check_status, 1)
+        Clock.schedule_interval(self.check_status, 2)
 
     def check_status(self, instance):
-        num = random.randint(1, 5)
-        self.state_info.text = "Your number: {}".format(num)
+        num = random.randint(0,4)
         self.set_state(num)
 
     def set_state(self, num):
-        self.state_info.color = self.states.values()[num - 1]
-        self.status_message.text = self.states.keys()[num - 1]
+        self.state_info.text = self.states.keys()[num]
+        self.state_info.color = self.states.values()[num][1]
+
+        self.status_message.text = self.states.values()[num][0]
+
 
 class InterfaceKitPanel(BoxLayout):
     pass
+
 
 class IOIndicator(BoxLayout):
 

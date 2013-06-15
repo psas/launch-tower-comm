@@ -34,17 +34,18 @@
         title: 'Armed'
         BoxLayout:
             orientation: 'vertical'
-            Button:
-                font_size: 40
-                id: reset
-                text: 'Abort'
-                on_release: root.on_abort()
             ToggleButton:
                 font_size: 40
                 id: ignite_button
                 text: 'Ignite'
                 on_release: root.on_ignite()
-                        
+            Button:
+                font_size: 40
+                id: reset
+                text: 'Abort'
+                on_release: root.on_abort()
+
+
 <IgnitionPopup>
     size: root.size
     BoxLayout:
@@ -56,12 +57,14 @@
             orientation: 'horizontal'
             Button:
                 font_size: 40
-                text: 'Cancel'
-                on_release: root.abort(), root.dismiss()
+                text: 'Ignite'
+                on_release: root.ignitefunc(), root.dismiss()
             Label:
                 text: '                          '
             Button:
                 font_size: 40
-                text: 'Ignite'
-                on_release: root.ignitefunc(), root.dismiss()
+                text: 'Cancel'
+                on_release: root.abort(), root.dismiss()
+
+
 
