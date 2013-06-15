@@ -7,8 +7,11 @@
 * Display State (state_info)
 * Display Messages (state_message)
 * `on_startup` set shore power indicator
+* Test a LTC reboot cycle
+* Make Ignite buttons, labels, and text Red and white, blinky?
 
 ### Non-critical
+* Add animations for state message changes
 * define nominal sensor ranges
 * colors for nominal sensor values
 * remove bottom title/author bar
