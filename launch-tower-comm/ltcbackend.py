@@ -46,7 +46,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+        # self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -104,7 +104,7 @@ class CorePhidget(LTCPhidget):
     IP = "192.168.128.250"
     port = 5001
 
-    shorepower = Relay('Shore Power Relay', 1)
+    shorepower = Relay('Shore Power Relay', 7)
     inputWindspeed = 7  # make a sensor?
 
     sensor = dict()
@@ -114,7 +114,7 @@ class CorePhidget(LTCPhidget):
     sensor[3] = TemperatureSensor("External Temperature", 3)
     sensor[4] = Sensor("Unused", 4)
     sensor[5] = VoltageSensor("System Battery", 5)
-    sensor[6] = VoltageSensor("Internal 5v", 6)
+    sensor[6] = VoltageSensor("Solar Voltage", 6)
     sensor[7] = VoltageSensor("Shore Power", 7)
 
     def _onAttach(self, event):
@@ -189,7 +189,7 @@ class LTCbackend(object):
             log.info("InterfaceKit %i: Phidget Error %i: %s"
                   % (source.getSerialNum(), event.eCode, event.description))
         except PhidgetException as e:
-            print("Phidget Exception %i: %s" % (event.code, event.details))
+            log.info("Phidget Exception %i: %s" % (event.code, event.details))
 
     def output(self, event):
         source = event.device
@@ -201,7 +201,6 @@ class LTCbackend(object):
         source = event.device
         input = "{} INPUT {}".format(source.getSerialNum(), event.index)
         log.info(input)
-        print input
         self.central_dict[input] = event.state
 
     def sensor(self, event):
