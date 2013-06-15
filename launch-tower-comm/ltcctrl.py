@@ -26,15 +26,14 @@ class IgnitionPopup(Popup):
         except PhidgetException:
             self.abort()
 
-# TODO: change button state on callback from ltcbackend
-
 class LTCctrl(Accordion):
-    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, **kwargs):
+    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, central_dict={}, **kwargs):
         super(LTCctrl, self).__init__(**kwargs)
         self.unarmed.collapse = False
         self.ignite = ignite
         self.shorepower = shorepower
         self.shorepower_button.state = 'normal'
+        self.central_dict = central_dict
 
     def on_ignite(self):
         if self.ignite_button.state == 'normal':

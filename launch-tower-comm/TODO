@@ -7,6 +7,8 @@
 * Display State (state_info)
 * Display Messages (state_message)
 * `on_startup` set shore power indicator
+* LTCctrl: change button state on callback from ltcbackend
+* LTCctrl: verify with hardware before changing state.
 
 ### Non-critical
 * define nominal sensor ranges

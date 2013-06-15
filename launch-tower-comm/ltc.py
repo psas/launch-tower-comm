@@ -129,13 +129,13 @@ class StatusDisplay(BoxLayout):
         Clock.schedule_interval(self.check_status, 1)
 
     def check_status(self, instance):
-        num = random.randint(1,5)
+        num = random.randint(1, 5)
         self.state_info.text = "Your number: {}".format(num)
         self.set_state(num)
 
     def set_state(self, num):
-        self.state_info.color = self.states.values()[num-1]
-        self.status_message.text = self.states.keys()[num-1]
+        self.state_info.color = self.states.values()[num - 1]
+        self.status_message.text = self.states.keys()[num - 1]
 
 class InterfaceKitPanel(BoxLayout):
     pass
@@ -225,8 +225,4 @@ class LTCApp(App):
         return ltc
 
 if __name__ == '__main__':
-#     for a in dir(Logger):
-#         print a
-
-#     logging.basicConfig(level=logging.INFO)
     LTCApp().run()
