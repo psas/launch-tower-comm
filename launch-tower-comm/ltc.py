@@ -41,9 +41,10 @@ from ltcctrl import LTCctrl
 # Kivy specific imports
 import kivy
 kivy.require('1.0.5')
+from kivy.config import Config, ConfigParser
+# Config.set('graphics', 'fullscreen', 'auto')
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.config import Config, ConfigParser
 from kivy.core.window import Window
 from kivy.lang import Builder
 
@@ -66,7 +67,6 @@ WEBSERVICEIP = "192.168.128.251"
 WEBSERVICEPORT = 5001
 central_dict = dict()
 
-# Config.set('graphics', 'fullscreen', 'auto')
 
 
 class LTC(Widget):
@@ -216,28 +216,31 @@ class LTCApp(App):
         sens7 = IOIndicator(backend.core.sensor[5], 'sensor', INTERFACEKIT888)
         sens8 = IOIndicator(backend.core.sensor[6], 'sensor', INTERFACEKIT888)
         sens9 = IOIndicator(backend.core.sensor[7], 'sensor', INTERFACEKIT888)
+        sens4 = IOIndicator(backend.core.sensor[4], 'sensor', INTERFACEKIT888)
         relay1 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT888)
         relay2 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
 
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
 
+        input_panel.add_widget(sens8)
+        input_panel.add_widget(sens7)
         input_panel.add_widget(sens0)
         input_panel.add_widget(sens1)
         input_panel.add_widget(sens5)
-        input_panel.add_widget(sens8)
-        input_panel.add_widget(sens9)
 
-        relay_panel.add_widget(sens6)
-        relay_panel.add_widget(sens7)
-        relay_panel.add_widget(relay1)
+        relay_panel.add_widget(sens4)
         relay_panel.add_widget(relay2)
+        relay_panel.add_widget(sens6)
+        relay_panel.add_widget(relay1)
+        relay_panel.add_widget(sens9)
+
 
         ltc = LTC()
-        ltc.indicators.add_widget(input_panel)
         ltc.indicators.add_widget(relay_panel)
-        ltc.toplayout.add_widget(StatusDisplay())
+        ltc.indicators.add_widget(input_panel)
         ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower, central_dict))
+        ltc.toplayout.add_widget(StatusDisplay())
 
         return ltc
 
