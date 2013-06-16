@@ -178,12 +178,14 @@ class LTCbackend(object):
         ik = "{} InterfaceKit".format(attached.getSerialNum())
         log.info(ik + " Attached")
         self.central_dict[ik] = True
+        self.central_dict['state'] = 'Nominal'
 
     def detach(self, event):
         attached = event.device
         ik = "{} InterfaceKit".format(attached.getSerialNum())
         log.info(ik + " Detached")
         self.central_dict[ik] = False
+        self.central_dict['state'] = 'Disconnected'
 
     def error(self, event):
         try:
