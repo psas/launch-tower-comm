@@ -117,8 +117,8 @@ class RelayLabel(Label):
 
 class StatusDisplay(BoxLayout):
     states = {
-            "Nominal": ("Disable Shore power to arm.", [.1, .1, .1, 1]),
-            "ARMED": ("You could abort.", [0, 1, 1, 1]),
+            "Nominal": ("Disable Shore power to arm", [.1, .1, .1, 1]),
+            "ARMED": ("You could abort", [0, 1, 1, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
             "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
             "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
@@ -134,9 +134,14 @@ class StatusDisplay(BoxLayout):
         core = str(INTERFACEKIT888) + ' InterfaceKit'
         relay = str(INTERFACEKIT004) + ' InterfaceKit'
         if central_dict[core] and central_dict[relay]:
+            if central_dict['state'] == 'Disconnected':
+                central_dict['state'] = 'Nominal'
             self.set_state(central_dict['state'])
         else:
-            self.set_state('Disconnected')
+            if central_dict['state'] == 'Phidget Call Failed':
+                self.set_state('Phidget Call Failed')
+            else:
+                self.set_state('Disconnected')
 
     def set_state(self, state):
         self.state_info.text = state
@@ -183,7 +188,11 @@ class IOIndicator(BoxLayout):
         try:
             val = central_dict[io]
         except KeyError:
-            val = 0  # default value if sensor doesn't exist
+            self.status_ind.set_state('Closed', 'Not Found')
+            return
+        if val is 0:  # The sensors seem to return 0 when absent.
+            self.status_ind.set_state('Closed', 'Not Found')
+            return
 
         newval = self.conversion(val)
         if isinstance(newval, str):
@@ -228,7 +237,7 @@ class LTCApp(App):
         ltc.indicators.add_widget(input_panel)
         ltc.indicators.add_widget(relay_panel)
         ltc.toplayout.add_widget(StatusDisplay())
-        ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower))
+        ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower, central_dict))
 
         return ltc
 
