@@ -8,6 +8,7 @@
 * LTCctrl: verify with hardware before changing state.
 * Test a LTC reboot cycle
 * Make Ignite buttons, labels, and text Red and white, blinky?
+* A real logging solution
 
 ### Non-critical
 * Add animations for state message changes
@@ -21,8 +22,6 @@
 ### Critical
 
 * Wire up sensors & relays, Test indicators and controls
-* Make WiFi connection monitor service on LTC
-* Set Phidgets webservice to automatically start and restart if needed.
 * Practice connecting all external devices to LTC
 
 ### Non-critical

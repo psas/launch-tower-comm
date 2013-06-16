@@ -3,6 +3,7 @@ import kivy
 kivy.require('1.0.5')
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.popup import Popup
+from kivy.clock import Clock
 
 from Phidgets.PhidgetException import PhidgetException
 
@@ -22,7 +23,7 @@ class IgnitionPopup(Popup):
 
     def ignitefunc(self):
         self.ignite()
-# TODO: ignite 10 second timeout
+
 class LTCctrl(Accordion):
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, central_dict={}, **kwargs):
         super(LTCctrl, self).__init__(**kwargs)
@@ -36,15 +37,17 @@ class LTCctrl(Accordion):
         try:
             self.ignite(True)
             self.central_dict['state'] = 'IGNITED!'
+            Clock.schedule_once(lambda x:self.on_abort(), 10)
         except PhidgetException:
-            self.abort()
+            self.on_abort()
             self.central_dict['state'] = 'Phidget Call Failed'
 
     def on_popup_abort(self):
         self.ignite_button.state = 'normal'
 
     def on_arm(self):
-        if self.shorepower_button.state == 'down':
+        ik = "178346 OUTPUT 7"
+        if self.shorepower_button.state == 'down' and self.central_dict[ik] is False:
             self.armed.collapse = False
             self.central_dict['state'] = 'ARMED'
 
@@ -68,6 +71,7 @@ class LTCctrl(Accordion):
         try:
             self.shorepower(state)
             button.state = 'down'
+            self.central_dict['state'] = 'Nominal'
         except PhidgetException:
             button.state = 'normal'
             self.central_dict['state'] = 'Phidget Call Failed'

@@ -15,6 +15,8 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 ########### Phidgets Setup ########
 
+LTCIP = '192.168.0.250'
+
 class LTCPhidget(object):
     # TODO: logging
     # TODO: can the remote specific events find a disconnected usb cable?
@@ -46,7 +48,7 @@ class LTCPhidget(object):
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
         log.debug("Opening remote IP")
-        # self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
@@ -101,7 +103,7 @@ class Relay(Sensor):
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
     devserial = 178346
-    IP = "192.168.128.250"
+    IP = LTCIP
     port = 5001
 
     shorepower = Relay('Shore Power Relay', 7)
@@ -136,7 +138,7 @@ class CorePhidget(LTCPhidget):
 class IgnitionRelay(LTCPhidget):
     # Interface Kit 0/0/4 with relays
     devserial = 259173
-    IP = "192.168.128.250"
+    IP = LTCIP
     port = 5001
     relay = Relay('Ignition Relay', 1)
 
@@ -190,23 +192,27 @@ class LTCbackend(object):
                   % (source.getSerialNum(), event.eCode, event.description))
         except PhidgetException as e:
             log.info("Phidget Exception %i: %s" % (event.code, event.details))
+        finally:
+            self.central_dict['state'] = 'Phidget Call Failed'
 
     def output(self, event):
         source = event.device
         output = "{} OUTPUT {}".format(source.getSerialNum(), event.index)
-        log.info(output)
+        log.info(output + ': ' + str(event.state))
         self.central_dict[output] = event.state
+        if event.index == self.core.shorepower.index:
+            self.shorepower_state = event.state
 
     def input(self, event):
         source = event.device
         input = "{} INPUT {}".format(source.getSerialNum(), event.index)
-        log.info(input)
+        log.info(input + ': ' + str(event.state))
         self.central_dict[input] = event.state
 
     def sensor(self, event):
         source = event.device
         sensor = "{} SENSOR {}".format(source.getSerialNum(), event.index)
-        log.info(sensor)
+        log.info(sensor + ': ' + str(event.value))
         self.central_dict[sensor] = event.value
 
     def close(self, event):
@@ -216,8 +222,12 @@ class LTCbackend(object):
         self.core.close()
 
     def ignite(self, state):
-        # TODO: cross check with shorepower
-        self.relay.setIgnitionRelayState(state)
+        if state is False:
+            self.relay.setIgnitionRelayState(False)
+        elif self.shorepower_state is False and state is True:
+            self.relay.setIgnitionRelayState(True)
+        else:
+            raise PhidgetException(1)  # TODO: more descriptive errno?
 
     def shorepower(self, state):
         self.core.set24vState(state)
