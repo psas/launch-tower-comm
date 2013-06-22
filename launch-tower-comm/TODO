@@ -6,8 +6,6 @@
 * `on_startup` set shore power indicator
 * LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
-* Test a LTC reboot cycle
-* Make Ignite buttons, labels, and text Red and white, blinky?
 * A real logging solution
 
 ### Non-critical
