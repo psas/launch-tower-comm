@@ -15,7 +15,7 @@ General Issues:
 """
 
 __author__ = 'John Boyle'
-__date__ = '22 Jan 2012'
+__date__ = 'Jun 2013'
 
 # Basic imports
 from ctypes import *
@@ -24,8 +24,8 @@ import random
 
 # Phidget specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, 
-                                    ErrorEventArgs, InputChangeEventArgs,
+from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, \
+                                    ErrorEventArgs, InputChangeEventArgs, \
                                     OutputChangeEventArgs, SensorChangeEventArgs
 from Phidgets.Devices.InterfaceKit import InterfaceKit
 
@@ -44,6 +44,7 @@ from kivy.uix.button import Button
 from kivy.uix.label  import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 
+IP = '192.168.128.2'
 
 ##### Phidgets Event Handler Callback Functions #####
 ik_attached = False
@@ -108,7 +109,7 @@ def setup_interfaceKit():
 
     try:
         #interfaceKit.openPhidget()
-        interfaceKit.openRemoteIP('192.168.1.100', port=5001)
+        interfaceKit.openRemoteIP(IP, port=5001)
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Exiting....")
@@ -158,7 +159,7 @@ class OutDevice(BoxLayout):
         # Explicitly set outputs to OFF (good habit in control situations)
         # Just as easily could read the current status instead.
         self.status_ind.text = 'OFF'
-        interfaceKit.setOutputState(self.ioindex, False)
+        #interfaceKit.setOutputState(self.ioindex, False)
 
         # Check connection status every half second.
         Clock.schedule_interval(self.check_connection, 0.5)
