@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
-"""Rocket Commander
-Sends power commands to the rocket.
+"""Rocket Commander, key changer testing
 
-Starts a Phidgets Dictionary that receives KeyChange events from the
-Phidgets Webservice and reacts by sending tty commands to the rocket.
-
-It then changes the command keys back to their nuetral state as a
-acknowledgement signal.
-
+The code up until the testing block may be pasted into ipython to allow
+for interactive key/value changes.
 
 Uses code from the Phidgets example `Dictionary-simple.py` version 2.1.8,
 by Adam Stelmack.
@@ -18,6 +13,8 @@ __author__ = 'John Boyle'
 __version__ = '0.0.314'
 __date__ = 'June 2013'
 
+## COPY FROM HERE TO NEXT LINE OF #s for iPython usage
+######################################################
 
 #Basic imports
 from ctypes import *
@@ -30,17 +27,6 @@ from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerCon
 from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
 
 IP = "localhost"
-COMMANDS = dict()
-
-###################
-# commander setup #
-###################
-
-def capture_commands(e):
-    key = e.key
-    if 'LTC_ON' == key or 'COMMAND_CHECK' == key:
-        COMMANDS[e.key] = e.value
-
 
 ##################
 # Phidgets setup #
@@ -88,8 +74,6 @@ def KeyChanged(e):
 
     if 'Heartbeat' not in e.key:
         print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
-
-    capture_commands(e)
     return 0
 
 def KeyRemoved(e):
@@ -104,13 +88,10 @@ def KeyRemoved(e):
 
     if 'Heartbeat' not in e.key:
         print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
-
-    capture_commands(e)
     return 0
 
-####################
+
 #   Main Program   #
-####################
 
 try:
     dictionary.setErrorHandler(DictionaryError)
@@ -144,43 +125,32 @@ except PhidgetException as e:
     print("Exiting....")
     exit(1)
 
+##################################################################
 
-#############
-# Main Loop #
-#############
-COMMANDS['LTC_ON'] = 'HI'
-COMMANDS['COMMAND_CHECK'] = 'HI'
 
-while(True):
+### TESTING KEYS
+try:
+    print("Now we'll add some keys...")
     sleep(1)
-    print COMMANDS.keys()
-    print '--------'
-    print COMMANDS.values()
 
-    if COMMANDS['LTC_ON'] == 'YES PLEASE':
-        if COMMANDS['COMMAND_CHECK'] == 'AFFIRMATIVE':
-            try:
-                shell_command = "/home/john/code/ltcscripts/fc_on"
-                results = subprocess.Popen(shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                results = results.communicate()
-                if results[1]:
-                    print "Error: {}".format(results[1])
-                    dictionary.addKey('COMMAND_CHECK', 'NEGATORY')
-                    dictionary.addKey('LTC_ON', 'ERROR')
-                else:
-                    print "Message Sent"
-                    dictionary.addKey('COMMAND_CHECK', 'NEGATORY')
-                    dictionary.addKey('LTC_ON', 'EXECUTED')
+    dictionary.addKey("LTC_ON", "None")
+    dictionary.addKey("Command Check", "None")
+    dictionary.addKey("Command", "None")
+    sleep(2)
+    dictionary.addKey("Command", "Nope")
 
-            except PhidgetException as e:
-                print("Phidget Exception %i: %s" % (e.code, e.details))
-                #~ print("Exiting....")
-                #~ exit(1)
-        else:
-            print "Incorrect command sequence"
+    print("Now we will test the LTC_ON Command.")
+    sleep(1)
+    dictionary.addKey("LTC_ON", "ff")
+except PhidgetException as e:
+    print("Phidget Exception %i: %s" % (e.code, e.details))
+    print("Exiting....")
+    exit(1)
 
+print("Press Enter to quit....")
 
-# Graceful exit
+chr = sys.stdin.read(1)
+
 print("Closing...")
 
 try:
