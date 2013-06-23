@@ -15,7 +15,7 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 ########### Phidgets Setup ########
 
-LTCIP = '192.168.0.250'
+LTCIP = '192.168.128.2'
 
 class LTCPhidget(object):
     # TODO: logging

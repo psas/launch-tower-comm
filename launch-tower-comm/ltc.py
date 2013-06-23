@@ -58,12 +58,15 @@ from kivy.uix.image import AsyncImage
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.extras.highlight import KivyLexer
 
+from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
+from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerConnectArgs, ServerDisconnectArgs
+from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
 
 VERSION = '0.2'
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
-WEBSERVICEIP = "192.168.128.251"
+WEBSERVICEIP = "192.168.128.2"
 WEBSERVICEPORT = 5001
 central_dict = dict()
 
@@ -117,8 +120,8 @@ class RelayLabel(Label):
 
 class StatusDisplay(BoxLayout):
     states = {
-            "Nominal": ("Disable Shore power to arm", [.1, .1, .1, 1]),
-            "ARMED": ("You could abort", [0, 1, 1, 1]),
+            "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
+            "ARMED": ("You could abort", [1, 0, 0, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
             "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
             "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
@@ -242,7 +245,97 @@ class LTCApp(App):
         ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower, central_dict))
         ltc.toplayout.add_widget(StatusDisplay())
 
+        self.fc_dict = self.setup_ph_dictionary(WEBSERVICEIP)
+
         return ltc
+
+    def build_config(self, config):
+        config.adddefaultsection('FC')
+        config.setdefault('FC', 'FC_ON', '0')
+        config.setdefault('FC', 'FC_OFF', '0')
+        config.setdefault('FC', 'LATCH', '0')
+
+
+    def build_settings(self, settings):
+        #section "FC"
+        settings.add_json_panel(
+          'FC', self.config, data='''[
+                { "type": "title", "title": "FC Command LATCH" },
+                { "type": "bool", "title": "LATCH", "desc": "Set command latch", "section": "FC", "key": "LATCH"},
+                { "type": "title", "title": "(Settings marked with a * are not yet implemented)" },
+                { "type": "bool", "title": "FC_ON", "desc": "Send FC_ON command to Flight Computer", "section": "FC", "key": "FC_ON"},
+                { "type": "bool", "title": "FC_OFF", "desc": "Send FC_OFF command to Flight Computer", "section": "FC", "key": "FC_OFF"},
+                { "type": "title", "title": "(Settings marked with a * are not yet implemented)" }
+                ]''')
+
+    def on_config_change(self, config, section, key, value):
+        # here comes all the value-checking stuff after a new value has been set.
+        token = (section, key)
+
+        if token == ('FC', 'FC_ON'):
+            pass
+        if token == ('FC', 'FC_OFF'):
+            pass
+
+    def setup_ph_dictionary(self, IP):
+        #Create a Dictionary object and a key listener object
+        try:
+            dictionary = Dictionary()
+        except RuntimeError as e:
+            print("Runtime Exception: %s" % e.details)
+            print("Exiting....")
+            exit(1)
+
+        #Event Handler Callback Functions
+        def DictionaryError(e):
+            print("Dictionary Error %i: %s" % (e.eCode, e.description))
+            return 0
+
+        def DictionaryServerConnected(e):
+            print("Dictionary connected to server %s" % (e.device.getServerAddress()))
+            try:
+                keyListener.start()
+            except PhidgetException as e:
+                print("Phidget Exception %i: %s" % (e.code, e.details))
+            return 0
+
+        def DictionaryServerDisconnected(e):
+            print("Dictionary disconnected from server")
+            try:
+                keyListener.stop()
+            except PhidgetException as e:
+                print("Phidget Exception %i: %s" % (e.code, e.details))
+            return 0
+
+        try:
+            dictionary.setErrorHandler(DictionaryError)
+            dictionary.setServerConnectHandler(DictionaryServerConnected)
+            dictionary.setServerDisconnectHandler(DictionaryServerDisconnected)
+
+        except PhidgetException as e:
+            print("Phidget Exception %i: %s" % (e.code, e.details))
+
+        print("Opening Dictionary object....")
+
+        try:
+            dictionary.openRemoteIP(IP, 5001)
+        except PhidgetException as e:
+            print("Phidget Exception %i: %s" % (e.code, e.details))
+
+
+        try:
+            while dictionary.isAttachedToServer() == False:
+                pass
+            else:
+                print("Connected: %s" % (dictionary.isAttachedToServer()))
+                print("Server: %s:%s" % (dictionary.getServerAddress(), dictionary.getServerPort()))
+        except PhidgetException as e:
+            print("Phidget Exception %i: %s" % (e.code, e.details))
+
+        return dictionary
+
+
+
 
 if __name__ == '__main__':
     LTCApp().run()
