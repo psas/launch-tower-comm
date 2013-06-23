@@ -6,9 +6,11 @@
 * `on_startup` set shore power indicator
 * LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
-* A real logging solution
+* Set logging directory
+* Add control/indicator panel for sending flight computer commmands
 
 ### Non-critical
+* Color-fy the buttons
 * Add animations for state message changes
 * define nominal sensor ranges
 * colors for nominal sensor values
