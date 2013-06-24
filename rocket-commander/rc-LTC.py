@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-"""Rocket Commander
-Sends power commands to the rocket.
+"""Rocket Commander - LTC side
+Runs on the LTC and relays power commands to the rocket.
 
 Starts a Phidgets Dictionary that receives KeyChange events from the
 Phidgets Webservice and reacts by sending tty commands to the rocket.
@@ -9,8 +9,7 @@ Phidgets Webservice and reacts by sending tty commands to the rocket.
 It then changes the command keys back to their nuetral state as a
 acknowledgement signal.
 
-
-Uses code from the Phidgets example `Dictionary-simple.py` version 2.1.8,
+Uses code from the Phidget example `Dictionary-simple.py` version 2.1.8,
 by Adam Stelmack.
 """
 
@@ -30,7 +29,7 @@ from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerCon
 from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
 
 IP = "localhost"
-COMMANDS = dict()
+cdict = dict()
 
 ###################
 # commander setup #
@@ -38,8 +37,8 @@ COMMANDS = dict()
 
 def capture_commands(e):
     key = e.key
-    if 'LTC_ON' == key or 'COMMAND_CHECK' == key:
-        COMMANDS[e.key] = e.value
+    if '_on' in key or '_off' in key or 'COMMAND LATCH' == key:
+        cdict[key] = e.value
 
 
 ##################
@@ -148,34 +147,40 @@ except PhidgetException as e:
 #############
 # Main Loop #
 #############
-COMMANDS['LTC_ON'] = 'HI'
-COMMANDS['COMMAND_CHECK'] = 'HI'
+orders = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
+for order in orders:
+    cdict[order] = 'INITIALIZED'
+
+cdict['COMMAND LATCH'] = 'INITIALIZED'
+cdict['COMMAND STATUS'] = 'INITIALIZED'
 
 while(True):
     sleep(1)
-    print COMMANDS.keys()
+    print cdict.keys()
     print '--------'
-    print COMMANDS.values()
+    print cdict.values()
 
-    if COMMANDS['LTC_ON'] == 'YES PLEASE':
-        if COMMANDS['COMMAND_CHECK'] == 'AFFIRMATIVE':
+    for command in orders:
+        if cdict[command] == 'YES PLEASE' and cdict['COMMAND LATCH'] == 'GO AHEAD':
             try:
-                shell_command = "/home/john/code/ltcscripts/fc_on"
+                shell_command = "/home/john/code/ltcscripts/" + command
                 results = subprocess.Popen(shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 results = results.communicate()
                 if results[1]:
                     print "Error: {}".format(results[1])
-                    dictionary.addKey('COMMAND_CHECK', 'NEGATORY')
-                    dictionary.addKey('LTC_ON', 'ERROR')
+                    dictionary.addKey('COMMAND LATCH', 'NOT YET')
+                    dictionary.addKey('COMMAND STATUS', 'ERROR TRY AGAIN')
+                    dictionary.addKey(command, 'ERROR')
                 else:
                     print "Message Sent"
-                    dictionary.addKey('COMMAND_CHECK', 'NEGATORY')
-                    dictionary.addKey('LTC_ON', 'EXECUTED')
+                    dictionary.addKey('COMMAND LATCH', 'NOT YET')
+                    dictionary.addKey('COMMAND STATUS', 'MESSAGE SENT')
+                    dictionary.addKey(command, 'INITIALIZED')
+                    sleep(3)
+                    dictionary.addKey('COMMAND STATUS', 'READY')
 
             except PhidgetException as e:
                 print("Phidget Exception %i: %s" % (e.code, e.details))
-                #~ print("Exiting....")
-                #~ exit(1)
         else:
             print "Incorrect command sequence"
 

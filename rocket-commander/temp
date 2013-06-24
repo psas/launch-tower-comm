@@ -1,0 +1,30 @@
+
+
+  button  set value - COMMAND_LATCH   addKey('COMMAND_LATCH', ('NOT YET', 'GO AHEAD'))
+  button  set value - fc_on           addKey('fc_on', 'YES PLEASE')
+  button  set value - fc_off          addKey('fc_off', 'YES PLEASE')
+  button  set value - rr_on           addKey('rr_on', 'YES PLEASE')
+  button  set value - rr_off          addKey('rr_off', 'YES PLEASE')
+
+  label   display COMMAND_LATCH
+  label   display fc_on
+  label   display fc_off
+  label   display COMMAND_STATUS
+
+
+check values
+  getKey('COMMAND_LATCH')
+  getKey('fc_on')
+  getKey('fc_off')
+  getKey('COMMAND_STATUS')
+
+  set display with value of COMMAND_LATCH
+  set display with value of COMMAND_STATUS
+  set display with value of fc_on
+  set display with value of fc_off
+
+# Commmands
+fc_on
+fc_off
+rr_on
+rr_off
