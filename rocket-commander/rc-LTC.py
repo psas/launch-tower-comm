@@ -37,7 +37,7 @@ cdict = dict()
 
 def capture_commands(e):
     key = e.key
-    if '_on' in key or '_off' in key or 'COMMAND LATCH' == key:
+    if '_on' in key or '_off' in key or 'LATCH' == key:
         cdict[key] = e.value
 
 
@@ -151,38 +151,40 @@ orders = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
 for order in orders:
     cdict[order] = 'INITIALIZED'
 
-cdict['COMMAND LATCH'] = 'INITIALIZED'
-cdict['COMMAND STATUS'] = 'INITIALIZED'
+cdict['LATCH'] = 'INITIALIZED'
+cdict['STATUS'] = 'INITIALIZED'
 
 while(True):
-    sleep(1)
-    print cdict.keys()
-    print '--------'
-    print cdict.values()
+    sleep(2)
+    #~ print cdict.keys()
+    #~ print '--------'
+    #~ print cdict.values()
 
     for command in orders:
-        if cdict[command] == 'YES PLEASE' and cdict['COMMAND LATCH'] == 'GO AHEAD':
-            try:
-                shell_command = "/home/john/code/ltcscripts/" + command
-                results = subprocess.Popen(shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                results = results.communicate()
-                if results[1]:
-                    print "Error: {}".format(results[1])
-                    dictionary.addKey('COMMAND LATCH', 'NOT YET')
-                    dictionary.addKey('COMMAND STATUS', 'ERROR TRY AGAIN')
-                    dictionary.addKey(command, 'ERROR')
-                else:
-                    print "Message Sent"
-                    dictionary.addKey('COMMAND LATCH', 'NOT YET')
-                    dictionary.addKey('COMMAND STATUS', 'MESSAGE SENT')
-                    dictionary.addKey(command, 'INITIALIZED')
-                    sleep(3)
-                    dictionary.addKey('COMMAND STATUS', 'READY')
+        if cdict[command] == 'YES PLEASE':
+            if cdict['LATCH'] == 'SET':
+                try:
+                    shell_command = "testscripts/" + command
+                    results = subprocess.Popen(shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    results = results.communicate()
+                    if results[1]:
+                        print "Error: {}".format(results[1])
+                        dictionary.addKey('LATCH', 'UNSET')
+                        dictionary.addKey('STATUS', 'ERROR, TRY AGAIN')
+                        dictionary.addKey(command, 'ERROR')
+                    else:
+                        print "Message Sent"
+                        dictionary.addKey('LATCH', 'UNSET')
+                        dictionary.addKey('STATUS', 'MESSAGE SENT')
+                        dictionary.addKey(command, 'INITIALIZED')
+                        sleep(3)
+                        dictionary.addKey('STATUS', 'READY')
 
-            except PhidgetException as e:
-                print("Phidget Exception %i: %s" % (e.code, e.details))
-        else:
-            print "Incorrect command sequence"
+                except PhidgetException as e:
+                    print("Phidget Exception %i: %s" % (e.code, e.details))
+            else:
+                print "Incorrect command sequence"
+                dictionary.addKey(command, 'INITIALIZED')
 
 
 # Graceful exit
