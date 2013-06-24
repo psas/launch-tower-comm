@@ -6,6 +6,7 @@
 #:set conn_green (0, 1, .5, .8)
 #:set conn_yellow (1, 1, 0, .8)
 #:set conn_red (1, 0, 0, .8)
+#:set conn_grey (1, 1, 1, .1)
 
 # Derived from the Kivy Showcase example
 <RC>:
@@ -85,10 +86,10 @@
     Label:
         id: c_ind
         text: ' '
-        font_size: 20
+        font_size: 35
         canvas:
             Color:
-                rgba: conn_red if 'ERROR' in self.text else conn_green
+                rgba: conn_red if 'ERROR' in self.text else conn_green if 'SENT' in self.text else (0,.2,1, .8) if 'SET' == self.text else conn_grey
             Rectangle:
                 size: self.size
                 pos: self.pos

@@ -186,6 +186,7 @@ while(True):
             else:
                 print "Incorrect command sequence"
                 dictionary.addKey(command, 'INITIALIZED')
+                dictionary.addKey('STATUS', 'READY')
 
 
 # Graceful exit

@@ -42,9 +42,9 @@ from kivy.uix.button import Button
 from kivy.uix.label  import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 
+
 LTCIP = 'localhost'
 ORDERS = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
-
 
 ##### Phidgets Event Handler Callback Functions #####
 def DictionaryError(e):
@@ -135,6 +135,8 @@ class Commander(BoxLayout):
         else:
             self.message = 'PLEASE'
 
+        dictionary.addKey(self.command, 'INITIALIZED')
+
         Clock.schedule_interval(self.check_status, 1)
 
     def send_command(self, instance):
@@ -142,6 +144,8 @@ class Commander(BoxLayout):
 
     def check_status(self, instance):
         self.c_ind.text = dictionary.getKey(self.name)
+
+
 
 
 class RCLaunchControlApp(App):
