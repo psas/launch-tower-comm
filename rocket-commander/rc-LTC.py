@@ -150,6 +150,7 @@ except PhidgetException as e:
 orders = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
 for order in orders:
     cdict[order] = 'INITIALIZED'
+    dictionary.addKey(order, 'INITIALIZED')
 
 cdict['LATCH'] = 'INITIALIZED'
 cdict['STATUS'] = 'INITIALIZED'
@@ -161,7 +162,7 @@ while(True):
     #~ print cdict.values()
 
     for command in orders:
-        if cdict[command] == 'YES PLEASE':
+        if cdict[command] == 'PLEASE':
             if cdict['LATCH'] == 'SET':
                 try:
                     shell_command = "testscripts/" + command

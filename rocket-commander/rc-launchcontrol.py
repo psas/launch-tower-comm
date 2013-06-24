@@ -118,26 +118,33 @@ class RC(FloatLayout):
     '''
 
 class Commander(BoxLayout):
-    def __init__(**kwargs):
-        self.name = kwargs['name'].pop()
+    def __init__(self, **kwargs):
+        self.name = kwargs.pop('name', None)
         super(Commander, self).__init__(**kwargs)
-        self.
+        self.c_name.text = self.name
+        self.command = self.name
 
+        if (self.name in ORDERS) or self.name == 'LATCH':
+            self.c_btn.bind(on_press=self.send_command)
+        else:
+            self.remove_widget(self.c_btn)
+            self.add_widget(Label(text='-'))
 
-class OutDevice(BoxLayout):
-    ''' Loaded from the kv lang file.
-    '''
-    def set_properties(self, name):
-        self.device_label.text = name # an attribute from kv file
-        self.ioindex = name.lower()
-        # Check connection status every half second.
-        Clock.schedule_interval(self.check_status, 0.5)
+        if self.name == 'LATCH':
+            self.message = 'SET'
+        else:
+            self.message = 'PLEASE'
+
+        Clock.schedule_interval(self.check_status, 1)
+
+    def send_command(self, instance):
+        dictionary.addKey(self.command, self.message)
 
     def check_status(self, instance):
-        self.status_ind.text = dictionary.getKey(self.ioindex)
-        self.conn_ind.text = dictionary.getKey('dev_state')
+        self.c_ind.text = dictionary.getKey(self.name)
 
-class RCApp(App):
+
+class RCLaunchControlApp(App):
 
     def build(self):
         rc = RC()
@@ -145,23 +152,23 @@ class RCApp(App):
         #This LED setup may seem repetitive in this simple example.
         # It would be useful in more complex situations
         fc_on = Commander(name='fc_on')
-        fc_off = Commander()
-        rc_on = Commander()
+        fc_off = Commander(name='fc_off')
+        rr_on = Commander(name='rr_on')
+        rr_off = Commander(name='rr_off')
 
-        ai1.setup(name='AI1')
-        ai2.setup(name='AI2')
-        ai3.setup(name='AI3')
+        STATUS = Commander(name='STATUS')
+        LATCH = Commander(name='LATCH')
 
-        controlpanel.add_widget(ai1)
-        controlpanel.add_widget(ai2)
-        controlpanel.add_widget(ai3)
+        rc.content.add_widget(STATUS)
+        rc.content.add_widget(LATCH)
+        rc.content.add_widget(fc_on)
+        rc.content.add_widget(fc_off)
+        rc.content.add_widget(rr_on)
+        rc.content.add_widget(rr_off)
 
-        dictlisten.content.add_widget(controlpanel) # 'content' is a reference to a
-                                                  # layout placeholder in the
-                                                  # kv lang file
-        return dictlisten
+        return rc
 
 
 if __name__ == '__main__':
     dictionary = setup_ph_dict()
-    RCApp().run()
+    RCLaunchControlApp().run()
