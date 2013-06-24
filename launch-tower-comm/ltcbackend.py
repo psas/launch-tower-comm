@@ -140,7 +140,7 @@ class IgnitionRelay(LTCPhidget):
     devserial = 259173
     IP = LTCIP
     port = 5001
-    relay = Relay('Ignition Relay', 1)
+    relay = Relay('Ignition Relay', 0)
 
     def _onOutput(self, event):
         if event.index == self.relay.index:
