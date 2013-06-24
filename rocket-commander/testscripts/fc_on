@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+print "Flight computer on!"
+raise ValueError
+exit(1)
