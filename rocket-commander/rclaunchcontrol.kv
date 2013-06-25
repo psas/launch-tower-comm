@@ -66,6 +66,7 @@
                     text: 'CONTROL'
                     font_size: 20
 
+
 <Commander>:
     c_panel: c_panel
     c_name: c_name
@@ -86,7 +87,7 @@
     Label:
         id: c_ind
         text: ' '
-        font_size: 35
+        font_size: 20
         canvas:
             Color:
                 rgba: conn_red if 'ERROR' in self.text else conn_green if 'SENT' in self.text else (0,.2,1, .8) if 'SET' == self.text else conn_grey

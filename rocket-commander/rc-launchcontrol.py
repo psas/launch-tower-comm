@@ -44,7 +44,8 @@ from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 
 
 LTCIP = 'localhost'
-ORDERS = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
+ORDERS = ['v360_on', 'v360_off', 'atv_on', 'atv_off', 'fc_on', 'fc_off',
+          'rr_on', 'rr_off', 'wifi_on', 'wifi_off']
 
 ##### Phidgets Event Handler Callback Functions #####
 def DictionaryError(e):
@@ -117,6 +118,10 @@ class RC(FloatLayout):
     ''' Loaded from the kv lang file
     '''
 
+class HSeparator(Widget):
+    ''' Loaded from the kv lang file
+    '''
+
 class Commander(BoxLayout):
     def __init__(self, **kwargs):
         self.name = kwargs.pop('name', None)
@@ -135,7 +140,7 @@ class Commander(BoxLayout):
         else:
             self.message = 'PLEASE'
 
-        dictionary.addKey(self.command, 'INITIALIZED')
+        dictionary.addKey(self.command, 'ready')
 
         Clock.schedule_interval(self.check_status, 1)
 
@@ -146,29 +151,48 @@ class Commander(BoxLayout):
         self.c_ind.text = dictionary.getKey(self.name)
 
 
-
-
 class RCLaunchControlApp(App):
 
     def build(self):
         rc = RC()
 
-        #This LED setup may seem repetitive in this simple example.
-        # It would be useful in more complex situations
+        v360_on = Commander(name='v360_on')
+        v360_off = Commander(name='v360_off')
+
+        atv_on = Commander(name='atv_on')
+        atv_off = Commander(name='atv_off')
+
         fc_on = Commander(name='fc_on')
         fc_off = Commander(name='fc_off')
+
         rr_on = Commander(name='rr_on')
         rr_off = Commander(name='rr_off')
+
+        wifi_on = Commander(name='wifi_on')
+        wifi_off = Commander(name='wifi_off')
 
         STATUS = Commander(name='STATUS')
         LATCH = Commander(name='LATCH')
 
         rc.content.add_widget(STATUS)
         rc.content.add_widget(LATCH)
+
+        rc.content.add_widget(HSeparator())
+
+        rc.content.add_widget(v360_on)
+        rc.content.add_widget(v360_off)
+
+        rc.content.add_widget(atv_on)
+        rc.content.add_widget(atv_off)
+
         rc.content.add_widget(fc_on)
         rc.content.add_widget(fc_off)
+
         rc.content.add_widget(rr_on)
         rc.content.add_widget(rr_off)
+
+        rc.content.add_widget(wifi_on)
+        rc.content.add_widget(wifi_off)
 
         return rc
 

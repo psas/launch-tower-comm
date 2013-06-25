@@ -147,8 +147,10 @@ except PhidgetException as e:
 #############
 # Main Loop #
 #############
-orders = ['fc_on', 'fc_off', 'rr_on', 'rr_off']
-for order in orders:
+ORDERS = ['v360_on', 'v360_off', 'atv_on', 'atv_off', 'fc_on', 'fc_off',
+          'rr_on', 'rr_off', 'wifi_on', 'wifi_off']
+
+for order in ORDERS:
     cdict[order] = 'INITIALIZED'
     dictionary.addKey(order, 'INITIALIZED')
 
@@ -156,12 +158,12 @@ cdict['LATCH'] = 'INITIALIZED'
 cdict['STATUS'] = 'INITIALIZED'
 
 while(True):
-    sleep(2)
+    sleep(1)
     #~ print cdict.keys()
     #~ print '--------'
     #~ print cdict.values()
 
-    for command in orders:
+    for command in ORDERS:
         if cdict[command] == 'PLEASE':
             if cdict['LATCH'] == 'SET':
                 try:
@@ -174,10 +176,10 @@ while(True):
                         dictionary.addKey('STATUS', 'ERROR, TRY AGAIN')
                         dictionary.addKey(command, 'ERROR')
                     else:
-                        print "Message Sent"
+                        print "Message Sent: {}".format(results[0])
                         dictionary.addKey('LATCH', 'UNSET')
                         dictionary.addKey('STATUS', 'MESSAGE SENT')
-                        dictionary.addKey(command, 'INITIALIZED')
+                        dictionary.addKey(command, 'ready')
                         sleep(3)
                         dictionary.addKey('STATUS', 'READY')
 
@@ -185,8 +187,8 @@ while(True):
                     print("Phidget Exception %i: %s" % (e.code, e.details))
             else:
                 print "Incorrect command sequence"
-                dictionary.addKey(command, 'INITIALIZED')
-                dictionary.addKey('STATUS', 'READY')
+                dictionary.addKey(command, 'I need latch')
+                dictionary.addKey('STATUS', 'ENABLE LATCH')
 
 
 # Graceful exit
