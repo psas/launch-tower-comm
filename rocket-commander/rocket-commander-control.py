@@ -151,7 +151,7 @@ class Commander(BoxLayout):
         self.c_ind.text = dictionary.getKey(self.name)
 
 
-class RCLaunchControlApp(App):
+class RocketCommanderControlApp(App):
 
     def build(self):
         rc = RC()
@@ -199,4 +199,4 @@ class RCLaunchControlApp(App):
 
 if __name__ == '__main__':
     dictionary = setup_ph_dict()
-    RCLaunchControlApp().run()
+    RocketCommanderControlApp().run()
