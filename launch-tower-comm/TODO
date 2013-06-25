@@ -8,12 +8,16 @@
 * LTCctrl: verify with hardware before changing state.
 * Set logging directory
 * Add control/indicator panel for sending flight computer commmands
+* Add rc-LTC.py to cron list.
+* Add a screen with top and another shell in it, to cron list.
+* Add numeric bounds to color changes in indicators - RR
+* Change rc_on, rc_off to v360_on, v360_off on the LTC
+* Set default Rocket Commander window size.
 
 ### Non-critical
 * Color-fy the buttons
 * Add animations for state message changes
-* define nominal sensor ranges
-* colors for nominal sensor values
+
 
 
 ## Hardware Related
