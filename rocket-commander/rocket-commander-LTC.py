@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 
 """Rocket Commander - LTC side
 Runs on the LTC and relays power commands to the rocket.
@@ -147,6 +147,7 @@ except PhidgetException as e:
 #############
 # Main Loop #
 #############
+
 ORDERS = ['v360_on', 'v360_off', 'atv_on', 'atv_off', 'fc_on', 'fc_off',
           'rr_on', 'rr_off', 'wifi_on', 'wifi_off']
 
@@ -159,15 +160,12 @@ cdict['STATUS'] = 'INITIALIZED'
 
 while(True):
     sleep(1)
-    #~ print cdict.keys()
-    #~ print '--------'
-    #~ print cdict.values()
 
     for command in ORDERS:
         if cdict[command] == 'PLEASE':
             if cdict['LATCH'] == 'SET':
                 try:
-                    shell_command = "testscripts/" + command
+                    shell_command = command
                     results = subprocess.Popen(shell_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     results = results.communicate()
                     if results[1]:
@@ -176,7 +174,7 @@ while(True):
                         dictionary.addKey('STATUS', 'ERROR, TRY AGAIN')
                         dictionary.addKey(command, 'ERROR')
                     else:
-                        print "Message Sent: {}".format(results[0])
+                        print "Message Sent: {}".format('YES' if not results[0] else results[0])
                         dictionary.addKey('LATCH', 'UNSET')
                         dictionary.addKey('STATUS', 'MESSAGE SENT')
                         dictionary.addKey(command, 'ready')

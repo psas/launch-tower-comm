@@ -43,7 +43,7 @@ from kivy.uix.label  import Label
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
 
 
-LTCIP = 'localhost'
+LTCIP = '192.168.128.2'
 ORDERS = ['v360_on', 'v360_off', 'atv_on', 'atv_off', 'fc_on', 'fc_off',
           'rr_on', 'rr_off', 'wifi_on', 'wifi_off']
 

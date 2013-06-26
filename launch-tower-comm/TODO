@@ -7,25 +7,21 @@
 * LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
 * Set logging directory
-* Add control/indicator panel for sending flight computer commmands
-* Add rc-LTC.py to cron list.
-* Add a screen with top and another shell in it, to cron list.
+* Reboot LTC and check rocket-commander-LTC is up.
 * Add numeric bounds to color changes in indicators - RR
-* Change rc_on, rc_off to v360_on, v360_off on the LTC
 * Set default Rocket Commander window size.
 
 ### Non-critical
 * Color-fy the buttons
 * Add animations for state message changes
-
+* Install on LTC: rsync, tmux, vim, strace
 
 
 ## Hardware Related
 
 ### Critical
 
-* Wire up sensors & relays, Test indicators and controls
-* Practice connecting all external devices to LTC
+
 
 ### Non-critical
 
