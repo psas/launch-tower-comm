@@ -7,20 +7,17 @@
 * LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
 * Set logging directory
-* Reboot LTC and check rocket-commander-LTC is up.
 * Add numeric bounds to color changes in indicators - RR
-* Set default Rocket Commander window size.
 
 ### Non-critical
 * Color-fy the buttons
 * Add animations for state message changes
 * Install on LTC: rsync, tmux, vim, strace
-
+* Set default Rocket Commander window size.
 
 ## Hardware Related
 
 ### Critical
-
 
 
 ### Non-critical
