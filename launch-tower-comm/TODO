@@ -24,3 +24,12 @@
 
 * No sensor logging on LTC
 
+# Next launch
+* Do relays maintain state on power cycle?
+* ignition relay watchdog
+* Local phidgets service and our own network communication code
+* Timestamps in logs
+* Write to file for logging until Kivy stops breaking the Python logging
+* full event driven front-end
+* Calibrated sensor values
+* Try to break the network
