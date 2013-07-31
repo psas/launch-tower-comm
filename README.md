@@ -11,4 +11,4 @@ may require dependencies not listed here.
 
 ### Kivy Installation
 
-* `sudo pip install kivy`
+* Follow the Kivy docs instructions.  

@@ -112,9 +112,9 @@ class CorePhidget(LTCPhidget):
     sensor = dict()
     sensor[0] = TemperatureSensor("Internal Temperature", 0)
     sensor[1] = VoltageSensor("Ignition Battery", 1)
-    sensor[2] = Sensor("Humidity", 2)
-    sensor[3] = TemperatureSensor("External Temperature", 3)
-    sensor[4] = VoltageSensor("Rocket Ready", 4)
+    sensor[2] = Sensor("Humidity", 3)
+    sensor[3] = TemperatureSensor("External Temperature", 4)
+    sensor[4] = VoltageSensor("Rocket Ready", 2)
     sensor[5] = VoltageSensor("System Battery", 5)
     sensor[6] = VoltageSensor("Solar Voltage", 6)
     sensor[7] = VoltageSensor("Shore Power", 7)
@@ -140,7 +140,7 @@ class IgnitionRelay(LTCPhidget):
     devserial = 259173
     IP = LTCIP
     port = 5001
-    relay = Relay('Ignition Relay', 1)
+    relay = Relay('Ignition Relay', 0)
 
     def _onOutput(self, event):
         if event.index == self.relay.index:

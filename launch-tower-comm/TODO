@@ -6,24 +6,34 @@
 * `on_startup` set shore power indicator
 * LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
-* Test a LTC reboot cycle
-* Make Ignite buttons, labels, and text Red and white, blinky?
-* A real logging solution
+* Set logging directory
+* Add numeric bounds to color changes in indicators - RR
 
 ### Non-critical
+* Color-fy the buttons
 * Add animations for state message changes
-* define nominal sensor ranges
-* colors for nominal sensor values
-
+* Install on LTC: rsync, tmux, vim, strace
+* Set default Rocket Commander window size.
 
 ## Hardware Related
 
 ### Critical
 
-* Wire up sensors & relays, Test indicators and controls
-* Practice connecting all external devices to LTC
 
 ### Non-critical
 
 * No sensor logging on LTC
 
+# For version 1.0
+* Do relays maintain state on power cycle?
+* ignition relay watchdog
+* Timestamps in logs
+* Write to file for logging until Kivy stops breaking the Python logging
+* full event driven front-end
+* Calibrated sensor values
+* Try to break the network
+* compile with debug symbols, run under gdb, get stack trace on segfault
+
+# For version 1.1
+* Local phidgets service (on LTC) and our own network communication code
+* Send "Armed" and "Ignited" to IRC channel from Kivy

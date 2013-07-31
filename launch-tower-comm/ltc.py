@@ -58,12 +58,15 @@ from kivy.uix.image import AsyncImage
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, ListProperty
 from kivy.extras.highlight import KivyLexer
 
+from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
+from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerConnectArgs, ServerDisconnectArgs
+from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
 
 VERSION = '0.2'
 
 INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
-WEBSERVICEIP = "192.168.128.251"
+WEBSERVICEIP = "192.168.128.2"
 WEBSERVICEPORT = 5001
 central_dict = dict()
 
@@ -117,8 +120,8 @@ class RelayLabel(Label):
 
 class StatusDisplay(BoxLayout):
     states = {
-            "Nominal": ("Disable Shore power to arm", [.1, .1, .1, 1]),
-            "ARMED": ("You could abort", [0, 1, 1, 1]),
+            "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
+            "ARMED": ("You could abort", [1, 0, 0, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
             "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
             "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
@@ -154,7 +157,6 @@ class InterfaceKitPanel(BoxLayout):
 
 
 class IOIndicator(BoxLayout):
-
     def __init__(self, sensor, iotype, devserial, **kwargs):
         '''Indicator widget. Includes a name label, and status label.
 
@@ -243,6 +245,7 @@ class LTCApp(App):
         ltc.toplayout.add_widget(StatusDisplay())
 
         return ltc
+
 
 if __name__ == '__main__':
     LTCApp().run()

@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 
-"""Rocket Commander
-Sends power commands to the rocket.
+"""Rocket Commander, key changer testing
 
-Starts a Phidgets Dictionary that receives KeyChange events from the
-Phidgets Webservice and reacts by sending tty commands to the rocket.
-
-It then changes the command keys back to their nuetral state.  When the keys
-return to neutral, a KeyChangeListener in launch-tower-comm should update
-indicators.
-
+The code up until the testing block may be pasted into ipython to allow
+for interactive key/value changes.
 
 Uses code from the Phidgets example `Dictionary-simple.py` version 2.1.8,
 by Adam Stelmack.
@@ -19,16 +13,24 @@ __author__ = 'John Boyle'
 __version__ = '0.0.314'
 __date__ = 'June 2013'
 
+## COPY FROM HERE TO NEXT LINE OF #s for iPython usage
+######################################################
 
 #Basic imports
 from ctypes import *
-import sys
+import sys, subprocess
 from time import sleep
 
 #Phidget specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerConnectArgs, ServerDisconnectArgs
 from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
+
+IP = "localhost"
+
+##################
+# Phidgets setup #
+##################
 
 #Create a Dictionary object and a key listener object
 try:
@@ -70,7 +72,8 @@ def KeyChanged(e):
     elif e.reason == DictionaryKeyChangeReason.PHIDGET_DICTIONARY_CURRENT_VALUE:
         reason = "Current Value"
 
-    print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
+    if 'Heartbeat' not in e.key:
+        print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
     return 0
 
 def KeyRemoved(e):
@@ -83,10 +86,13 @@ def KeyRemoved(e):
     elif e.reason == DictionaryKeyChangeReason.PHIDGET_DICTIONARY_CURRENT_VALUE:
         reason = "Current Value"
 
-    print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
+    if 'Heartbeat' not in e.key:
+        print("%s -- Key: %s -- Value: %s" % (reason, e.key, e.value))
     return 0
 
-#Main Program Code
+
+#   Main Program   #
+
 try:
     dictionary.setErrorHandler(DictionaryError)
     dictionary.setServerConnectHandler(DictionaryServerConnected)
@@ -102,7 +108,7 @@ except PhidgetException as e:
 print("Opening Dictionary object....")
 
 try:
-    dictionary.openRemoteIP("192.168.128.250", 5001)
+    dictionary.openRemoteIP(IP, 5001)
 except PhidgetException as e:
     print("Phidget Exception %i: %s" % (e.code, e.details))
     print("Exiting....")
@@ -119,27 +125,23 @@ except PhidgetException as e:
     print("Exiting....")
     exit(1)
 
+##################################################################
+
+
+### TESTING KEYS
 try:
     print("Now we'll add some keys...")
     sleep(1)
 
-    dictionary.addKey("test1", "ok")
-    dictionary.addKey("test2", "ok", True)
-    dictionary.addKey("test3", "ok", False)
-    dictionary.addKey("test4", "ok", True)
+    dictionary.addKey("LTC_ON", "None")
+    dictionary.addKey("Command Check", "None")
+    dictionary.addKey("Command", "None")
     sleep(2)
+    dictionary.addKey("Command", "Nope")
 
-    print("Now we will test for key 'test2' being in the dictionary.")
+    print("Now we will test the LTC_ON Command.")
     sleep(1)
-
-    value = dictionary.getKey("test2")
-    print("Key: test2  Value: %s" % (value))
-
-    print("Now we will remove one of the keys...")
-    sleep(1)
-
-    dictionary.removeKey("test4")
-
+    dictionary.addKey("LTC_ON", "ff")
 except PhidgetException as e:
     print("Phidget Exception %i: %s" % (e.code, e.details))
     print("Exiting....")
