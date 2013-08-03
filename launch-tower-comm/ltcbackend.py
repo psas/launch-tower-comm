@@ -24,6 +24,9 @@ class LTCPhidget(object):
     devserial = 0
     IP = "0.0.0.0"
     port = 0
+    input = {}
+    output = {}
+    sensor = {}
 
     def __init__(self, **kwargs):
         self.attach = kwargs.pop('attach', None)
@@ -47,27 +50,50 @@ class LTCPhidget(object):
             self.ik.setOnInputChangeHandler(self._onInput)
         if self.sense is not None:
             self.ik.setOnSensorChangeHandler(self._onSensor)
+
+    def start(self):
         log.debug("Opening remote IP")
         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
     def _onAttach(self, event):
         self.attach(event)
+        for dev in input:
+            dev.callback['attach']()
+        for dev in output:
+            dev.callback['attach']()
+        for dev in sensor:
+            dev.callback['attach']()
 
     def _onDetach(self, event):
         self.detach(event)
+        for dev in input:
+            dev.callback['detach']()
+        for dev in output:
+            dev.callback['detach']()
+        for dev in sensor:
+            dev.callback['detach']()
 
     def _onError(self, event):
         if self.ik.isAttached():
             self.error(event)
+            for dev in input:
+                dev.callback['error']()
+            for dev in output:
+                dev.callback['error']()
+            for dev in sensor:
+                dev.callback['error']()
 
     def _onOutput(self, event):
         self.output(event)
+        output[event.index]['value']()
 
     def _onInput(self, event):
         self.input(event)
+        input[event.index]['value']()
 
     def _onSensor(self, event):
         self.sense(event)
+        sensor[event.index]['value']()
 
     def close(self):
         self.ik.closePhidget()
@@ -75,6 +101,11 @@ class LTCPhidget(object):
 class Sensor(object):
     isRatiometric = None
     unit = ""
+    callback = {"attach": lambda x: None,
+                 'detach': lambda x: None,
+                 'error' : lambda x: None,
+                 'value': lambda x: None }
+
     def __init__(self, name, index):
         self.name = name
         self.index = index
@@ -107,9 +138,11 @@ class CorePhidget(LTCPhidget):
     port = 5001
 
     shorepower = Relay('Shore Power Relay', 7)
-    inputWindspeed = 7  # make a sensor?
 
-    sensor = dict()
+    inputWindspeed = 7  # make a sensor?
+    output = {}
+    output[7] = shorepower
+    sensor = {}
     sensor[0] = TemperatureSensor("Internal Temperature", 0)
     sensor[1] = VoltageSensor("Ignition Battery", 1)
     sensor[2] = Sensor("Humidity", 3)
@@ -171,6 +204,10 @@ class LTCbackend(object):
                                 sensor=self.sensor)
         self.central_dict[str(self.relay.devserial) + " InterfaceKit"] = False
         self.central_dict[str(self.core.devserial) + " InterfaceKit"] = False
+
+    def start(self, event):
+        self.relay.start()
+        self.core.start()
 
     def attach(self, event):
         self.ignite(False)

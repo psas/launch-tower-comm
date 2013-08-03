@@ -86,7 +86,8 @@ class RelayLabel(Label):
             "Thinking": [0, 1, 1, 1],
             "Open": [0, 1, .5, 1],
             "Closed": [1, 0, 0, 1],
-            "Error": [1, 1, 0, 1]}
+            "Error": [1, 1, 0, 1],
+            "Unknown":[.1, .1, .1, 1]}
     def __init__(self, **kwargs):
         super(RelayLabel, self).__init__(**kwargs)
         self.set_state("Detached")
@@ -99,6 +100,11 @@ class RelayLabel(Label):
             self.text = text
         else:
             self.text = state
+
+        if state == 'Unknown':
+            self.color = [1, 1, 1, .1]
+        else:
+            self.color = [1, 1, 1, 1]
 
     def on_attach(self, event):
         self.set_state("Thinking")
@@ -157,41 +163,32 @@ class InterfaceKitPanel(BoxLayout):
 
 
 class IOIndicator(BoxLayout):
-    def __init__(self, sensor, iotype, devserial, **kwargs):
+    def __init__(self, sensor, **kwargs):
         '''Indicator widget. Includes a name label, and status label.
-
-        name<str>:      Real IO thing name. ex: "Wind Speed", "Battery Voltage"
-        iotype<str>:    Phidget name for channel: "output" "sensor" "input"
-        ioindex<int>:   Channel index.
-        devserial<str>: Serial # of InterfaceKit where this channel is found.
         '''
+        super(IOIndicator, self).__init__(**kwargs)
         self.name = sensor.name
         self.unit = sensor.unit
-        self.iotype = iotype.upper()
-        self.ioindex = sensor.index
-        self.devserial = devserial
         self.conversion = sensor.convert
-        super(IOIndicator, self).__init__(**kwargs)
-
         self.device_label.text = sensor.name
-        Clock.schedule_interval(self.check_status, 0.5)
+        sensor.callback['attach'] = self.on_attach
+        sensor.callback['detach'] = self.on_detach
+        sensor.callback['value'] = self.on_value
+        self.status_ind.set_state('Unknown')
 
-    def check_status(self, instance):
-        '''Retrieves values from internal dict, converts to proper units
-        and updates the sensor widget value display
-        '''
-        if central_dict[str(self.devserial) + " InterfaceKit"]:
-            self.status_ind.set_state('Open')
-        else:
-            self.status_ind.set_state('Detached')
-            return
 
-        io = "{} {} {}".format(self.devserial, self.iotype, self.ioindex)
+    def on_attach(self, event):
+        self.status_ind.set_state('Open')
+
+    def on_detach(self, event):
+        self.status_ind.set_state('Detached')
+
+    def on_value(self, event):
         try:
-            val = central_dict[io]
-        except KeyError:
-            self.status_ind.set_state('Closed', 'Not Found')
-            return
+            val = event.value
+        except AttributeError:
+            val = event.state
+
         if val is 0:  # The sensors seem to return 0 when absent.
             self.status_ind.set_state('Closed', 'Not Found')
             return
@@ -210,17 +207,18 @@ class LTCApp(App):
         Builder.load_file("ltcctrl.kv")
         backend = LTCbackend(central_dict)
         self.bind(on_stop=backend.close)
+#         self.bind(on_start=backend.start)
 
-        sens0 = IOIndicator(backend.core.sensor[0], 'sensor', INTERFACEKIT888)
-        sens1 = IOIndicator(backend.core.sensor[3], 'sensor', INTERFACEKIT888)
-        sens5 = IOIndicator(backend.core.sensor[2], 'sensor', INTERFACEKIT888)
-        sens6 = IOIndicator(backend.core.sensor[1], 'sensor', INTERFACEKIT888)
-        sens7 = IOIndicator(backend.core.sensor[5], 'sensor', INTERFACEKIT888)
-        sens8 = IOIndicator(backend.core.sensor[6], 'sensor', INTERFACEKIT888)
-        sens9 = IOIndicator(backend.core.sensor[7], 'sensor', INTERFACEKIT888)
-        sens4 = IOIndicator(backend.core.sensor[4], 'sensor', INTERFACEKIT888)
-        relay1 = IOIndicator(backend.core.shorepower, 'output', INTERFACEKIT888)
-        relay2 = IOIndicator(backend.relay.relay, 'output', INTERFACEKIT004)
+        sens0 = IOIndicator(backend.core.sensor[0])
+        sens1 = IOIndicator(backend.core.sensor[3])
+        sens5 = IOIndicator(backend.core.sensor[2])
+        sens6 = IOIndicator(backend.core.sensor[1])
+        sens7 = IOIndicator(backend.core.sensor[5])
+        sens8 = IOIndicator(backend.core.sensor[6])
+        sens9 = IOIndicator(backend.core.sensor[7])
+        sens4 = IOIndicator(backend.core.sensor[4])
+        relay1 = IOIndicator(backend.core.shorepower)
+        relay2 = IOIndicator(backend.relay.relay)
 
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
@@ -243,9 +241,7 @@ class LTCApp(App):
         ltc.indicators.add_widget(input_panel)
         ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower, central_dict))
         ltc.toplayout.add_widget(StatusDisplay())
-
         return ltc
-
 
 if __name__ == '__main__':
     LTCApp().run()
