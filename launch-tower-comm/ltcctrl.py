@@ -25,31 +25,36 @@ class IgnitionPopup(Popup):
         self.ignite()
 
 class LTCctrl(Accordion):
-    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, central_dict={}, **kwargs):
+    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
         super(LTCctrl, self).__init__(**kwargs)
         self.unarmed.collapse = False
         self.ignite = ignite
         self.shorepower = shorepower
         self.shorepower_button.state = 'normal'
-        self.central_dict = central_dict
+        self.shorepower_sensor_state = False
+        self.set_state = state
 
     def on_popup_ignite(self):
         try:
             self.ignite(True)
-            self.central_dict['state'] = 'IGNITED!'
+            self.set_state('IGNITED!')
             Clock.schedule_once(lambda x:self.on_abort(), 10)
         except PhidgetException:
             self.on_abort()
-            self.central_dict['state'] = 'Phidget Call Failed'
+            self.set_state('Phidget Call Failed')
 
     def on_popup_abort(self):
         self.ignite_button.state = 'normal'
 
+    def sp_callback(self, event):
+        if event.index == 7:
+            self.shorepower_sensor_state = event.state
+
     def on_arm(self):
         ik = "178346 OUTPUT 7"
-        if self.shorepower_button.state == 'down' and self.central_dict[ik] is False:
+        if self.shorepower_button.state == 'down' and self.shorepower_sensor_state is False:
             self.armed.collapse = False
-            self.central_dict['state'] = 'ARMED'
+            self.set_state('ARMED')
 
     def on_ignite(self):
         if self.ignite_button.state == 'normal':
@@ -63,18 +68,18 @@ class LTCctrl(Accordion):
             if self.ignite_button.state == 'down':
                 self.ignite_button.state = 'normal'
             self.unarmed.collapse = False
-            self.central_dict['state'] = 'Nominal'
+            self.set_state('Nominal')
         except PhidgetException:
-            self.central_dict['state'] = 'Phidget Call Failed'
+            self.set_state('Phidget Call Failed')
 
     def on_shorepower(self, button, state):
         try:
             self.shorepower(state)
             button.state = 'down'
-            self.central_dict['state'] = 'Nominal'
+            self.set_state('Nominal')
         except PhidgetException:
             button.state = 'normal'
-            self.central_dict['state'] = 'Phidget Call Failed'
+            self.set_state('Phidget Call Failed')
 
 
 #########Module test########

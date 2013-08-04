@@ -68,9 +68,6 @@ INTERFACEKIT888 = 178346
 INTERFACEKIT004 = 259173
 WEBSERVICEIP = "192.168.128.2"
 WEBSERVICEPORT = 5001
-central_dict = dict()
-
-
 
 class LTC(Widget):
     # Loaded from the kv lang file and here.
@@ -136,21 +133,16 @@ class StatusDisplay(BoxLayout):
         '''Displays the state and a (hopefully) helpful message.'''
 
         super(StatusDisplay, self).__init__(**kwargs)
-        central_dict['state'] = 'Disconnected'
-        Clock.schedule_interval(self.check_status, .5)
+        self.set_state("Disconnected")
 
-    def check_status(self, instance):
-        core = str(INTERFACEKIT888) + ' InterfaceKit'
-        relay = str(INTERFACEKIT004) + ' InterfaceKit'
-        if central_dict[core] and central_dict[relay]:
-            if central_dict['state'] == 'Disconnected':
-                central_dict['state'] = 'Nominal'
-            self.set_state(central_dict['state'])
-        else:
-            if central_dict['state'] == 'Phidget Call Failed':
-                self.set_state('Phidget Call Failed')
-            else:
-                self.set_state('Disconnected')
+    def on_attach(self, event):
+        self.set_state("Nominal")
+
+    def on_detach(self, event):
+        self.set_state("Disconnected")
+
+    def on_error(self, event):
+        self.set_state("Phidget Call Failed")
 
     def set_state(self, state):
         self.state_info.text = state
@@ -171,11 +163,10 @@ class IOIndicator(BoxLayout):
         self.unit = sensor.unit
         self.conversion = sensor.convert
         self.device_label.text = sensor.name
-        sensor.callback['attach'] = self.on_attach
-        sensor.callback['detach'] = self.on_detach
-        sensor.callback['value'] = self.on_value
         self.status_ind.set_state('Unknown')
-
+        sensor.add_callback(self.on_attach, 'attach')
+        sensor.add_callback(self.on_detach, 'detach')
+        sensor.add_callback(self.on_value, 'value')
 
     def on_attach(self, event):
         self.status_ind.set_state('Open')
@@ -205,7 +196,7 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
-        backend = LTCbackend(central_dict)
+        backend = LTCbackend()
         self.bind(on_stop=backend.close)
 #         self.bind(on_start=backend.start)
 
@@ -235,12 +226,21 @@ class LTCApp(App):
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(sens9)
 
+        status = StatusDisplay()
+        backend.core.add_callback(status.on_attach, 'attach')
+        backend.core.add_callback(status.on_detach, 'detach')
+        backend.core.add_callback(status.on_error, 'error')
+        backend.relay.add_callback(status.on_attach, 'attach')
+        backend.relay.add_callback(status.on_detach, 'detach')
+        backend.relay.add_callback(status.on_error, 'error')
 
+        ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
+        backend.core.shorepower.add_callback(ctrl.sp_callback, "value")
         ltc = LTC()
         ltc.indicators.add_widget(relay_panel)
         ltc.indicators.add_widget(input_panel)
-        ltc.toplayout.add_widget(LTCctrl(backend.ignite, backend.shorepower, central_dict))
-        ltc.toplayout.add_widget(StatusDisplay())
+        ltc.toplayout.add_widget(ctrl)
+        ltc.toplayout.add_widget(status)
         return ltc
 
 if __name__ == '__main__':

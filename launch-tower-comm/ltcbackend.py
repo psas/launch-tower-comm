@@ -24,87 +24,95 @@ class LTCPhidget(object):
     devserial = 0
     IP = "0.0.0.0"
     port = 0
+
+    attach = []
+    detach = []
+    error = []
     input = {}
     output = {}
     sensor = {}
 
+    callback = {"attach": attach,
+                'detach': detach,
+                'error': error}
+
+
     def __init__(self, **kwargs):
-        self.attach = kwargs.pop('attach', None)
-        self.detach = kwargs.pop('detach', None)
-        self.error = kwargs.pop('error', None)
-        self.output = kwargs.pop('output', None)
-        self.input = kwargs.pop('input', None)
-        self.sense = kwargs.pop('sensor', None)
         log.debug("Acquiring InterfaceKit")
         self.ik = InterfaceKit()
         log.debug("Registering Handlers")
-        if self.attach is not None:
-            self.ik.setOnAttachHandler(self._onAttach)
-        if self.detach is not None:
-            self.ik.setOnDetachHandler(self._onDetach)
-        if self.error is not None:
-            self.ik.setOnErrorhandler(self._onError)
-        if self.output is not None:
-            self.ik.setOnOutputChangeHandler(self._onOutput)
-        if self.input is not None:
-            self.ik.setOnInputChangeHandler(self._onInput)
-        if self.sense is not None:
-            self.ik.setOnSensorChangeHandler(self._onSensor)
+        self.ik.setOnAttachHandler(self._onAttach)
+        self.ik.setOnDetachHandler(self._onDetach)
+        self.ik.setOnErrorhandler(self._onError)
+        self.ik.setOnOutputChangeHandler(self._onOutput)
+        self.ik.setOnInputChangeHandler(self._onInput)
+        self.ik.setOnSensorChangeHandler(self._onSensor)
 
     def start(self):
         log.debug("Opening remote IP")
         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
 
+    def close(self):
+        self.ik.closePhidget()
+
+    def add_callback(self, cb, type):
+        self.callback[type].append(cb)
+
     def _onAttach(self, event):
-        self.attach(event)
+        for cb in callback['attach']:
+            cb(event)
         for dev in input:
-            dev.callback['attach']()
+            dev.callback['attach'](event)
         for dev in output:
-            dev.callback['attach']()
+            dev.callback['attach'](event)
         for dev in sensor:
-            dev.callback['attach']()
+            dev.callback['attach'](event)
 
     def _onDetach(self, event):
-        self.detach(event)
+        for cb in callback['detach']:
+            cb(event)
         for dev in input:
-            dev.callback['detach']()
+            dev.callback['detach'](event)
         for dev in output:
-            dev.callback['detach']()
+            dev.callback['detach'](event)
         for dev in sensor:
-            dev.callback['detach']()
+            dev.callback['detach'](event)
 
     def _onError(self, event):
         if self.ik.isAttached():
-            self.error(event)
+            for cb in callback['error']:
+                cb(event)
             for dev in input:
-                dev.callback['error']()
+                dev.callback['error'](event)
             for dev in output:
-                dev.callback['error']()
+                dev.callback['error'](event)
             for dev in sensor:
-                dev.callback['error']()
+                dev.callback['error'](event)
 
     def _onOutput(self, event):
         self.output(event)
-        output[event.index]['value']()
+        for cb in output[event.index]['value']:
+            cb(event)
 
     def _onInput(self, event):
         self.input(event)
-        input[event.index]['value']()
+        for cb in output[event.index]['value']:
+            cb(event)
 
     def _onSensor(self, event):
         self.sense(event)
-        sensor[event.index]['value']()
+        for cb in output[event.index]['value']:
+            cb(event)
 
-    def close(self):
-        self.ik.closePhidget()
+
+    # TODO: __str__ returns devserial?
 
 class Sensor(object):
     isRatiometric = None
     unit = ""
-    callback = {"attach": lambda x: None,
-                 'detach': lambda x: None,
-                 'error' : lambda x: None,
-                 'value': lambda x: None }
+    callback = {"attach": [],
+                 'detach': [],
+                 'value': []}
 
     def __init__(self, name, index):
         self.name = name
@@ -112,6 +120,9 @@ class Sensor(object):
 
     def convert(self, sample):
         return sample
+
+    def add_callback(self, cb, type):
+        self.callback[type].append(cb)
 
 class VoltageSensor(Sensor):
     isRatiometric = False
@@ -189,21 +200,14 @@ class IgnitionRelay(LTCPhidget):
 
 class LTCbackend(object):
 
-    def __init__(self, central_dict):
+    def __init__(self):
         log.info("Starting Backend")
-        self.central_dict = central_dict
-        self.relay = IgnitionRelay(attach=self.attach,
-                                   detach=self.detach,
-                                   error=self.error,
-                                   output=self.output)
-        self.core = CorePhidget(attach=self.attach,
-                                detach=self.detach,
-                                error=self.error,
-                                output=self.output,
-                                input=self.input,
-                                sensor=self.sensor)
-        self.central_dict[str(self.relay.devserial) + " InterfaceKit"] = False
-        self.central_dict[str(self.core.devserial) + " InterfaceKit"] = False
+        self.relay = IgnitionRelay()
+        self.relay.add_callback(self.attach, "attach")
+
+        self.core = CorePhidget()
+        self.core.add_callback(self.attach, "attach")
+        self.core.shorepower.add_callback(self.output, 'value')
 
     def start(self, event):
         self.relay.start()
@@ -211,48 +215,11 @@ class LTCbackend(object):
 
     def attach(self, event):
         self.ignite(False)
-        attached = event.device
-        ik = "{} InterfaceKit".format(attached.getSerialNum())
-        log.info(ik + " Attached")
-        self.central_dict[ik] = True
-        self.central_dict['state'] = 'Nominal'
-
-    def detach(self, event):
-        attached = event.device
-        ik = "{} InterfaceKit".format(attached.getSerialNum())
-        log.info(ik + " Detached")
-        self.central_dict[ik] = False
-        self.central_dict['state'] = 'Disconnected'
-
-    def error(self, event):
-        try:
-            source = event.device
-            log.info("InterfaceKit %i: Phidget Error %i: %s"
-                  % (source.getSerialNum(), event.eCode, event.description))
-        except PhidgetException as e:
-            log.info("Phidget Exception %i: %s" % (event.code, event.details))
-        finally:
-            self.central_dict['state'] = 'Phidget Call Failed'
 
     def output(self, event):
-        source = event.device
-        output = "{} OUTPUT {}".format(source.getSerialNum(), event.index)
-        log.info(output + ': ' + str(event.state))
-        self.central_dict[output] = event.state
         if event.index == self.core.shorepower.index:
             self.shorepower_state = event.state
 
-    def input(self, event):
-        source = event.device
-        input = "{} INPUT {}".format(source.getSerialNum(), event.index)
-        log.info(input + ': ' + str(event.state))
-        self.central_dict[input] = event.state
-
-    def sensor(self, event):
-        source = event.device
-        sensor = "{} SENSOR {}".format(source.getSerialNum(), event.index)
-        log.info(sensor + ': ' + str(event.value))
-        self.central_dict[sensor] = event.value
 
     def close(self, event):
         log.debug("Closing LTCBackend")
