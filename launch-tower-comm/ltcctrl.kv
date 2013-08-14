@@ -3,7 +3,8 @@
 <ltcctrl>
     armed: armed
     unarmed: unarmed
-    shorepower_button: shorepower_button
+    shorepower_button_off: shorepower_button_off
+    shorepower_button_on: shorepower_button_on
     reset: reset
     ignite_button: ignite_button
     LTCAccordionItem:
@@ -14,12 +15,13 @@
             orientation: 'vertical'
             ToggleButton:
                 font_size: 40
+                id: shorepower_button_on
                 text: 'Enable Shore Power'
                 group: 'Shore Power'
                 on_release:  root.on_shorepower(self, True)
             ToggleButton:
                 font_size: 40
-                id: shorepower_button
+                id: shorepower_button_off
                 text: 'Disable Shore Power'
                 group: 'Shore Power'
                 state: 'down'

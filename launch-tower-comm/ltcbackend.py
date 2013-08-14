@@ -25,17 +25,16 @@ class LTCPhidget(object):
     IP = "0.0.0.0"
     port = 0
 
-    attach = []
-    detach = []
-    error = []
     input = {}
     output = {}
     sensor = {}
 
-    callback = {"attach": attach,
-                'detach': detach,
-                'error': error}
-
+    callback = {"attach": [],
+                'detach': [],
+                'error': [],
+                'output': [],
+                'input': [],
+                'sensor': []}
 
     def __init__(self, **kwargs):
         log.debug("Acquiring InterfaceKit")
@@ -59,50 +58,71 @@ class LTCPhidget(object):
         self.callback[type].append(cb)
 
     def _onAttach(self, event):
-        for cb in callback['attach']:
+        for cb in self.callback['attach']:
             cb(event)
-        for dev in input:
-            dev.callback['attach'](event)
-        for dev in output:
-            dev.callback['attach'](event)
-        for dev in sensor:
-            dev.callback['attach'](event)
+        for dev in self.input.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
+        for dev in self.output.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
+        for dev in self.sensor.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
 
     def _onDetach(self, event):
-        for cb in callback['detach']:
+        for cb in self.callback['detach']:
             cb(event)
-        for dev in input:
-            dev.callback['detach'](event)
-        for dev in output:
-            dev.callback['detach'](event)
-        for dev in sensor:
-            dev.callback['detach'](event)
+        for dev in self.input.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
+        for dev in self.output.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
+        for dev in self.ensor.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
 
     def _onError(self, event):
         if self.ik.isAttached():
-            for cb in callback['error']:
+            for cb in self.callback['error']:
                 cb(event)
-            for dev in input:
-                dev.callback['error'](event)
-            for dev in output:
-                dev.callback['error'](event)
-            for dev in sensor:
-                dev.callback['error'](event)
+            for dev in self.input.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
+            for dev in self.output.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
+            for dev in self.sensor.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
 
     def _onOutput(self, event):
-        self.output(event)
-        for cb in output[event.index]['value']:
+        for cb in self.callback['output']:
             cb(event)
+        try:
+            for cb in self.output[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
 
     def _onInput(self, event):
-        self.input(event)
-        for cb in output[event.index]['value']:
+        for cb in self.callback['input']:
             cb(event)
+        try:
+            for cb in self.input[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
 
     def _onSensor(self, event):
-        self.sense(event)
-        for cb in output[event.index]['value']:
+        for cb in self.callback['sensor']:
             cb(event)
+        try:
+            for cb in self.sensor[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
 
 
     # TODO: __str__ returns devserial?
@@ -110,11 +130,11 @@ class LTCPhidget(object):
 class Sensor(object):
     isRatiometric = None
     unit = ""
-    callback = {"attach": [],
-                 'detach': [],
-                 'value': []}
 
     def __init__(self, name, index):
+        self.callback = {"attach": [],
+                         'detach': [],
+                         'value': []}
         self.name = name
         self.index = index
 
@@ -165,7 +185,7 @@ class CorePhidget(LTCPhidget):
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)
-        self.attach(event)
+        super(CorePhidget, self)._onAttach(event)
 
     def _onSensor(self, event):
         module = self.sensor[event.index]
@@ -173,8 +193,7 @@ class CorePhidget(LTCPhidget):
             self.ik.setRatiometric(True)
             event.value = self.ik.getSensorValue(event.index)
             self.ik.setRatiometric(False)
-        event.sensor = self.sensor[event.index]
-        self.sense(event)
+        super(CorePhidget, self)._onSensor(event)
 
     def set24vState(self, state):
         self.ik.setOutputState(self.shorepower.index, state)
@@ -185,10 +204,12 @@ class IgnitionRelay(LTCPhidget):
     IP = LTCIP
     port = 5001
     relay = Relay('Ignition Relay', 0)
+    output = {}
+    output[0] = relay
 
     def _onOutput(self, event):
         if event.index == self.relay.index:
-            self.output(event)
+            super(IgnitionRelay, self)._onOutput(event)
 
     def toggleIgnitionRelayState(self, event):
         if self.ik.isAttached():

@@ -144,6 +144,15 @@ class StatusDisplay(BoxLayout):
     def on_error(self, event):
         self.set_state("Phidget Call Failed")
 
+    def on_ignite(self, event):
+        if event.state is True:
+            self.set_state('IGNITED!')
+        else:
+            self.set_state("Nominal")
+
+    def on_value(self, event):
+        self.set_state("Nominal")
+
     def set_state(self, state):
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
@@ -198,7 +207,7 @@ class LTCApp(App):
         Builder.load_file("ltcctrl.kv")
         backend = LTCbackend()
         self.bind(on_stop=backend.close)
-#         self.bind(on_start=backend.start)
+        self.bind(on_start=backend.start)
 
         sens0 = IOIndicator(backend.core.sensor[0])
         sens1 = IOIndicator(backend.core.sensor[3])
@@ -233,6 +242,7 @@ class LTCApp(App):
         backend.relay.add_callback(status.on_attach, 'attach')
         backend.relay.add_callback(status.on_detach, 'detach')
         backend.relay.add_callback(status.on_error, 'error')
+        backend.relay.relay.add_callback(status.on_ignite, 'value')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
         backend.core.shorepower.add_callback(ctrl.sp_callback, "value")

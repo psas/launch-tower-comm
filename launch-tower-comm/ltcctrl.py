@@ -4,10 +4,18 @@ kivy.require('1.0.5')
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
-
+from kivy.uix.button import Button
 from Phidgets.PhidgetException import PhidgetException
 
 from ltcbackend import LTCbackend
+
+class LTCButton(Button):
+    def _do_press(self):
+        pass
+
+    def _do_release(self):
+        pass
+
 
 class LTCAccordionItem(AccordionItem):
     def on_touch_down(self, touch):
@@ -25,20 +33,21 @@ class IgnitionPopup(Popup):
         self.ignite()
 
 class LTCctrl(Accordion):
+    ignition_abort_timeout = 10
+
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
         super(LTCctrl, self).__init__(**kwargs)
         self.unarmed.collapse = False
         self.ignite = ignite
         self.shorepower = shorepower
-        self.shorepower_button.state = 'normal'
+        self.shorepower_button_off.state = 'normal'
         self.shorepower_sensor_state = False
         self.set_state = state
 
     def on_popup_ignite(self):
         try:
             self.ignite(True)
-            self.set_state('IGNITED!')
-            Clock.schedule_once(lambda x:self.on_abort(), 10)
+            Clock.schedule_once(lambda x:self.on_abort(), self.ignition_abort_timeout)
         except PhidgetException:
             self.on_abort()
             self.set_state('Phidget Call Failed')
@@ -46,13 +55,8 @@ class LTCctrl(Accordion):
     def on_popup_abort(self):
         self.ignite_button.state = 'normal'
 
-    def sp_callback(self, event):
-        if event.index == 7:
-            self.shorepower_sensor_state = event.state
-
     def on_arm(self):
-        ik = "178346 OUTPUT 7"
-        if self.shorepower_button.state == 'down' and self.shorepower_sensor_state is False:
+        if self.shorepower_button_off.state == 'down' and self.shorepower_sensor_state is False:
             self.armed.collapse = False
             self.set_state('ARMED')
 
@@ -61,6 +65,20 @@ class LTCctrl(Accordion):
             self.on_abort()
         else:
             IgnitionPopup(self.on_popup_ignite, self.on_popup_abort).open()
+
+#     def on_ignite(self, state):
+#         if state is True:
+#             self.bttn_ignite.state = 'down'
+#         elif state is False:
+#             self.bttn_ignite.state = 'normal'
+
+    def on_shorepower(self, state):
+        if state is True:
+            self.bttn_shorepower_on = True
+            self.bttn_shorepower_off = False
+        elif state is False:
+            self.bttn_shorepower_on = False
+            self.bttn_shorepower_off = True
 
     def on_abort(self):
         try:
@@ -72,10 +90,18 @@ class LTCctrl(Accordion):
         except PhidgetException:
             self.set_state('Phidget Call Failed')
 
+
+
+    def sp_callback(self, event):
+        self.shorepower_sensor_state = event.state
+        if event.state is True:
+            self.shorepower_button_on.state = 'down'
+        else:
+            self.shorepower_button_off.state = 'down'
+
     def on_shorepower(self, button, state):
         try:
             self.shorepower(state)
-            button.state = 'down'
             self.set_state('Nominal')
         except PhidgetException:
             button.state = 'normal'
