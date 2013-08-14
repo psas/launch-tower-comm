@@ -147,7 +147,6 @@ except PhidgetException as e:
 #############
 # Main Loop #
 #############
-
 ORDERS = ['v360_on', 'v360_off', 'atv_on', 'atv_off', 'fc_on', 'fc_off',
           'rr_on', 'rr_off', 'wifi_on', 'wifi_off']
 
@@ -160,6 +159,9 @@ cdict['STATUS'] = 'INITIALIZED'
 
 while(True):
     sleep(1)
+    #~ print cdict.keys()
+    #~ print '--------'
+    #~ print cdict.values()
 
     for command in ORDERS:
         if cdict[command] == 'PLEASE':
@@ -174,7 +176,9 @@ while(True):
                         dictionary.addKey('STATUS', 'ERROR, TRY AGAIN')
                         dictionary.addKey(command, 'ERROR')
                     else:
-                        print "Message Sent: {}".format('YES' if not results[0] else results[0])
+			results_msg = 'Yes' if not results[0] else results[0]
+			print "Message: ", results_msg
+                        print "Message Sent: %s" % results_msg
                         dictionary.addKey('LATCH', 'UNSET')
                         dictionary.addKey('STATUS', 'MESSAGE SENT')
                         dictionary.addKey(command, 'ready')

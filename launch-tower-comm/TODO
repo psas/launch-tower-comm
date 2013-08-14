@@ -25,7 +25,6 @@
 * No sensor logging on LTC
 
 # For version 1.0
-* Do relays maintain state on power cycle?
 * ignition relay watchdog
 * Timestamps in logs
 * Write to file for logging until Kivy stops breaking the Python logging
