@@ -79,7 +79,7 @@ class LTCPhidget(object):
         for dev in self.output.itervalues():
             for cb in dev.callback['detach']:
                 cb(event)
-        for dev in self.ensor.itervalues():
+        for dev in self.sensor.itervalues():
             for cb in dev.callback['detach']:
                 cb(event)
 
@@ -254,10 +254,13 @@ class LTCbackend(object):
     def ignite(self, state):
         if state is False:
             self.relay.setIgnitionRelayState(False)
-        elif self.shorepower_state is False and state is True:
-            self.relay.setIgnitionRelayState(True)
+        elif state is True:
+            if self.shorepower_state is False:
+                self.relay.setIgnitionRelayState(True)
+            else:
+                raise PhidgetException(1)  # TODO: more descriptive errno?
         else:
-            raise PhidgetException(1)  # TODO: more descriptive errno?
+            raise TypeError
 
     def shorepower(self, state):
         self.core.set24vState(state)

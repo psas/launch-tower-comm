@@ -64,11 +64,6 @@ from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListen
 
 VERSION = '0.2'
 
-INTERFACEKIT888 = 178346
-INTERFACEKIT004 = 259173
-WEBSERVICEIP = "192.168.128.2"
-WEBSERVICEPORT = 5001
-
 class LTC(Widget):
     # Loaded from the kv lang file and here.
     app = ObjectProperty(None)
@@ -122,6 +117,7 @@ class RelayLabel(Label):
         self.set_state("Thinking")
 
 class StatusDisplay(BoxLayout):
+    # TODO: scrollable log
     states = {
             "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
             "ARMED": ("You could abort", [1, 0, 0, 1]),
@@ -245,7 +241,8 @@ class LTCApp(App):
         backend.relay.relay.add_callback(status.on_ignite, 'value')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
-        backend.core.shorepower.add_callback(ctrl.sp_callback, "value")
+        backend.core.shorepower.add_callback(ctrl.on_shorepower, "value")
+        backend.relay.relay.add_callback(ctrl.on_ignite, "value")
         ltc = LTC()
         ltc.indicators.add_widget(relay_panel)
         ltc.indicators.add_widget(input_panel)
