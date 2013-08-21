@@ -160,7 +160,7 @@ class TemperatureSensor(Sensor):
 
 class Relay(Sensor):
     def convert(self, sample):
-        return "Open" if sample else "Closed"
+        return "Closed" if sample else "Open"
 
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
