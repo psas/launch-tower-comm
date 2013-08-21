@@ -24,7 +24,6 @@ class LTCAccordionItem(AccordionItem):
         return super(AccordionItem, self).on_touch_down(touch)
 
 class IgnitionPopup(Popup):
-    # TODO: popup should never be up when ignite button is lit
     def __init__(self, ignite=lambda: None, abort=lambda: None, **kwargs):
         self.ignite = ignite
         self.abort = abort
@@ -43,9 +42,10 @@ class LTCctrl(Accordion):
     ignition_abort_timeout = 10
 
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
-        # setup accordion
+        # setup gui
         super(LTCctrl, self).__init__(**kwargs)
         self.unarmed.collapse = False
+        self.popup = IgnitionPopup(self._on_popup_ignite)
 
         # setup callbacks
         self.ignite = ignite
@@ -81,6 +81,7 @@ class LTCctrl(Accordion):
         if event.state is True:
             self.ignite_button.state = 'down'
             self._ignition_state = True
+            self.popup.dismiss()
         elif event.state is False:
             self.ignite_button.state = 'normal'
             # self.arm depends on self._ignition_state being correct
@@ -115,7 +116,7 @@ class LTCctrl(Accordion):
         if self._ignition_state is True:
             self._on_abort()
         else:
-            IgnitionPopup(self._on_popup_ignite).open()
+            self.popup.open()
 
     def _on_abort(self):
         # TODO: cancel scheduled abort
