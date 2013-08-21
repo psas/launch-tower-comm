@@ -38,7 +38,7 @@ class LTCctrl(Accordion):
     # LTCctrl should only issue ARM and ARM -> Nominal|Abort Failed changes
     # because they're the only state changes it has a say in.
 
-    # Assumption: trust that buttons are always synched to internal state
+    # TODO: checks that buttons are displaying the right thing?
 
     ignition_abort_timeout = 10
 

@@ -76,8 +76,8 @@ class RelayLabel(Label):
     background_color = ListProperty([1, 1, 1, 1])
     states = {"Detached": [.1, .1, .1, 1],
             "Thinking": [0, 1, 1, 1],
-            "Open": [0, 1, .5, 1],
-            "Closed": [1, 0, 0, 1],
+            "Open": [1, 0, 0, 1],
+            "Closed": [0, 1, .5, 1],
             "Error": [1, 1, 0, 1],
             "Unknown":[.1, .1, .1, 1]}
     def __init__(self, **kwargs):
@@ -106,9 +106,9 @@ class RelayLabel(Label):
 
     def on_output_changed(self, event):
         if event.state:
-            self.set_state("Open")
-        else:
             self.set_state("Closed")
+        else:
+            self.set_state("Open")
 
     def on_error(self, event):
         self.set_state("Error")
@@ -174,7 +174,7 @@ class IOIndicator(BoxLayout):
         sensor.add_callback(self.on_value, 'value')
 
     def on_attach(self, event):
-        self.status_ind.set_state('Open')
+        self.status_ind.set_state('Closed')
 
     def on_detach(self, event):
         self.status_ind.set_state('Detached')
@@ -186,7 +186,7 @@ class IOIndicator(BoxLayout):
             val = event.state
 
         if val is 0:  # The sensors seem to return 0 when absent.
-            self.status_ind.set_state('Closed', 'Not Found')
+            self.status_ind.set_state('Open', 'Not Found')
             return
 
         newval = self.conversion(val)
