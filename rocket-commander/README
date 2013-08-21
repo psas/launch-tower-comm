@@ -1,0 +1,1 @@
+Rocket Commander is a python script that sits on the LTC and looks for signals from LTComm via the Phidget web service and runs local scripts that talk serial to the APS on the FC

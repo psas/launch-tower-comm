@@ -1,9 +1,11 @@
 #: import LTCAccordionItem ltcctrl.LTCAccordionItem
+#: import LTCButton ltcctrl.LTCButton
 
 <ltcctrl>
     armed: armed
     unarmed: unarmed
-    shorepower_button: shorepower_button
+    shorepower_button_off: shorepower_button_off
+    shorepower_button_on: shorepower_button_on
     reset: reset
     ignite_button: ignite_button
     LTCAccordionItem:
@@ -12,38 +14,36 @@
         title: 'Unarmed'
         BoxLayout:
             orientation: 'vertical'
-            ToggleButton:
+            LTCButton:
                 font_size: 40
+                id: shorepower_button_on
                 text: 'Enable Shore Power'
-                group: 'Shore Power'
-                on_release:  root.on_shorepower(self, True)
-            ToggleButton:
+                on_release:  root._on_shorepower_button(True)
+            LTCButton:
                 font_size: 40
-                id: shorepower_button
+                id: shorepower_button_off
                 text: 'Disable Shore Power'
-                group: 'Shore Power'
-                state: 'down'
-                on_release: root.on_shorepower(self, False)
+                on_release: root._on_shorepower_button(False)
             Button:
                 font_size: 40
                 text: 'Arm'
-                on_release: root.on_arm()
+                on_release: root.arm(True)
     LTCAccordionItem:
         font_size: 40
         id: armed
         title: 'Armed'
         BoxLayout:
             orientation: 'vertical'
-            ToggleButton:
+            LTCButton:
                 font_size: 40
                 id: ignite_button
                 text: 'Ignite'
-                on_release: root.on_ignite()
+                on_release: root._ignition_popup()
             Button:
                 font_size: 40
                 id: reset
                 text: 'Abort'
-                on_release: root.on_abort()
+                on_release: root._on_abort()
 
 
 <IgnitionPopup>

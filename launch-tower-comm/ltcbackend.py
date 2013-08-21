@@ -25,62 +25,124 @@ class LTCPhidget(object):
     IP = "0.0.0.0"
     port = 0
 
+    input = {}
+    output = {}
+    sensor = {}
+
+    callback = {"attach": [],
+                'detach': [],
+                'error': [],
+                'output': [],
+                'input': [],
+                'sensor': []}
+
     def __init__(self, **kwargs):
-        self.attach = kwargs.pop('attach', None)
-        self.detach = kwargs.pop('detach', None)
-        self.error = kwargs.pop('error', None)
-        self.output = kwargs.pop('output', None)
-        self.input = kwargs.pop('input', None)
-        self.sense = kwargs.pop('sensor', None)
         log.debug("Acquiring InterfaceKit")
         self.ik = InterfaceKit()
         log.debug("Registering Handlers")
-        if self.attach is not None:
-            self.ik.setOnAttachHandler(self._onAttach)
-        if self.detach is not None:
-            self.ik.setOnDetachHandler(self._onDetach)
-        if self.error is not None:
-            self.ik.setOnErrorhandler(self._onError)
-        if self.output is not None:
-            self.ik.setOnOutputChangeHandler(self._onOutput)
-        if self.input is not None:
-            self.ik.setOnInputChangeHandler(self._onInput)
-        if self.sense is not None:
-            self.ik.setOnSensorChangeHandler(self._onSensor)
+        self.ik.setOnAttachHandler(self._onAttach)
+        self.ik.setOnDetachHandler(self._onDetach)
+        self.ik.setOnErrorhandler(self._onError)
+        self.ik.setOnOutputChangeHandler(self._onOutput)
+        self.ik.setOnInputChangeHandler(self._onInput)
+        self.ik.setOnSensorChangeHandler(self._onSensor)
+
+    def start(self):
         log.debug("Opening remote IP")
         self.ik.openRemoteIP(self.IP, self.port, self.devserial)
-
-    def _onAttach(self, event):
-        self.attach(event)
-
-    def _onDetach(self, event):
-        self.detach(event)
-
-    def _onError(self, event):
-        if self.ik.isAttached():
-            self.error(event)
-
-    def _onOutput(self, event):
-        self.output(event)
-
-    def _onInput(self, event):
-        self.input(event)
-
-    def _onSensor(self, event):
-        self.sense(event)
 
     def close(self):
         self.ik.closePhidget()
 
+    def add_callback(self, cb, type):
+        self.callback[type].append(cb)
+
+    def _onAttach(self, event):
+        for cb in self.callback['attach']:
+            cb(event)
+        for dev in self.input.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
+        for dev in self.output.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
+        for dev in self.sensor.itervalues():
+            for cb in dev.callback['attach']:
+                cb(event)
+
+    def _onDetach(self, event):
+        for cb in self.callback['detach']:
+            cb(event)
+        for dev in self.input.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
+        for dev in self.output.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
+        for dev in self.sensor.itervalues():
+            for cb in dev.callback['detach']:
+                cb(event)
+
+    def _onError(self, event):
+        if self.ik.isAttached():
+            for cb in self.callback['error']:
+                cb(event)
+            for dev in self.input.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
+            for dev in self.output.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
+            for dev in self.sensor.itervalues():
+                for cb in dev.callback['error']:
+                    cb(event)
+
+    def _onOutput(self, event):
+        for cb in self.callback['output']:
+            cb(event)
+        try:
+            for cb in self.output[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
+
+    def _onInput(self, event):
+        for cb in self.callback['input']:
+            cb(event)
+        try:
+            for cb in self.input[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
+
+    def _onSensor(self, event):
+        for cb in self.callback['sensor']:
+            cb(event)
+        try:
+            for cb in self.sensor[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
+
+
+    # TODO: __str__ returns devserial?
+
 class Sensor(object):
     isRatiometric = None
     unit = ""
+
     def __init__(self, name, index):
+        self.callback = {"attach": [],
+                         'detach': [],
+                         'value': []}
         self.name = name
         self.index = index
 
     def convert(self, sample):
         return sample
+
+    def add_callback(self, cb, type):
+        self.callback[type].append(cb)
 
 class VoltageSensor(Sensor):
     isRatiometric = False
@@ -107,9 +169,11 @@ class CorePhidget(LTCPhidget):
     port = 5001
 
     shorepower = Relay('Shore Power Relay', 7)
-    inputWindspeed = 7  # make a sensor?
 
-    sensor = dict()
+    inputWindspeed = 7  # make a sensor?
+    output = {}
+    output[7] = shorepower
+    sensor = {}
     sensor[0] = TemperatureSensor("Internal Temperature", 0)
     sensor[1] = VoltageSensor("Ignition Battery", 1)
     sensor[2] = Sensor("Humidity", 3)
@@ -121,7 +185,7 @@ class CorePhidget(LTCPhidget):
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)
-        self.attach(event)
+        super(CorePhidget, self)._onAttach(event)
 
     def _onSensor(self, event):
         module = self.sensor[event.index]
@@ -129,8 +193,7 @@ class CorePhidget(LTCPhidget):
             self.ik.setRatiometric(True)
             event.value = self.ik.getSensorValue(event.index)
             self.ik.setRatiometric(False)
-        event.sensor = self.sensor[event.index]
-        self.sense(event)
+        super(CorePhidget, self)._onSensor(event)
 
     def set24vState(self, state):
         self.ik.setOutputState(self.shorepower.index, state)
@@ -141,10 +204,12 @@ class IgnitionRelay(LTCPhidget):
     IP = LTCIP
     port = 5001
     relay = Relay('Ignition Relay', 0)
+    output = {}
+    output[0] = relay
 
     def _onOutput(self, event):
         if event.index == self.relay.index:
-            self.output(event)
+            super(IgnitionRelay, self)._onOutput(event)
 
     def toggleIgnitionRelayState(self, event):
         if self.ik.isAttached():
@@ -156,66 +221,26 @@ class IgnitionRelay(LTCPhidget):
 
 class LTCbackend(object):
 
-    def __init__(self, central_dict):
+    def __init__(self):
         log.info("Starting Backend")
-        self.central_dict = central_dict
-        self.relay = IgnitionRelay(attach=self.attach,
-                                   detach=self.detach,
-                                   error=self.error,
-                                   output=self.output)
-        self.core = CorePhidget(attach=self.attach,
-                                detach=self.detach,
-                                error=self.error,
-                                output=self.output,
-                                input=self.input,
-                                sensor=self.sensor)
-        self.central_dict[str(self.relay.devserial) + " InterfaceKit"] = False
-        self.central_dict[str(self.core.devserial) + " InterfaceKit"] = False
+        self.relay = IgnitionRelay()
+        self.relay.add_callback(self.attach, "attach")
+
+        self.core = CorePhidget()
+        self.core.add_callback(self.attach, "attach")
+        self.core.shorepower.add_callback(self.output, 'value')
+
+    def start(self, event):
+        self.relay.start()
+        self.core.start()
 
     def attach(self, event):
         self.ignite(False)
-        attached = event.device
-        ik = "{} InterfaceKit".format(attached.getSerialNum())
-        log.info(ik + " Attached")
-        self.central_dict[ik] = True
-        self.central_dict['state'] = 'Nominal'
-
-    def detach(self, event):
-        attached = event.device
-        ik = "{} InterfaceKit".format(attached.getSerialNum())
-        log.info(ik + " Detached")
-        self.central_dict[ik] = False
-        self.central_dict['state'] = 'Disconnected'
-
-    def error(self, event):
-        try:
-            source = event.device
-            log.info("InterfaceKit %i: Phidget Error %i: %s"
-                  % (source.getSerialNum(), event.eCode, event.description))
-        except PhidgetException as e:
-            log.info("Phidget Exception %i: %s" % (event.code, event.details))
-        finally:
-            self.central_dict['state'] = 'Phidget Call Failed'
 
     def output(self, event):
-        source = event.device
-        output = "{} OUTPUT {}".format(source.getSerialNum(), event.index)
-        log.info(output + ': ' + str(event.state))
-        self.central_dict[output] = event.state
         if event.index == self.core.shorepower.index:
             self.shorepower_state = event.state
 
-    def input(self, event):
-        source = event.device
-        input = "{} INPUT {}".format(source.getSerialNum(), event.index)
-        log.info(input + ': ' + str(event.state))
-        self.central_dict[input] = event.state
-
-    def sensor(self, event):
-        source = event.device
-        sensor = "{} SENSOR {}".format(source.getSerialNum(), event.index)
-        log.info(sensor + ': ' + str(event.value))
-        self.central_dict[sensor] = event.value
 
     def close(self, event):
         log.debug("Closing LTCBackend")
@@ -229,10 +254,13 @@ class LTCbackend(object):
     def ignite(self, state):
         if state is False:
             self.relay.setIgnitionRelayState(False)
-        elif self.shorepower_state is False and state is True:
-            self.relay.setIgnitionRelayState(True)
+        elif state is True:
+            if self.shorepower_state is False:
+                self.relay.setIgnitionRelayState(True)
+            else:
+                raise PhidgetException(1)  # TODO: more descriptive errno?
         else:
-            raise PhidgetException(1)  # TODO: more descriptive errno?
+            raise TypeError
 
     def shorepower(self, state):
         self.core.set24vState(state)
