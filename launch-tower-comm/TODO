@@ -3,8 +3,6 @@
 ## Software Related
 
 ### Critical
-* `on_startup` set shore power indicator
-* LTCctrl: change button state on callback from ltcbackend
 * LTCctrl: verify with hardware before changing state.
 * Set logging directory
 * Add numeric bounds to color changes in indicators - RR
@@ -16,7 +14,8 @@
 * Set default Rocket Commander window size.
 
 ## Hardware Related
-
+* SOP (e.g. check fuse)
+* Sensor for checking fuse? (opto-isolated, etc)
 ### Critical
 
 
