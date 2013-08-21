@@ -81,6 +81,9 @@ class LTCctrl(Accordion):
         if event.state is True:
             self.ignite_button.state = 'down'
             self._ignition_state = True
+            # if ignite happens showing it should take precedence over
+            # everything
+            self.armed.collapse = False
             self.popup.dismiss()
         elif event.state is False:
             self.ignite_button.state = 'normal'
