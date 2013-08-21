@@ -3,35 +3,28 @@
 ## Software Related
 
 ### Critical
-* LTCctrl: verify with hardware before changing state.
-* Set logging directory
-* Add numeric bounds to color changes in indicators - RR
-
 ### Non-critical
 * Color-fy the buttons
 * Add animations for state message changes
-* Install on LTC: rsync, tmux, vim, strace
+* Install on LTC: rsync, tmux, strace
 * Set default Rocket Commander window size.
 
 ## Hardware Related
-* SOP (e.g. check fuse)
-* Sensor for checking fuse? (opto-isolated, etc)
-### Critical
-
-
 ### Non-critical
-
+* Sensor for checking fuse? (opto-isolated, etc)
 * No sensor logging on LTC
 
 # For version 1.0
-* ignition relay watchdog
 * Timestamps in logs
 * Write to file for logging until Kivy stops breaking the Python logging
-* full event driven front-end
 * Calibrated sensor values
-* Try to break the network
-* compile with debug symbols, run under gdb, get stack trace on segfault
+* Add numeric bounds to color changes in indicators
+* SOP (e.g. check fuse)
 
 # For version 1.1
 * Local phidgets service (on LTC) and our own network communication code
 * Send "Armed" and "Ignited" to IRC channel from Kivy
+
+# For version 1.2
+* Try to break the network (simulate high latency and drop packets)
+
