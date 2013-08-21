@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
 """ignition-relay-watchdog
-Programmed for DELAY seconds and then it sets it to open.
+Ignition relay timeout.
 
-Most of this code comes from the InterfaceKit-simple.py example by Adam Stelmack of
-Phidgets, Inc. That code was under the following license:
+Most of this code comes from the InterfaceKit-simple.py example by Adam 
+Stelmack of Phidgets, Inc. That code was under the following license:
 
 Copyright 2010 Phidgets Inc.
-This work is licensed under the Creative Commons Attribution 2.5 Canada License. 
-To view a copy of this license, visit http://creativecommons.org/licenses/by/2.5/ca/
+This work is licensed under the Creative Commons Attribution 2.5 Canada 
+License. To view a copy of this license, visit 
+http://creativecommons.org/licenses/by/2.5/ca/
 """
 
 
@@ -17,6 +18,8 @@ from ctypes import *
 import sys
 import random
 import signal
+from time import sleep
+
 #Phidget specific imports
 from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
 from Phidgets.Events.Events import AttachEventArgs, DetachEventArgs, ErrorEventArgs, InputChangeEventArgs, OutputChangeEventArgs, SensorChangeEventArgs
@@ -25,12 +28,15 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 SERIAL_NUM = 259173   # Relay board 0/0/4 serial number
 RELAY = 0             # The iginition relay
-DELAY = 10            # Wait this long to shut it off
+TIMEOUT = 5           # Wait this long to shut it off
 
 # Signal handler
 def handler(signum, frame):
     print "Ignition Relay timeout: Opening Ignition Relay"
     interfaceKit.setOutputState(RELAY, False)
+
+# Set the alarm signal handler
+signal.signal(signal.SIGALRM, handler)
 
 #Create an interfacekit object
 try:
@@ -39,17 +45,6 @@ except RuntimeError as e:
     print("Runtime Exception: %s" % e.details)
     print("Exiting....")
     exit(1)
-
-#Information Display Function
-def displayDeviceInfo():
-    print("|------------|----------------------------------|--------------|------------|")
-    print("|- Attached -|-              Type              -|- Serial No. -|-  Version -|")
-    print("|------------|----------------------------------|--------------|------------|")
-    print("|- %8s -|- %30s -|- %10d -|- %8d -|" % (interfaceKit.isAttached(), interfaceKit.getDeviceName(), interfaceKit.getSerialNum(), interfaceKit.getDeviceVersion()))
-    print("|------------|----------------------------------|--------------|------------|")
-    print("Number of Digital Inputs: %i" % (interfaceKit.getInputCount()))
-    print("Number of Digital Outputs: %i" % (interfaceKit.getOutputCount()))
-    print("Number of Sensor Inputs: %i" % (interfaceKit.getSensorCount()))
 
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
@@ -78,11 +73,12 @@ def interfaceKitSensorChanged(e):
 def interfaceKitOutputChanged(e):
     source = e.device
     print("InterfaceKit %i: Output %i: %s" % (source.getSerialNum(), e.index, e.state))
-    
-    if (source.getSerialNum() == str(SERIAL_NUM)) and e.index == str(RELAY):
-        if e.state == 'True':
-            
-            interfaceKit.setOutputState(RELAY, False)
+    if (source.getSerialNum() == SERIAL_NUM) and (e.index == RELAY):
+            if e.state == True:
+                # Set an alarm
+                signal.alarm(TIMEOUT) 
+                print "Alarm set"
+
         
 
 #Main Program Code
@@ -121,8 +117,6 @@ except PhidgetException as e:
         exit(1)
     print("Exiting....")
     exit(1)
-else:
-    displayDeviceInfo()
 
 while True:
     sleep(1)
