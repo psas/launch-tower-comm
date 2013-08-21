@@ -28,23 +28,12 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 SERIAL_NUM = 259173   # Relay board 0/0/4 serial number
 RELAY = 0             # The iginition relay
-TIMEOUT = 5           # Wait this long to shut it off
+TIMEOUT = 10          # Wait this long to shut it off
 
 # Signal handler
 def handler(signum, frame):
     print "Ignition Relay timeout: Opening Ignition Relay"
     interfaceKit.setOutputState(RELAY, False)
-
-# Set the alarm signal handler
-signal.signal(signal.SIGALRM, handler)
-
-#Create an interfacekit object
-try:
-    interfaceKit = InterfaceKit()
-except RuntimeError as e:
-    print("Runtime Exception: %s" % e.details)
-    print("Exiting....")
-    exit(1)
 
 #Event Handler Callback Functions
 def inferfaceKitAttached(e):
@@ -80,53 +69,63 @@ def interfaceKitOutputChanged(e):
                 print "Alarm set"
 
         
+if __name__ == "__main__":
+    # Set the timeout alarm signal handler
+    signal.signal(signal.SIGALRM, handler)
 
-#Main Program Code
-try:
-    interfaceKit.setOnAttachHandler(inferfaceKitAttached)
-    interfaceKit.setOnDetachHandler(interfaceKitDetached)
-    interfaceKit.setOnErrorhandler(interfaceKitError)
-    interfaceKit.setOnInputChangeHandler(interfaceKitInputChanged)
-    interfaceKit.setOnOutputChangeHandler(interfaceKitOutputChanged)
-    interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
-except PhidgetException as e:
-    print("Phidget Exception %i: %s" % (e.code, e.details))
-    print("Exiting....")
-    exit(1)
+    #Create an interfacekit object
+    try:
+        interfaceKit = InterfaceKit()
+    except RuntimeError as e:
+        print("Runtime Exception: %s" % e.details)
+        print("Exiting....")
+        exit(1)
 
-print("Opening phidget relay board....")
+    try:
+        interfaceKit.setOnAttachHandler(inferfaceKitAttached)
+        interfaceKit.setOnDetachHandler(interfaceKitDetached)
+        interfaceKit.setOnErrorhandler(interfaceKitError)
+        interfaceKit.setOnInputChangeHandler(interfaceKitInputChanged)
+        interfaceKit.setOnOutputChangeHandler(interfaceKitOutputChanged)
+        interfaceKit.setOnSensorChangeHandler(interfaceKitSensorChanged)
+    except PhidgetException as e:
+        print("Phidget Exception %i: %s" % (e.code, e.details))
+        print("Exiting....")
+        exit(1)
 
-try:
-    interfaceKit.openRemoteIP("192.168.128.2", port=5001, serial=SERIAL_NUM)
-except PhidgetException as e:
-    print("Phidget Exception %i: %s" % (e.code, e.details))
-    print("Exiting....")
-    exit(1)
+    print("Opening phidget relay board....")
 
-print("Waiting for attach....")
+    try:
+        interfaceKit.openRemoteIP("192.168.128.2", port=5001, serial=SERIAL_NUM)
+    except PhidgetException as e:
+        print("Phidget Exception %i: %s" % (e.code, e.details))
+        print("Exiting....")
+        exit(1)
 
-try:
-    interfaceKit.waitForAttach(10000)
-except PhidgetException as e:
-    print("Phidget Exception %i: %s" % (e.code, e.details))
+    print("Waiting for attach....")
+
+    try:
+        interfaceKit.waitForAttach(10000)
+    except PhidgetException as e:
+        print("Phidget Exception %i: %s" % (e.code, e.details))
+        try:
+            interfaceKit.closePhidget()
+        except PhidgetException as e:
+            print("Phidget Exception %i: %s" % (e.code, e.details))
+            print("Exiting....")
+            exit(1)
+        print("Exiting....")
+        exit(1)
+
+    while True:
+        sleep(1)
+
     try:
         interfaceKit.closePhidget()
     except PhidgetException as e:
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Exiting....")
         exit(1)
-    print("Exiting....")
-    exit(1)
 
-while True:
-    sleep(1)
-
-try:
-    interfaceKit.closePhidget()
-except PhidgetException as e:
-    print("Phidget Exception %i: %s" % (e.code, e.details))
-    print("Exiting....")
-    exit(1)
-
-print("Done.")
-exit(0)
+    print("Done.")
+    exit(0)
