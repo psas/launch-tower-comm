@@ -93,7 +93,7 @@ class LTCctrl(Accordion):
     def _on_popup_ignite(self):
         try:
             self.ignite(True)
-            Clock.schedule_once(lambda x:self._on_abort(), self.ignition_abort_timeout)
+            Clock.schedule_once(self._on_abort, self.ignition_abort_timeout)
         except PhidgetException:
             self.on_abort()
             self.set_state('Phidget Call Failed')
@@ -118,8 +118,8 @@ class LTCctrl(Accordion):
         else:
             self.popup.open()
 
-    def _on_abort(self):
-        # TODO: cancel scheduled abort
+    def _on_abort(self, event=None):
+        Clock.unschedule(self._on_abort)
         try:
             self.ignite(False)
             # TODO: abort failed timeout, abort failed state,
