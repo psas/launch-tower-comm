@@ -67,8 +67,9 @@ class LTCctrl(Accordion):
             self.shorepower_button_on.state = 'down'
             self.shorepower_button_off.state = 'normal'
             if self._ignition_state is True:
+                # TODO: log/set state that shorepower was turned on while
+                # ignition was on
                 self._on_abort()
-                # TODO: what happens when we can't successfully abort but shorepower comes on?
         elif event.state is False:
             self.shorepower_button_on.state = 'normal'
             self.shorepower_button_off.state = 'down'
@@ -108,12 +109,14 @@ class LTCctrl(Accordion):
             if self._shorepower_state is False:
                 self.armed.collapse = False
                 self.set_state('ARMED')
-            # else: error
+            else:
+                raise RuntimeError("Attempt to arm was made while shorepower was on")
         elif state is False:
             if self._ignition_state is False:
                 self.unarmed.collapse = False
                 self.set_state('Nominal')
-            # else: error
+            else:
+                raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
         else:
             raise TypeError
 
@@ -129,6 +132,7 @@ class LTCctrl(Accordion):
     def _on_abort(self, event=None):
         Clock.unschedule(self._on_abort)
         try:
+            self.abort_button.state = 'down'
             Clock.schedule_once(self._abort_timeout, self.abort_failure_timeout)
             self.ignite(False)
         except PhidgetException:
