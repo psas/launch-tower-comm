@@ -123,7 +123,8 @@ class StatusDisplay(BoxLayout):
             "ARMED": ("You could abort", [1, 0, 0, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
             "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
-            "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1])
+            "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1]),
+            "CRITICAL: Abort Failed": ("No response was received from the ignition relay while attempting to disarm it. \nUse extreme caution.", [1, 0, 0, 1])
             }
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''

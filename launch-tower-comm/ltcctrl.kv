@@ -6,7 +6,7 @@
     unarmed: unarmed
     shorepower_button_off: shorepower_button_off
     shorepower_button_on: shorepower_button_on
-    reset: reset
+    abort_button: abort_button
     ignite_button: ignite_button
     LTCAccordionItem:
         font_size: 40
@@ -39,10 +39,11 @@
                 id: ignite_button
                 text: 'Ignite'
                 on_release: root._ignition_popup()
-            Button:
+            LTCButton:
                 font_size: 40
-                id: reset
+                id: abort_button
                 text: 'Abort'
+                on_press: self.state = 'down'
                 on_release: root._on_abort()
 
 

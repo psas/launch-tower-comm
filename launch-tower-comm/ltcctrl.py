@@ -40,6 +40,7 @@ class LTCctrl(Accordion):
     # TODO: checks that buttons are displaying the right thing?
 
     ignition_abort_timeout = 10
+    abort_failure_timeout = 5
 
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
         # setup gui
@@ -81,12 +82,13 @@ class LTCctrl(Accordion):
         if event.state is True:
             self.ignite_button.state = 'down'
             self._ignition_state = True
-            # if ignite happens showing it should take precedence over
-            # everything
+            # if ignite happens showing it takes precedence over everything
             self.armed.collapse = False
             self.popup.dismiss()
         elif event.state is False:
             self.ignite_button.state = 'normal'
+            self.abort_button = 'normal'
+            Clock.unschedule(self._abort_timeout)
             # self.arm depends on self._ignition_state being correct
             self._ignition_state = False
             self.arm(False)
@@ -121,18 +123,18 @@ class LTCctrl(Accordion):
         else:
             self.popup.open()
 
+    def _abort_timeout(self, event):
+        self.set_state("CRITICAL: Abort Failed")
+
     def _on_abort(self, event=None):
         Clock.unschedule(self._on_abort)
         try:
+            Clock.schedule_once(self._abort_timeout, self.abort_failure_timeout)
             self.ignite(False)
-            # TODO: abort failed timeout, abort failed state,
-            #  keep button lit while attempting to abort
-            if self._ignition_state is False:
-                self.arm(False)
-            # else:
-            #    self.set_state("Abort Failed")
         except PhidgetException:
+            Clock.unschedule(self._abort_timeout)
             self.set_state('Phidget Call Failed')
+            # TODO: self.set_state("CRITICAL: Abort Failed")
 
     def _on_shorepower_button(self, state):
         try:
