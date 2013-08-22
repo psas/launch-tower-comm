@@ -108,8 +108,7 @@ class LTCctrl(Accordion):
             if self._shorepower_state is False:
                 self.armed.collapse = False
                 self.set_state('ARMED')
-            else:
-                raise RuntimeError("Attempt to arm was made while shorepower was on")
+            # TODO: else log that arm was attempted with sp true
         elif state is False:
             if self._ignition_state is False:
                 self.unarmed.collapse = False
