@@ -2,7 +2,7 @@ import time
 import os
 
 class __ltclogger(object):
-    default_level = 3
+    default_level = 30
     def __init__(self):
         self.level = self.default_level
 
@@ -42,6 +42,28 @@ def set_default_level(level):
 
 def log(text, level=__globallogger.default_level):
     __globallogger._log(text, level)
+
+def debug(text):
+    log(text, 10)
+
+def verbose(text):
+    log(text, 15)
+
+def info(text):
+    log(text, 20)
+
+def terse(text):
+    log(text, 25)
+
+def warn(text):
+    log(text, 30)
+
+def error(text):
+    log(text, 40)
+
+def critical(text):
+    log(text, 50)
+
 
 
 if __name__ == "__main__":
