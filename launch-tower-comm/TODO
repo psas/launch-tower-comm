@@ -1,30 +1,37 @@
 # TODO
-
 ## Software Related
-
 ### Critical
+#### For version 1.0
+* Calibrated sensor values
+* Add numeric bounds to color changes in indicators
+* SOP (e.g. check fuse)
+* comment/document code
+* The second call to openRemoteIP still hangs for a very long time on some networks
+
+#### For version 1.1
+* Local phidgets service (on LTC) and our own network communication code
+
+#### For version 1.2
+* Try to break the network (simulate high latency and drop packets)
+* Revamp logger/state display
+
 ### Non-critical
+* Polish wiki page
 * Color-fy the buttons
 * Add animations for state message changes
 * Install on LTC: rsync, tmux, strace
 * Set default Rocket Commander window size.
+* Send "Armed" and "Ignited" to IRC channel from Kivy
+* Data Graphs
+* Integrate rocket cmdr?
+* State diagram failure modes of ltcctrl to make sure we're doing the right
+  thing in all cases
 
 ## Hardware Related
 ### Non-critical
 * Sensor for checking fuse? (opto-isolated, etc)
 * No sensor logging on LTC
+* Remote hardware killswitch? Use in the case that a software abort fails
+  Is this Away Box? I don't remember seeing an away box ever. 
 
-# For version 1.0
-* Timestamps in logs
-* Write to file for logging until Kivy stops breaking the Python logging
-* Calibrated sensor values
-* Add numeric bounds to color changes in indicators
-* SOP (e.g. check fuse)
-
-# For version 1.1
-* Local phidgets service (on LTC) and our own network communication code
-* Send "Armed" and "Ignited" to IRC channel from Kivy
-
-# For version 1.2
-* Try to break the network (simulate high latency and drop packets)
 
