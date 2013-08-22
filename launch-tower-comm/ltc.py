@@ -42,6 +42,7 @@ from kivy.properties import ObjectProperty, StringProperty, ListProperty
 
 from ltcbackend import LTCbackend
 from ltcctrl import LTCctrl
+import ltclogger as log
 
 VERSION = '0.2'
 
@@ -131,6 +132,7 @@ class StatusDisplay(BoxLayout):
         self.set_state("Nominal")
 
     def set_state(self, state):
+        log.info("State changed:{}".format(state))
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
         self.status_message.text = self.states[state][0]
@@ -170,6 +172,7 @@ class IOIndicator(BoxLayout):
             return
 
         newval = self.conversion(val)
+        log.info("{}: {}{}".format(self.name, newval, self.unit))
         if isinstance(newval, str):
             self.status_ind.text = '{} {}'.format(newval, self.unit)
         else:
@@ -231,4 +234,5 @@ class LTCApp(App):
         return ltc
 
 if __name__ == '__main__':
+    log.info("Starting LTCCOM")
     LTCApp().run()

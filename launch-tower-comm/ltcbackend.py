@@ -2,12 +2,7 @@ from ctypes import *
 from datetime import datetime
 import sys
 import time
-# kivy logger because kivy breaks with normal python logger
-from kivy.logger import Logger
-# import logging
-# log = Logger.getLogger(__name__)
-
-log = Logger
+import ltclogger as log
 
 # Phidgets specific imports
 from Phidgets.PhidgetException import PhidgetException
@@ -16,116 +11,6 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 ########### Phidgets Setup ########
 
 LTCIP = '192.168.128.2'
-
-class LTCPhidget(object):
-    # TODO: logging
-    # TODO: can the remote specific events find a disconnected usb cable?
-    # TODO: thread
-    devserial = 0
-    IP = "0.0.0.0"
-    port = 0
-
-    input = {}
-    output = {}
-    sensor = {}
-
-    callback = {"attach": [],
-                'detach': [],
-                'error': [],
-                'output': [],
-                'input': [],
-                'sensor': []}
-
-    def __init__(self, **kwargs):
-        log.debug("Acquiring InterfaceKit")
-        self.ik = InterfaceKit()
-        log.debug("Registering Handlers")
-        self.ik.setOnAttachHandler(self._onAttach)
-        self.ik.setOnDetachHandler(self._onDetach)
-        self.ik.setOnErrorhandler(self._onError)
-        self.ik.setOnOutputChangeHandler(self._onOutput)
-        self.ik.setOnInputChangeHandler(self._onInput)
-        self.ik.setOnSensorChangeHandler(self._onSensor)
-
-    def start(self):
-        log.debug("Opening remote IP")
-        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
-
-    def close(self):
-        self.ik.closePhidget()
-
-    def add_callback(self, cb, type):
-        self.callback[type].append(cb)
-
-    def _onAttach(self, event):
-        for cb in self.callback['attach']:
-            cb(event)
-        for dev in self.input.itervalues():
-            for cb in dev.callback['attach']:
-                cb(event)
-        for dev in self.output.itervalues():
-            for cb in dev.callback['attach']:
-                cb(event)
-        for dev in self.sensor.itervalues():
-            for cb in dev.callback['attach']:
-                cb(event)
-
-    def _onDetach(self, event):
-        for cb in self.callback['detach']:
-            cb(event)
-        for dev in self.input.itervalues():
-            for cb in dev.callback['detach']:
-                cb(event)
-        for dev in self.output.itervalues():
-            for cb in dev.callback['detach']:
-                cb(event)
-        for dev in self.sensor.itervalues():
-            for cb in dev.callback['detach']:
-                cb(event)
-
-    def _onError(self, event):
-        if self.ik.isAttached():
-            for cb in self.callback['error']:
-                cb(event)
-            for dev in self.input.itervalues():
-                for cb in dev.callback['error']:
-                    cb(event)
-            for dev in self.output.itervalues():
-                for cb in dev.callback['error']:
-                    cb(event)
-            for dev in self.sensor.itervalues():
-                for cb in dev.callback['error']:
-                    cb(event)
-
-    def _onOutput(self, event):
-        for cb in self.callback['output']:
-            cb(event)
-        try:
-            for cb in self.output[event.index].callback['value']:
-                cb(event)
-        except KeyError:
-            pass
-
-    def _onInput(self, event):
-        for cb in self.callback['input']:
-            cb(event)
-        try:
-            for cb in self.input[event.index].callback['value']:
-                cb(event)
-        except KeyError:
-            pass
-
-    def _onSensor(self, event):
-        for cb in self.callback['sensor']:
-            cb(event)
-        try:
-            for cb in self.sensor[event.index].callback['value']:
-                cb(event)
-        except KeyError:
-            pass
-
-
-    # TODO: __str__ returns devserial?
 
 class Sensor(object):
     isRatiometric = None
@@ -142,6 +27,7 @@ class Sensor(object):
         return sample
 
     def add_callback(self, cb, type):
+        log.debug("Adding callback to {} sensor".format(self.name))
         self.callback[type].append(cb)
 
 class VoltageSensor(Sensor):
@@ -161,6 +47,107 @@ class TemperatureSensor(Sensor):
 class Relay(Sensor):
     def convert(self, sample):
         return "Closed" if sample else "Open"
+
+class LTCPhidget(object):
+    # TODO: logging
+    # TODO: can the remote specific events find a disconnected usb cable?
+    # TODO: thread
+    devserial = 0
+    IP = "0.0.0.0"
+    port = 0
+
+    input = {}
+    output = {}
+    sensor = {}
+
+    callback = {'attach': [],
+                'detach': [],
+                'error': [],
+                'output': [],
+                'input': [],
+                'sensor': []}
+
+    def __init__(self, **kwargs):
+        log.debug("Acquiring InterfaceKit")
+        self.ik = InterfaceKit()
+        log.debug("Registering Handlers")
+        self.ik.setOnAttachHandler(self._onAttach)
+        self.ik.setOnDetachHandler(self._onDetach)
+        self.ik.setOnErrorhandler(self._onError)
+        self.ik.setOnOutputChangeHandler(self._onOutput)
+        self.ik.setOnInputChangeHandler(self._onInput)
+        self.ik.setOnSensorChangeHandler(self._onSensor)
+
+    def start(self):
+        log.verbose("Opening remote IP")
+        self.ik.openRemoteIP(self.IP, self.port, self.devserial)
+        log.debug("Remote IP opened")
+
+    def close(self):
+        log.verbose("Closing InterfaceKit")
+        self.ik.closePhidget()
+        log.debug("Interfac kit closed")
+
+    def add_callback(self, cb, type):
+        log.debug("Adding a {} type callback".format(type))
+        self.callback[type].append(cb)
+
+    def _genericCB(self, event, type):
+        log.verbose("{} event received".format(type))
+        for cb in self.callback[type]:
+            cb(event)
+        for dev in self.input.itervalues():
+            for cb in dev.callback[type]:
+                cb(event)
+        for dev in self.output.itervalues():
+            for cb in dev.callback[type]:
+                cb(event)
+        for dev in self.sensor.itervalues():
+            for cb in dev.callback[type]:
+                cb(event)
+
+    def _onAttach(self, event):
+        self._genericCB(event, 'attach')
+
+
+    def _onDetach(self, event):
+        self._genericCB(event, 'detach')
+
+    def _onError(self, event):
+        if self.ik.isAttached():
+            self._genericCB(event, 'error')
+        else:
+            log.verbose("Error while detached, likely telling us it's detached")
+
+    def _onOutput(self, event):
+        log.verbose("Output event received")
+        for cb in self.callback['output']:
+            cb(event)
+        try:
+            for cb in self.output[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
+
+    def _onInput(self, event):
+        log.verbose("Input event received")
+        for cb in self.callback['input']:
+            cb(event)
+        try:
+            for cb in self.input[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
+
+    def _onSensor(self, event):
+        log.verbose("Sensor event received")
+        for cb in self.callback['sensor']:
+            cb(event)
+        try:
+            for cb in self.sensor[event.index].callback['value']:
+                cb(event)
+        except KeyError:
+            pass
 
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
@@ -196,6 +183,7 @@ class CorePhidget(LTCPhidget):
         super(CorePhidget, self)._onSensor(event)
 
     def set24vState(self, state):
+        log.info("Setting shorepower state to {}".format(state))
         self.ik.setOutputState(self.shorepower.index, state)
 
 class IgnitionRelay(LTCPhidget):
@@ -217,6 +205,7 @@ class IgnitionRelay(LTCPhidget):
             self.setIgnitionRelayState(not state)
 
     def setIgnitionRelayState(self, state):
+        log.info("Setting ignition relay state to {}".format(state))
         self.ik.setOutputState(self.relay.index, state)
 
 class LTCbackend(object):

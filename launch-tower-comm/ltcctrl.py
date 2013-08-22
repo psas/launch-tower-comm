@@ -6,7 +6,6 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.uix.button import Button
 from Phidgets.PhidgetException import PhidgetException
-from time import sleep
 
 from ltcbackend import LTCbackend
 

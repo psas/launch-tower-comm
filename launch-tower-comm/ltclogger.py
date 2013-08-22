@@ -2,7 +2,7 @@ import time
 import os
 
 class __ltclogger(object):
-    default_level = 30
+    default_level = 20
     def __init__(self):
         self.level = self.default_level
 
@@ -17,6 +17,7 @@ class __ltclogger(object):
 
         for i in range(1, 1000):
             try:
+                # To prevent race condition
                 fd = os.open(filename + ".txt", os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0666)
                 self.log = os.fdopen(fd, "w")
             except IOError:
@@ -68,11 +69,13 @@ def critical(text):
 
 if __name__ == "__main__":
     log("TEST")
-    log("TEST LEVEL 5", 5)
-    log("TEST LEVEL 4", 4)
-    log("TEST LEVEL 3", 3)
-    log("TEST LEVEL 2", 2)
-    log("TEST LEVEL 1", 1)
+    debug("DEBUG")
+    verbose("VERBOSE")
+    info("INFO")
+    terse("TERSE")
+    warn("WARN")
+    error("ERROR")
+    critical("CRITICAL")
     log("Change default level to 1")
     set_default_level(1)
     log("TEST LEVEL 5", 5)
