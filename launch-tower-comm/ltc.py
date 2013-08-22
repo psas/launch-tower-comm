@@ -28,39 +28,20 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
-from ctypes import *
-from datetime import datetime
-import sys
-import random
-# import logging
-from kivy.logger import Logger
-# logging.root = Logger  # Make kivy play nice with python logging module
-
-from ltcbackend import LTCbackend
-from ltcctrl import LTCctrl
 # Kivy specific imports
 import kivy
 kivy.require('1.0.5')
-from kivy.config import Config, ConfigParser
+# from kivy.config import Config
 # Config.set('graphics', 'fullscreen', 'auto')
 from kivy.app import App
-from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.lang import Builder
-
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.label import Label
-from kivy.uix.image import AsyncImage
-from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, ListProperty
-from kivy.extras.highlight import KivyLexer
+from kivy.properties import ObjectProperty, StringProperty, ListProperty
 
-from Phidgets.PhidgetException import PhidgetErrorCodes, PhidgetException
-from Phidgets.Events.Events import ErrorEventArgs, KeyChangeEventArgs, ServerConnectArgs, ServerDisconnectArgs
-from Phidgets.Dictionary import Dictionary, DictionaryKeyChangeReason, KeyListener
+from ltcbackend import LTCbackend
+from ltcctrl import LTCctrl
 
 VERSION = '0.2'
 
@@ -69,7 +50,6 @@ class LTC(Widget):
     app = ObjectProperty(None)
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
-
 
 class RelayLabel(Label):
     # TODO: ref Error, on click pop up detailed description
@@ -158,7 +138,6 @@ class StatusDisplay(BoxLayout):
 
 class InterfaceKitPanel(BoxLayout):
     pass
-
 
 class IOIndicator(BoxLayout):
     def __init__(self, sensor, **kwargs):
