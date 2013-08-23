@@ -54,10 +54,12 @@ class LTCctrl(Accordion):
         self.ignite = ignite
         self.shorepower = shorepower
         self.set_state = state
-        # setup internal state.
+        # setup internal state
         self.state_shorepower = None
         self.state_ignition = None
-        # setup gui
+        self.state_abort = None
+        # nothing explicitly depends on the arm state
+        # setup GUI
         self.popup = IgnitionPopup(ignite, self.abort)
         super(LTCctrl, self).__init__(**kwargs)
         self.accordian_unarmed.collapse = False
@@ -92,6 +94,7 @@ class LTCctrl(Accordion):
         elif event.state is False:
             self.button_ignite.state = 'normal'
             self.button_abort.state = 'normal'
+            self.state_abort = False
             Clock.unschedule(self.abort)
             # self.arm depends on self.state_ignition being correct
             self.state_ignition = False
@@ -120,15 +123,17 @@ class LTCctrl(Accordion):
             self.arm(False)
         else:
             self.button_abort.state = 'down'
+            self.state_abort = True
             try:
                 self.ignite(False)
             except PhidgetException:
                 self.button_abort.state = 'normal'
+                self.state_abort = False
                 # TODO: log abort failed
                 self.set_state('Phidget Call Failed')
 
     def on_button_ignite(self):
-        if self.button_abort.state == 'down':
+        if self.state_abort is True:
             pass  # TODO: log that ignite can't happen becuase abort is in progress
         elif self.state_ignition is True:
             self.abort()
