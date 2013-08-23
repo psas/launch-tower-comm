@@ -39,18 +39,18 @@ class IgnitionPopup(Popup):
             self.ignite(True)
         except PhidgetException:
             self.abort()
-            self.set_state('Phidget Call Failed')
+            self.set_status('Phidget Call Failed')
 
 
 class LTCctrl(Accordion):
     # TODO move Call Failed and Nominal state displays to backend because
     # ltcctrl doesn't actually control these things
 
-    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
+    def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, status=lambda x: None, **kwargs):
         # setup callbacks
         self.ignite = ignite
         self.shorepower = shorepower
-        self.set_state = state
+        self.set_status = status
         # setup internal state
         self.state_shorepower = None
         self.state_ignition = None
@@ -103,12 +103,12 @@ class LTCctrl(Accordion):
         if state is True:
             if self.state_shorepower is False:
                 self.accordion_armed.collapse = False
-                self.set_state('ARMED')
+                self.set_status('ARMED')
             # TODO: else log that arm was attempted with sp true
         elif state is False:
             if self.state_ignition is False:
                 self.accordion_unarmed.collapse = False
-                self.set_state('Disarmed')
+                self.set_status('Disarmed')
             else:
                 raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
         else:
@@ -126,7 +126,7 @@ class LTCctrl(Accordion):
             except PhidgetException:
                 self.button_abort.state = 'normal'
                 self.state_abort = False
-                self.set_state('Abort Failed')
+                self.set_status('Abort Failed')
 
     def on_button_ignite(self):
         if self.state_abort is True:
@@ -139,9 +139,9 @@ class LTCctrl(Accordion):
     def on_button_shorepower(self, state):
         try:
             self.shorepower(state)
-            self.set_state('Nominal')
+            self.set_status('Nominal')
         except PhidgetException:
-            self.set_state('Phidget Call Failed')
+            self.set_status('Phidget Call Failed')
 
 #########Module test########
 
