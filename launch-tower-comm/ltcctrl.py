@@ -87,7 +87,7 @@ class LTCctrl(Accordion):
             self.popup.dismiss()
         elif event.state is False:
             self.ignite_button.state = 'normal'
-            self.abort_button = 'normal'
+            self.abort_button.state = 'normal'
             Clock.unschedule(self._abort_timeout)
             # self.arm depends on self._ignition_state being correct
             self._ignition_state = False
@@ -119,6 +119,9 @@ class LTCctrl(Accordion):
             raise TypeError
 
     def _ignition_popup(self):
+        if self.abort_button.state == 'down':
+            return
+
         if self._ignition_state is True:
             self._on_abort()
         else:
@@ -128,10 +131,14 @@ class LTCctrl(Accordion):
         self.set_state("CRITICAL: Abort Failed")
 
     def _on_abort(self, event=None):
+        self.abort_button.state = 'down'
         Clock.unschedule(self._on_abort)
+        Clock.unschedule(self._abort_timeout)
+        if self._ignition_state == False:
+            self.abort_button.state = 'normal'
+            self.arm(False)
+        Clock.schedule_once(self._abort_timeout, self.abort_failure_timeout)
         try:
-            self.abort_button.state = 'down'
-            Clock.schedule_once(self._abort_timeout, self.abort_failure_timeout)
             self.ignite(False)
         except PhidgetException:
             Clock.unschedule(self._abort_timeout)
