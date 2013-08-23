@@ -107,9 +107,11 @@ class StatusDisplay(BoxLayout):
     states = {
             "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
             "ARMED": ("You could abort", [1, 0, 0, 1]),
+            "Disarmed": ("The igniter is now off and safe", [.5, .5, .5, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
             "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
             "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1]),
+            "Abort Failed": ("Attempting to shut off the igniter failed", [1, 0, 0, 1])
             }
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''

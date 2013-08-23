@@ -43,11 +43,8 @@ class IgnitionPopup(Popup):
 
 
 class LTCctrl(Accordion):
-    # TODO move Call Failed and Nominal state displays to backend
-    # LTCctrl should only issue ARM and ARM -> Nominal changes
-    # because they're the only state changes it has a say in.
-
-    # TODO: checks that buttons are displaying the right thing?
+    # TODO move Call Failed and Nominal state displays to backend because
+    # ltcctrl doesn't actually control these things
 
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, state=lambda x: None, **kwargs):
         # setup callbacks
@@ -111,7 +108,7 @@ class LTCctrl(Accordion):
         elif state is False:
             if self.state_ignition is False:
                 self.accordion_unarmed.collapse = False
-                self.set_state('Nominal')  # TODO: this should be disarm state
+                self.set_state('Disarmed')
             else:
                 raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
         else:
@@ -129,8 +126,7 @@ class LTCctrl(Accordion):
             except PhidgetException:
                 self.button_abort.state = 'normal'
                 self.state_abort = False
-                # TODO: log abort failed
-                self.set_state('Phidget Call Failed')
+                self.set_state('Abort Failed')
 
     def on_button_ignite(self):
         if self.state_abort is True:
