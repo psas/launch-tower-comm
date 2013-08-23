@@ -2,48 +2,49 @@
 #: import LTCButton ltcctrl.LTCButton
 
 <ltcctrl>
-    armed: armed
-    unarmed: unarmed
-    shorepower_button_off: shorepower_button_off
-    shorepower_button_on: shorepower_button_on
-    abort_button: abort_button
-    ignite_button: ignite_button
+    accordian_armed: accordian_armed
+    accordian_unarmed: accordian_unarmed
+    button_shorepower_off: button_shorepower_off
+    button_shorepower_on: button_shorepower_on
+    button_abort_button: button_abort
+    button_ignite: button_ignite
+    
     LTCAccordionItem:
         font_size: 40
-        id: unarmed
+        id: accordian_unarmed
         title: 'Unarmed'
         BoxLayout:
             orientation: 'vertical'
             LTCButton:
                 font_size: 40
-                id: shorepower_button_on
+                id: button_shorepower_on
                 text: 'Enable Shore Power'
-                on_release:  root._on_shorepower_button(True)
+                on_release:  root.on_button_shorepower(True)
             LTCButton:
                 font_size: 40
-                id: shorepower_button_off
+                id: button_shorepower_off
                 text: 'Disable Shore Power'
-                on_release: root._on_shorepower_button(False)
+                on_release: root.on_button_shorepower(False)
             Button:
                 font_size: 40
                 text: 'Arm'
                 on_release: root.arm(True)
     LTCAccordionItem:
         font_size: 40
-        id: armed
+        id: accordian_armed
         title: 'Armed'
         BoxLayout:
             orientation: 'vertical'
             LTCButton:
                 font_size: 40
-                id: ignite_button
+                id: button_ignite
                 text: 'Ignite'
-                on_release: root._ignition_popup()
+                on_release: root.on_button_ignite()
             LTCButton:
                 font_size: 40
-                id: abort_button
+                id: button_abort
                 text: 'Abort'
-                on_release: root._on_abort()
+                on_release: root.abort()
 
 
 <IgnitionPopup>
@@ -59,7 +60,7 @@
             Button:
                 font_size: 40
                 text: 'Ignite'
-                on_release: root.ignitefunc(), root.dismiss()
+                on_release: root.on_button_ignite(), root.dismiss()
             Label:
                 text: '                          '
             Button:
