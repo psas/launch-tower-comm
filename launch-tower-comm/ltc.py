@@ -33,6 +33,8 @@ import kivy
 kivy.require('1.0.5')
 from kivy.config import Config
 Config.set('kivy', 'log_enable', '0')
+# This unhelpfully also turns off unhandled exception reporting.
+# You would hope an exception would be a critical thing but nope.
 Config.set('kivy', 'log_level', 'critical')
 Config.set('kivy', 'desktop', '1')
 Config.set('graphics', 'width', '1280')

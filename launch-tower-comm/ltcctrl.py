@@ -59,7 +59,7 @@ class LTCctrl(Accordion):
         # setup GUI
         self.popup = IgnitionPopup(ignite, self.abort)
         super(LTCctrl, self).__init__(**kwargs)
-        self.accordian_unarmed.collapse = False
+        self.accordion_unarmed.collapse = False
 
 
     def on_shorepower(self, event):
@@ -115,6 +115,9 @@ class LTCctrl(Accordion):
             raise TypeError
 
     def abort(self, event=None):
+        # TODO: a successful abort is possible from when the popup closes to
+        # when the ignite callback is called with true
+        # This should be fixed
         Clock.unschedule(self.abort)
         if self.state_ignition == False:
             self.arm(False)
