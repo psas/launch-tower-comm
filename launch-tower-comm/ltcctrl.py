@@ -39,7 +39,6 @@ class IgnitionPopup(Popup):
             self.ignite(True)
         except PhidgetException:
             self.abort()
-            self.set_status('Phidget Call Failed')
 
 
 class LTCctrl(Accordion):
@@ -144,7 +143,7 @@ class LTCctrl(Accordion):
             self.shorepower(state)
             self.set_status('Nominal')
         except PhidgetException:
-            self.set_status('Phidget Call Failed')
+            pass
 
 #########Module test########
 

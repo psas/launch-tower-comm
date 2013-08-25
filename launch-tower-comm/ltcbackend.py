@@ -210,7 +210,7 @@ class IgnitionRelay(LTCPhidget):
 
 class LTCbackend(object):
 
-    def __init__(self):
+    def __init__(self, set_status):
         log.info("Starting Backend")
         self.relay = IgnitionRelay()
         self.relay.add_callback(self.attach, "attach")
@@ -218,6 +218,8 @@ class LTCbackend(object):
         self.core = CorePhidget()
         self.core.add_callback(self.attach, "attach")
         self.core.shorepower.add_callback(self.output, 'value')
+
+        self.set_status = set_status
 
     def start(self, event):
         self.relay.start()
@@ -241,15 +243,25 @@ class LTCbackend(object):
         self.core.close()
 
     def ignite(self, state):
-        if state is False:
-            self.relay.setIgnitionRelayState(False)
-        elif state is True:
-            if self.shorepower_state is False:
-                self.relay.setIgnitionRelayState(True)
+        try:
+            if state is False:
+                self.relay.setIgnitionRelayState(False)
+            elif state is True:
+                if self.shorepower_state is False:
+                    self.relay.setIgnitionRelayState(True)
+                else:
+                    raise PhidgetException(1)  # TODO: more descriptive errno?
             else:
-                raise PhidgetException(1)  # TODO: more descriptive errno?
-        else:
-            raise TypeError
+                raise TypeError
+        except PhidgetException:
+            self.set_status("Phidget Call Failed")
+            raise
+
 
     def shorepower(self, state):
-        self.core.set24vState(state)
+        try:
+            self.core.set24vState(state)
+            self.set_status("Nominal")
+        except PhidgetException:
+            self.set_status("Phidget Call Failed")
+            raise

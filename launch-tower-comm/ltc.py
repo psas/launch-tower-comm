@@ -192,7 +192,9 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
-        backend = LTCbackend()
+
+        status = StatusDisplay()
+        backend = LTCbackend(status.set_state)
         self.bind(on_stop=backend.close)
         self.bind(on_start=backend.start)
 
@@ -222,7 +224,7 @@ class LTCApp(App):
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(sens9)
 
-        status = StatusDisplay()
+
         backend.core.add_callback(status.on_attach, 'attach')
         backend.core.add_callback(status.on_detach, 'detach')
         backend.core.add_callback(status.on_error, 'error')
