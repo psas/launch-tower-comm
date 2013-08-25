@@ -51,6 +51,7 @@ class LTCctrl(Accordion):
         self.shorepower = shorepower
         self.set_status = status
         # setup internal state
+        self.state = dict()
         self.state['shorepower'] = None
         self.state['ignition'] = None
         self.state['abort'] = None
