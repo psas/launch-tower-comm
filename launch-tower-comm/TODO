@@ -6,7 +6,6 @@
 * Add numeric bounds to color changes in indicators
 * SOP (e.g. check fuse)
 * comment/document code
-* The second call to openRemoteIP still hangs for a very long time on some networks
 
 #### For version 1.1
 * Local phidgets service (on LTC) and our own network communication code

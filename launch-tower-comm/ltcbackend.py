@@ -1,7 +1,3 @@
-from ctypes import *
-from datetime import datetime
-import sys
-import time
 import ltclogger as log
 
 # Phidgets specific imports
@@ -49,9 +45,7 @@ class Relay(Sensor):
         return "Closed" if sample else "Open"
 
 class LTCPhidget(object):
-    # TODO: logging
     # TODO: can the remote specific events find a disconnected usb cable?
-    # TODO: thread
     devserial = 0
     IP = "0.0.0.0"
     port = 0
@@ -92,6 +86,10 @@ class LTCPhidget(object):
         log.debug("Adding a {} type callback".format(type))
         self.callback[type].append(cb)
 
+    def remove_callback(self, cb, type):
+        log.debug("Removing a {} type callback".format(type))
+        self.callback[type].remove(cb)
+
     def _genericCB(self, event, type):
         log.verbose("{} event received".format(type))
         for cb in self.callback[type]:
@@ -109,15 +107,14 @@ class LTCPhidget(object):
     def _onAttach(self, event):
         self._genericCB(event, 'attach')
 
-
     def _onDetach(self, event):
         self._genericCB(event, 'detach')
 
     def _onError(self, event):
-        if self.ik.isAttached():
-            self._genericCB(event, 'error')
-        else:
-            log.verbose("Error while detached, likely telling us it's detached")
+        log.debug(event.description)
+        log.verbose("{} event received".format(type))
+        for cb in self.callback['error']:
+            cb(event)
 
     def _onOutput(self, event):
         log.verbose("Output event received")
@@ -223,7 +220,13 @@ class LTCbackend(object):
 
     def start(self, event):
         self.relay.start()
+        self.relay.add_callback(self._secondstart, 'attach')
+        self.relay.add_callback(self._secondstart, 'error')
+
+    def _secondstart(self, event):
         self.core.start()
+        self.relay.remove_callback(self._secondstart, 'attach')
+        self.relay.remove_callback(self._secondstart, 'error')
 
     def attach(self, event):
         self.ignite(False)
