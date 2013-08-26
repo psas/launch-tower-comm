@@ -28,7 +28,7 @@ class LTCAccordionItem(AccordionItem):
 class IgnitionPopup(Popup):
     ignition_abort_timeout = 10
 
-    def __init__(self, ignite=lambda: None, abort=lambda: None, state=[], **kwargs):
+    def __init__(self, ignite=lambda: None, abort=lambda: None, state={}, **kwargs):
         self.ignite = ignite
         self.abort = abort
         self.state = state
@@ -58,7 +58,7 @@ class LTCctrl(Accordion):
         self.state['popup_abort_lockin'] = None
         # nothing explicitly depends on the arm state
         # setup GUI
-        self.popup = IgnitionPopup(ignite, self.abort)
+        self.popup = IgnitionPopup(ignite, self.abort, self.state)
         super(LTCctrl, self).__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
