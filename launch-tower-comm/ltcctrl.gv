@@ -1,0 +1,41 @@
+digraph ltcctrl {
+	spon -> spoff;
+	spon -> spon;
+	
+	spoff -> spoff;
+	spoff -> spon;
+	
+	spoff -> igoff_aboff;
+	spnone -> spon;
+	spnone -> spnone;
+	spnone -> spoff;
+
+
+	igoff_aboff -> popup;
+	popup -> pp_igoff_aboff;
+	pp_igoff_aboff -> igon_aboff;
+	pp_igoff_aboff -> pp_igoff_abon;
+	pp_igoff_abon -> igon_abon;	
+	popup -> igoff_abon;
+	igoff_aboff -> igoff_abon;
+	igoff_abon -> spoff;
+	igoff_aboff -> igon_aboff;
+	igon_aboff -> igon_abon;
+	igon_abon -> spoff;
+
+	edge [style=bold color=red] // label="Ignition\nRelay\nCloses"]
+	spon -> igon_abon ;
+	spoff -> igon_abon;
+	spnone -> igon_abon;
+	
+
+
+
+
+
+
+
+
+
+
+}
