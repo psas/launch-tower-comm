@@ -35,7 +35,7 @@ from kivy.config import Config
 Config.set('kivy', 'log_enable', '0')
 # This unhelpfully also turns off unhandled exception reporting.
 # You would hope an exception would be a critical thing but nope.
-Config.set('kivy', 'log_level', 'critical')
+#Config.set('kivy', 'log_level', 'critical')
 Config.set('kivy', 'desktop', '1')
 Config.set('graphics', 'width', '1280')
 Config.set('graphics', 'height', '800')
@@ -154,6 +154,7 @@ class IOIndicator(BoxLayout):
         '''Indicator widget. Includes a name label, and status label.
         '''
         super(IOIndicator, self).__init__(**kwargs)
+        self.nominal_value = sensor.nominal_value
         self.name = sensor.name
         self.unit = sensor.unit
         self.conversion = sensor.convert
@@ -176,7 +177,7 @@ class IOIndicator(BoxLayout):
             val = event.state
 
         if val is 0:  # The sensors seem to return 0 when absent.
-            self.status_ind.set_state('Open', 'Not Found')
+            self.status_ind.set_state('Unknown', 'Not Found')
             return
 
         newval = self.conversion(val)
@@ -185,6 +186,9 @@ class IOIndicator(BoxLayout):
             self.status_ind.text = '{} {}'.format(newval, self.unit)
         else:
             self.status_ind.text = '{:.1f} {}'.format(newval, self.unit)
+        
+        self.status_ind.background_color = self.nominal_value(newval)
+             
 
 
 class LTCApp(App):

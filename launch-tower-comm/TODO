@@ -9,18 +9,23 @@
 
 #### For version 1.1
 * Local phidgets service (on LTC) and our own network communication code
+* Try to break the network (simulate high latency and drop packets)
 
 #### For version 1.2
-* Try to break the network (simulate high latency and drop packets)
 * Revamp logger/state display
+* Put it on a tablet
+* Integrate with telemetry capstone project
+* Fix Relay Label background color being too dark
 
+#### For version 1.3
+* 
 ### Non-critical
 * Polish wiki page
 * Color-fy the buttons
 * Add animations for state message changes
 * Install on LTC: rsync, tmux, strace
 * Set default Rocket Commander window size.
-* Send "Armed" and "Ignited" to IRC channel from Kivy
+* Send "Armed", "Ignited", "Countdown"?? to IRC channel from Kivy
 * Data Graphs
 * Integrate rocket cmdr?
 * State diagram failure modes of ltcctrl to make sure we're doing the right
