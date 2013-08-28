@@ -26,9 +26,23 @@ class Sensor(object):
         log.debug("Adding callback to {} sensor".format(self.name))
         self.callback[type].append(cb)
 
+    def nominal_value(self, val):
+        return (0, 1, 0, 1)
+
 class VoltageSensor(Sensor):
     isRatiometric = False
     unit = "V"
+    
+    def __init__(self, name, index, upper, lower):
+        super(VoltageSensor, self).__init__(name, index)
+        self.upper = upper
+        self.lower = lower
+
+    def nominal_value(self, val):
+        if self.upper > val and val > self.lower:
+            return (0, 1, 0, 1)
+        else:
+            return (1, 0, 0, 1)
 
     def convert(self, sample):
         return (sample / 200.0 - 2.5) / 0.0681
@@ -37,12 +51,32 @@ class TemperatureSensor(Sensor):
     isRatiometric = True
     unit = "C"
 
+    def __init__(self, name, index, upper, lower):
+        super(TemperatureSensor, self).__init__(name, index)
+        self.upper = upper
+        self.lower = lower
+
     def convert(self, sample):
         return (sample * 2.0 / 9.0) - 61.111
+
+    def nominal_value(self, val):
+        if self.upper > val and val > self.lower:
+            return (0, 1, 0, 1)
+        else:
+            return (1, 0, 0, 1)
+
 
 class Relay(Sensor):
     def convert(self, sample):
         return "Closed" if sample else "Open"
+
+    def nominal_value(self, val):
+        if val == "Closed":
+            return (1, 0, 0, 1)
+        elif val == "Open":
+            return (0, 1, 0, 1)
+        else:
+            raise TypeError 
 
 class LTCPhidget(object):
     # TODO: can the remote specific events find a disconnected usb cable?
@@ -158,14 +192,14 @@ class CorePhidget(LTCPhidget):
     output = {}
     output[7] = shorepower
     sensor = {}
-    sensor[0] = TemperatureSensor("Internal Temperature", 0)
-    sensor[1] = VoltageSensor("Ignition Battery", 1)
+    sensor[0] = TemperatureSensor("Internal Temperature", 0, 40, 15)
+    sensor[1] = VoltageSensor("Ignition Battery", 1, 9, 5)
     sensor[2] = Sensor("Humidity", 3)
-    sensor[3] = TemperatureSensor("External Temperature", 4)
-    sensor[4] = VoltageSensor("Rocket Ready", 2)
-    sensor[5] = VoltageSensor("System Battery", 5)
-    sensor[6] = VoltageSensor("Solar Voltage", 6)
-    sensor[7] = VoltageSensor("Shore Power", 7)
+    sensor[3] = TemperatureSensor("External Temperature", 4, 40, 15)
+    sensor[4] = VoltageSensor("Rocket Ready", 2, 0.5, -0.5)
+    sensor[5] = VoltageSensor("System Battery", 5, 9, 5)
+    sensor[6] = VoltageSensor("Solar Voltage", 6, 13, 5)
+    sensor[7] = VoltageSensor("Shore Power", 7, 19, 16)
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)
