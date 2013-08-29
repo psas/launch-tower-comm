@@ -1,41 +1,50 @@
 digraph ltcctrl {
-	spon -> spoff;
-	spon -> spon;
+	Init -> SP_on;
+	Init -> SP_off;
+	Init -> Err_0E [color=red];
 	
-	spoff -> spoff;
-	spoff -> spon;
+	SP_on -> SP_off;
+	SP_on -> Err_2E [color=red];
+
+	SP_off -> SP_on;
+	SP_off -> Abort [color=red];
+	SP_off -> Armed [color=blue];
+
+	Armed -> SP_on [color=red];
+	Armed -> Abort [color=red];
+	Armed -> SP_off [color=red];
+	Armed -> Popup [color=blue];
+	Armed -> SP_off [color=blue];
+
+	PP -> Err_6A [color=red];
+	PP -> Ignited;
+	PP -> SP_off [color=red];
+	PP -> PPAbort [color=blue];
 	
-	spoff -> igoff_aboff;
-	spnone -> spon;
-	spnone -> spnone;
-	spnone -> spoff;
+	Ignited -> Err_2E [color=red];
+	Ignited -> SP_off;
+	Ignited -> Abort [color=red];
+	Ignited -> Abort [color=blue];
 
+	Abort -> Err_2E [color=red];
+	Abort -> SP_off;
 
-	igoff_aboff -> popup;
-	popup -> pp_igoff_aboff;
-	pp_igoff_aboff -> igon_aboff;
-	pp_igoff_aboff -> pp_igoff_abon;
-	pp_igoff_abon -> igon_abon;	
-	popup -> igoff_abon;
-	igoff_aboff -> igoff_abon;
-	igoff_abon -> spoff;
-	igoff_aboff -> igon_aboff;
-	igon_aboff -> igon_abon;
-	igon_abon -> spoff;
+	Err_2E -> Abort;
+	Err_2E -> SP_on;
 
-	edge [style=bold color=red] // label="Ignition\nRelay\nCloses"]
-	spon -> igon_abon ;
-	spoff -> igon_abon;
-	spnone -> igon_abon;
+	Err_0E -> Err_2E [color=red];
+	Err_0E -> Abort;
+	Err_0E -> SP_on;
+
+	PPAbort -> Err_6A [color=red];
+	PPAbort -> Abort;
 	
+	Err_6A -> PPAbort;
+	Err_6A -> Err_2E [color=red];
 
-
-
-
-
-
-
-
-
-
+	Popup -> SP_on [color=red];
+	Popup -> Abort [color=red];
+	Popup -> SP_off [color=red];
+	Popup -> PP [color=blue];
+	Popup -> Armed [color=blue];
 }
