@@ -3,48 +3,48 @@ digraph ltcctrl {
 	Init -> SP_off;
 	Init -> Err_0E [color=red];
 	
-	SP_on -> SP_off;
+	SP_on -> SP_off [style=dashed];
 	SP_on -> Err_2E [color=red];
 
-	SP_off -> SP_on;
+	SP_off -> SP_on [style=dashed];
 	SP_off -> Abort [color=red];
 	SP_off -> Armed [color=blue];
 
-	Armed -> SP_on [color=red];
+	Armed -> SP_on [color=orange];
 	Armed -> Abort [color=red];
-	Armed -> SP_off [color=red];
+	Armed -> SP_off [color=yellow];
 	Armed -> Popup [color=blue];
 	Armed -> SP_off [color=blue];
 
-	PP -> Err_6A [color=red];
-	PP -> Ignited;
-	PP -> SP_off [color=red];
+	PP -> Err_6A [color=orange];
+	PP -> Ignited [style=dashed];
+	PP -> PPAbort [color=yellow];
 	PP -> PPAbort [color=blue];
 	
-	Ignited -> Err_2E [color=red];
+	Ignited -> Err_2E [color=orange];
 	Ignited -> SP_off;
-	Ignited -> Abort [color=red];
+	Ignited -> Abort [color=yellow];
 	Ignited -> Abort [color=blue];
 
-	Abort -> Err_2E [color=red];
+	Abort -> Err_2E [color=orange];
 	Abort -> SP_off;
 
 	Err_2E -> Abort;
 	Err_2E -> SP_on;
 
-	Err_0E -> Err_2E [color=red];
-	Err_0E -> Abort;
-	Err_0E -> SP_on;
+	Err_0E -> Err_2E [color=orange];
+	Err_0E -> Abort [color=orange];
+	Err_0E -> Init;
 
-	PPAbort -> Err_6A [color=red];
+	PPAbort -> Err_6A [color=orange];
 	PPAbort -> Abort;
 	
 	Err_6A -> PPAbort;
 	Err_6A -> Err_2E [color=red];
 
-	Popup -> SP_on [color=red];
+	Popup -> SP_on [color=orange];
 	Popup -> Abort [color=red];
-	Popup -> SP_off [color=red];
+	Popup -> SP_off [color=yellow];
 	Popup -> PP [color=blue];
 	Popup -> Armed [color=blue];
 }
