@@ -1,5 +1,5 @@
 *.py[cod]
-
+*.ps
 *.ini
-
+*.swp
 logs/
