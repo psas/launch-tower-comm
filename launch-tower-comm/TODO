@@ -6,16 +6,18 @@
 * Add numeric bounds to color changes in indicators
 * SOP (e.g. check fuse)
 * comment/document code
+* Create diagram showing order of sensor connections on the Interface Kit, and how to change the order in software.
 
 #### For version 1.1
 * Local phidgets service (on LTC) and our own network communication code
 * Try to break the network (simulate high latency and drop packets)
 
 #### For version 1.2
-* Revamp logger/state display
+* Revamp logger/state display (fancy scrolling display)
 * Put it on a tablet
 * Integrate with telemetry capstone project
 * Fix Relay Label background color being too dark
+* Add shortcuts for a coordinated color palete 
 
 #### For version 1.3
 * 
