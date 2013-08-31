@@ -193,6 +193,9 @@ class CorePhidget(LTCPhidget):
 
     shorepower = Relay('Shore Power Relay', 7)
 
+    # Here, sensor[n] describes the nth sensor on the Interface Kit (IK),
+    # following the Phidget convention. If sensor positions on the IK are
+    # changed, the 'sensor' dictionary keys must be properly updated here.
     inputWindspeed = 7  # make a sensor?
     output = {}
     output[7] = shorepower

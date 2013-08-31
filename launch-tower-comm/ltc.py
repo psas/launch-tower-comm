@@ -28,7 +28,6 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
-# Kivy specific imports
 import kivy
 kivy.require('1.0.5')
 from kivy.config import Config
@@ -55,13 +54,18 @@ VERSION = '0.2'
 
 
 class LTC(Widget):
-    # Loaded from the kv lang file and here.
+    # Loaded from the kv lang file. Other objects added here.
     app = ObjectProperty(None)
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
 
 
 class RelayLabel(Label):
+    '''A display widget for the Phidget Relays in the launch tower computer.
+
+    Loads from the kv lang file. Used by ltcbackend sensors.
+
+    '''
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty([1, 1, 1, 1])
     states = {"Detached": [.1, .1, .1, 1],
@@ -72,6 +76,7 @@ class RelayLabel(Label):
               "Unknown": [.1, .1, .1, 1]}
 
     def __init__(self, **kwargs):
+        # load from kv lang file first
         super(RelayLabel, self).__init__(**kwargs)
         self.set_state("Detached")
 
@@ -109,6 +114,11 @@ class RelayLabel(Label):
 
 
 class StatusDisplay(BoxLayout):
+    '''Displays the overall state of the LTC Phidget sensors, and a message.
+
+    Loaded from kv lang file first.
+
+    '''
     # TODO: scrollable log
     states = {
         "Nominal":
@@ -124,11 +134,10 @@ class StatusDisplay(BoxLayout):
         "Disconnected":
         ("Please leave a message or call again.", [1, 1, 0, 1]),
         "Abort Failed":
-        ("Attempting to shut off the igniter failed", [1, 0, 0, 1])}
+        ("The attempt to shut off the igniter failed.", [1, 0, 0, 1])}
 
     def __init__(self, **kwargs):
-        '''Displays the state and a (hopefully) helpful message.'''
-
+        # load from the kv lang file
         super(StatusDisplay, self).__init__(**kwargs)
         self.set_state("Disconnected")
 
@@ -154,10 +163,11 @@ class StatusDisplay(BoxLayout):
         log.info("State changed:{}".format(state))
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
-        self.status_message.text = self.states[state][0]
+        self.state_message.text = self.states[state][0]
 
 
 class InterfaceKitPanel(BoxLayout):
+    '''Container for IOIndicators. Loaded from kv lang file.'''
     pass
 
 
@@ -241,6 +251,7 @@ class LTCApp(App):
         backend.core.add_callback(status.on_attach, 'attach')
         backend.core.add_callback(status.on_detach, 'detach')
         backend.core.add_callback(status.on_error, 'error')
+
         backend.relay.add_callback(status.on_attach, 'attach')
         backend.relay.add_callback(status.on_detach, 'detach')
         backend.relay.add_callback(status.on_error, 'error')
@@ -249,11 +260,12 @@ class LTCApp(App):
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
         backend.core.shorepower.add_callback(ctrl.on_shorepower, "value")
         backend.relay.relay.add_callback(ctrl.on_ignite, "value")
+
         ltc = LTC()
-        ltc.indicators.add_widget(relay_panel)
-        ltc.indicators.add_widget(input_panel)
         ltc.toplayout.add_widget(ctrl)
         ltc.toplayout.add_widget(status)
+        ltc.indicators.add_widget(relay_panel)
+        ltc.indicators.add_widget(input_panel)
         return ltc
 
 if __name__ == '__main__':
