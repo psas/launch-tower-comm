@@ -1,50 +1,57 @@
 digraph ltcctrl {
+	subgraph cluster_abort {
+		label="Abort Group";
+		style=rounded;
+		Abort -> Err_2E [color=orange];
+		Abort -> SP_off;
+
+		Err_2E -> Abort;
+		Err_2E -> SP_on;
+
+		Err_0E -> Err_2E [color=orange];
+		Err_0E -> Abort [color=orange];
+		Err_0E -> Init;
+
+		PPAbort -> Err_6A;
+		PPAbort -> Abort;
+	
+		Err_6A -> PPAbort;
+		Err_6A -> Err_2E [color=red];	
+	}
+	
 	Init -> SP_on;
 	Init -> SP_off;
-	Init -> Err_0E [color=red];
+	Init -> Err_0E [constraint=false color=red];
 	
-	SP_on -> SP_off [style=dashed];
-	SP_on -> Err_2E [color=red];
+	SP_on -> SP_blink [color=blue];
+	SP_on -> Err_2E [constraint=false color=red];
+	
+	SP_blink -> SP_off;
+	SP_blink -> SP_on;
 
-	SP_off -> SP_on [style=dashed];
-	SP_off -> Abort [color=red];
+	SP_off -> SP_blink [color=blue];
+	SP_off -> Abort [constraint=false color=red];
 	SP_off -> Armed [color=blue];
 
-	Armed -> SP_on [color=orange];
-	Armed -> Abort [color=red];
-	Armed -> SP_off [color=yellow];
+	Armed -> SP_on [constraint=false color=orange];
+	Armed -> Abort [constraint=false color=red];
+	Armed -> SP_off [constraint=false color=yellow];
 	Armed -> Popup [color=blue];
 	Armed -> SP_off [color=blue];
 
-	PP -> Err_6A [color=orange];
+	PP -> Err_6A [constraint=false color=orange];
 	PP -> Ignited [style=dashed];
-	PP -> PPAbort [color=yellow];
+	PP -> PPAbort [constraint=false color=yellow];
 	PP -> PPAbort [color=blue];
 	
-	Ignited -> Err_2E [color=orange];
+	Ignited -> Err_2E [constraint=false color=orange];
 	Ignited -> SP_off;
-	Ignited -> Abort [color=yellow];
+	Ignited -> Abort [constraint=false color=yellow];
 	Ignited -> Abort [color=blue];
 
-	Abort -> Err_2E [color=orange];
-	Abort -> SP_off;
-
-	Err_2E -> Abort;
-	Err_2E -> SP_on;
-
-	Err_0E -> Err_2E [color=orange];
-	Err_0E -> Abort [color=orange];
-	Err_0E -> Init;
-
-	PPAbort -> Err_6A [color=orange];
-	PPAbort -> Abort;
-	
-	Err_6A -> PPAbort;
-	Err_6A -> Err_2E [color=red];
-
-	Popup -> SP_on [color=orange];
-	Popup -> Abort [color=red];
-	Popup -> SP_off [color=yellow];
+	Popup -> SP_on [constraint=false color=orange];
+	Popup -> Abort [constraint=false color=red];
+	Popup -> SP_off [constraint=false color=yellow];
 	Popup -> PP [color=blue];
 	Popup -> Armed [color=blue];
 }

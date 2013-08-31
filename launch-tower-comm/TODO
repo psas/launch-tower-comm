@@ -3,7 +3,6 @@
 ### Critical
 #### For version 1.0
 * Calibrated sensor values
-* Add numeric bounds to color changes in indicators
 * SOP (e.g. check fuse)
 * comment/document code
 
@@ -28,8 +27,6 @@
 * Send "Armed", "Ignited", "Countdown"?? to IRC channel from Kivy
 * Data Graphs
 * Integrate rocket cmdr?
-* State diagram failure modes of ltcctrl to make sure we're doing the right
-  thing in all cases
 
 ## Hardware Related
 ### Non-critical
