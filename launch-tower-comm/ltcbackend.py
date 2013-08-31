@@ -8,6 +8,7 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 LTCIP = '192.168.128.2'
 
+
 class Sensor(object):
     isRatiometric = None
     unit = ""
@@ -29,10 +30,11 @@ class Sensor(object):
     def nominal_value(self, val):
         return (0, 1, 0, 1)
 
+
 class VoltageSensor(Sensor):
     isRatiometric = False
     unit = "V"
-    
+
     def __init__(self, name, index, upper, lower):
         super(VoltageSensor, self).__init__(name, index)
         self.upper = upper
@@ -46,6 +48,7 @@ class VoltageSensor(Sensor):
 
     def convert(self, sample):
         return (sample / 200.0 - 2.5) / 0.0681
+
 
 class TemperatureSensor(Sensor):
     isRatiometric = True
@@ -76,7 +79,8 @@ class Relay(Sensor):
         elif val == "Open":
             return (0, 1, 0, 1)
         else:
-            raise TypeError 
+            raise TypeError
+
 
 class LTCPhidget(object):
     # TODO: can the remote specific events find a disconnected usb cable?
@@ -180,6 +184,7 @@ class LTCPhidget(object):
         except KeyError:
             pass
 
+
 class CorePhidget(LTCPhidget):
     # Interface Kit 8/8/8 with sensors attached
     devserial = 178346
@@ -217,6 +222,7 @@ class CorePhidget(LTCPhidget):
         log.info("Setting shorepower state to {}".format(state))
         self.ik.setOutputState(self.shorepower.index, state)
 
+
 class IgnitionRelay(LTCPhidget):
     # Interface Kit 0/0/4 with relays
     devserial = 259173
@@ -238,6 +244,7 @@ class IgnitionRelay(LTCPhidget):
     def setIgnitionRelayState(self, state):
         log.info("Setting ignition relay state to {}".format(state))
         self.ik.setOutputState(self.relay.index, state)
+
 
 class LTCbackend(object):
 
@@ -269,7 +276,6 @@ class LTCbackend(object):
         if event.index == self.core.shorepower.index:
             self.shorepower_state = event.state
 
-
     def close(self, event):
         log.debug("Closing LTCBackend")
         try:
@@ -293,7 +299,6 @@ class LTCbackend(object):
         except PhidgetException:
             self.set_status("Phidget Call Failed")
             raise
-
 
     def shorepower(self, state):
         try:

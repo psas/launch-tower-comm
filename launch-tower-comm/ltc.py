@@ -53,21 +53,24 @@ import ltclogger as log
 
 VERSION = '0.2'
 
+
 class LTC(Widget):
     # Loaded from the kv lang file and here.
     app = ObjectProperty(None)
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
 
+
 class RelayLabel(Label):
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty([1, 1, 1, 1])
     states = {"Detached": [.1, .1, .1, 1],
-            "Thinking": [0, 1, 1, 1],
-            "Open": [1, 0, 0, 1],
-            "Closed": [0, 1, .5, 1],
-            "Error": [1, 1, 0, 1],
-            "Unknown":[.1, .1, .1, 1]}
+              "Thinking": [0, 1, 1, 1],
+              "Open": [1, 0, 0, 1],
+              "Closed": [0, 1, .5, 1],
+              "Error": [1, 1, 0, 1],
+              "Unknown": [.1, .1, .1, 1]}
+
     def __init__(self, **kwargs):
         super(RelayLabel, self).__init__(**kwargs)
         self.set_state("Detached")
@@ -104,17 +107,25 @@ class RelayLabel(Label):
     def on_button(self, event):
         self.set_state("Thinking")
 
+
 class StatusDisplay(BoxLayout):
     # TODO: scrollable log
     states = {
-            "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
-            "ARMED": ("You could abort", [1, 0, 0, 1]),
-            "Disarmed": ("The igniter is now off and safe", [.5, .5, .5, 1]),
-            "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
-            "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
-            "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1]),
-            "Abort Failed": ("Attempting to shut off the igniter failed", [1, 0, 0, 1])
-            }
+        "Nominal":
+        ("Disable Shore power to arm", [.5, .5, .5, 1]),
+        "ARMED":
+        ("You could abort", [1, 0, 0, 1]),
+        "Disarmed":
+        ("The igniter is now off and safe", [.5, .5, .5, 1]),
+        "IGNITED!":
+        ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
+        "Phidget Call Failed":
+        ("Phidgets didn't get the message, \nplease try again", [1, 0, 0, 1]),
+        "Disconnected":
+        ("Please leave a message or call again.", [1, 1, 0, 1]),
+        "Abort Failed":
+        ("Attempting to shut off the igniter failed", [1, 0, 0, 1])}
+
     def __init__(self, **kwargs):
         '''Displays the state and a (hopefully) helpful message.'''
 
@@ -148,6 +159,7 @@ class StatusDisplay(BoxLayout):
 
 class InterfaceKitPanel(BoxLayout):
     pass
+
 
 class IOIndicator(BoxLayout):
     def __init__(self, sensor, **kwargs):
@@ -186,13 +198,11 @@ class IOIndicator(BoxLayout):
             self.status_ind.text = '{} {}'.format(newval, self.unit)
         else:
             self.status_ind.text = '{:.1f} {}'.format(newval, self.unit)
-        
+
         self.status_ind.background_color = self.nominal_value(newval)
-             
 
 
 class LTCApp(App):
-
     def build(self):
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
@@ -227,7 +237,6 @@ class LTCApp(App):
         relay_panel.add_widget(sens6)
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(sens9)
-
 
         backend.core.add_callback(status.on_attach, 'attach')
         backend.core.add_callback(status.on_detach, 'detach')

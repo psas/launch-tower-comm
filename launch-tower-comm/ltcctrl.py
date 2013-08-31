@@ -44,7 +44,6 @@ class IgnitionPopup(Popup):
 
 
 class LTCctrl(Accordion):
-
     def __init__(self, ignite=lambda x: None, shorepower=lambda x: None, status=lambda x: None, **kwargs):
         # setup callbacks
         self.ignite = ignite
@@ -61,7 +60,6 @@ class LTCctrl(Accordion):
         self.popup = IgnitionPopup(ignite, self.abort, self.state)
         super(LTCctrl, self).__init__(**kwargs)
         self.accordion_unarmed.collapse = False
-
 
     def on_shorepower(self, event):
         """Callback function to set shorepower buttons state"""
@@ -112,7 +110,8 @@ class LTCctrl(Accordion):
                 self.accordion_unarmed.collapse = False
                 self.set_status('Disarmed')
             else:
-                raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
+                raise RuntimeError("Attempt to disarm was made while \
+                        ignition relay was closed")
         else:
             raise TypeError
 
@@ -132,7 +131,8 @@ class LTCctrl(Accordion):
 
     def on_button_ignite(self):
         if self.state['abort'] is True:
-            pass  # TODO: log that ignite can't happen becuase abort is in progress
+            # TODO: log that ignite can't happen becuase abort is in progress
+            pass
         elif self.state['ignition'] is True:
             self.abort()
         else:
@@ -149,6 +149,7 @@ class LTCctrl(Accordion):
 if __name__ == '__main__':
     import sys
     from kivy.app import App
+
     class ltcctrlApp(App):
         def build(self):
             try:
