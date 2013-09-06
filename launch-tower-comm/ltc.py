@@ -28,7 +28,6 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
-# Kivy specific imports
 import kivy
 kivy.require('1.0.5')
 from kivy.config import Config
@@ -53,22 +52,31 @@ import ltclogger as log
 
 VERSION = '0.2'
 
+
 class LTC(Widget):
-    # Loaded from the kv lang file and here.
+    # Loaded from the kv lang file. Other objects added here.
     app = ObjectProperty(None)
     box_layout = ObjectProperty(None)
     version = StringProperty(VERSION)
 
+
 class RelayLabel(Label):
+    '''A display widget for the Phidget Relays in the launch tower computer.
+
+    Loads from the kv lang file. Used by ltcbackend sensors.
+
+    '''
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty([1, 1, 1, 1])
     states = {"Detached": [.1, .1, .1, 1],
-            "Thinking": [0, 1, 1, 1],
-            "Open": [1, 0, 0, 1],
-            "Closed": [0, 1, .5, 1],
-            "Error": [1, 1, 0, 1],
-            "Unknown":[.1, .1, .1, 1]}
+              "Thinking": [0, 1, 1, 1],
+              "Open": [1, 0, 0, 1],
+              "Closed": [0, 1, .5, 1],
+              "Error": [1, 1, 0, 1],
+              "Unknown": [.1, .1, .1, 1]}
+
     def __init__(self, **kwargs):
+        # load from kv lang file first
         super(RelayLabel, self).__init__(**kwargs)
         self.set_state("Detached")
 
@@ -104,20 +112,32 @@ class RelayLabel(Label):
     def on_button(self, event):
         self.set_state("Thinking")
 
+
 class StatusDisplay(BoxLayout):
+    '''Displays the overall state of the LTC Phidget sensors, and a message.
+
+    Loaded from kv lang file first.
+
+    '''
     # TODO: scrollable log
     states = {
-            "Nominal": ("Disable Shore power to arm", [.5, .5, .5, 1]),
-            "ARMED": ("You could abort", [1, 0, 0, 1]),
-            "Disarmed": ("The igniter is now off and safe", [.5, .5, .5, 1]),
-            "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
-            "Phidget Call Failed": ("Phidgets had a problem and didn't \nget the message, please try again", [1, 0, 0, 1]),
-            "Disconnected": ("Phidgets can't be reached right now. \nPlease leave a message or call again.", [1, 1, 0, 1]),
-            "Abort Failed": ("Attempting to shut off the igniter failed", [1, 0, 0, 1])
-            }
-    def __init__(self, **kwargs):
-        '''Displays the state and a (hopefully) helpful message.'''
+        "Nominal":
+        ("Disable Shore power to arm", [.5, .5, .5, 1]),
+        "ARMED":
+        ("You could abort", [1, 0, 0, 1]),
+        "Disarmed":
+        ("The igniter is now off and safe", [.5, .5, .5, 1]),
+        "IGNITED!":
+        ("Click Ignite again to disable Ignition power", [0, 1, .5, 1]),
+        "Phidget Call Failed":
+        ("Phidgets didn't get the message, \nplease try again", [1, 0, 0, 1]),
+        "Disconnected":
+        ("Please leave a message or call again.", [1, 1, 0, 1]),
+        "Abort Failed":
+        ("The attempt to shut off the igniter failed.", [1, 0, 0, 1])}
 
+    def __init__(self, **kwargs):
+        # load from the kv lang file
         super(StatusDisplay, self).__init__(**kwargs)
         self.set_state("Disconnected")
 
@@ -143,11 +163,13 @@ class StatusDisplay(BoxLayout):
         log.info("State changed:{}".format(state))
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
-        self.status_message.text = self.states[state][0]
+        self.state_message.text = self.states[state][0]
 
 
 class InterfaceKitPanel(BoxLayout):
+    '''Container for IOIndicators. Loaded from kv lang file.'''
     pass
+
 
 class IOIndicator(BoxLayout):
     def __init__(self, sensor, **kwargs):
@@ -186,13 +208,11 @@ class IOIndicator(BoxLayout):
             self.status_ind.text = '{} {}'.format(newval, self.unit)
         else:
             self.status_ind.text = '{:.1f} {}'.format(newval, self.unit)
-        
+
         self.status_ind.background_color = self.nominal_value(newval)
-             
 
 
 class LTCApp(App):
-
     def build(self):
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
@@ -228,10 +248,10 @@ class LTCApp(App):
         relay_panel.add_widget(relay1)
         relay_panel.add_widget(sens9)
 
-
         backend.core.add_callback(status.on_attach, 'attach')
         backend.core.add_callback(status.on_detach, 'detach')
         backend.core.add_callback(status.on_error, 'error')
+
         backend.relay.add_callback(status.on_attach, 'attach')
         backend.relay.add_callback(status.on_detach, 'detach')
         backend.relay.add_callback(status.on_error, 'error')
@@ -240,11 +260,12 @@ class LTCApp(App):
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
         backend.core.shorepower.add_callback(ctrl.on_shorepower, "value")
         backend.relay.relay.add_callback(ctrl.on_ignite, "value")
+
         ltc = LTC()
-        ltc.indicators.add_widget(relay_panel)
-        ltc.indicators.add_widget(input_panel)
         ltc.toplayout.add_widget(ctrl)
         ltc.toplayout.add_widget(status)
+        ltc.indicators.add_widget(relay_panel)
+        ltc.indicators.add_widget(input_panel)
         return ltc
 
 if __name__ == '__main__':

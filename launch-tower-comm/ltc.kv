@@ -40,7 +40,7 @@
 
 <StatusDisplay>:
     state_info: state_info
-    status_message: status_message
+    state_message: state_message
     orientation: 'vertical'
 
     Label:
@@ -49,35 +49,30 @@
         text: "This is State."
         size_hint_y: .7
 
-#    HSeparator
-#        size_hint_y: 0.05
-
     Label:
-        id: status_message
+        id: state_message
         font_size: 20
         text: "This message is important."
         size_hint_y: 0.25
 
 <InterfaceKitPanel>:
-    labels: labels
     orientation: 'vertical'
     pos_hint: {'x': 0, 'y': 0}
     padding: 5
 
     # COLUMN LABELS
     BoxLayout:
-        id: labels
         orientation: 'horizontal'
         padding: 5
         spacing: 10
 
-        MyLabel:
+        NameLabel:
             text: 'DEVICE'
             font_size: 20
 
         VSeparator
 
-        MyLabel:
+        NameLabel:
             text: 'Status'
             font_size: 20
 
@@ -94,7 +89,7 @@
         padding: 5
         spacing: 10
 
-        MyLabel:
+        NameLabel:
             id: device_label
             text: 'device'
 
@@ -143,7 +138,7 @@
             size: self.width * 0.99, 2
             pos: self.x, self.center_y
 
-[MyLabel@Label]:
+[NameLabel@Label]:
     size_hint_y: 1
     height: max(dp(45), self.texture_size[1] + dp(10))
     text: ctx.text if 'text' in ctx else ''

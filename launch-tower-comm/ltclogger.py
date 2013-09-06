@@ -1,8 +1,10 @@
 import time
 import os
 
+
 class __ltclogger(object):
     default_level = 20
+
     def __init__(self):
         self.level = self.default_level
 
@@ -18,7 +20,8 @@ class __ltclogger(object):
         for i in range(1, 1000):
             try:
                 # To prevent race condition
-                fd = os.open(filename + ".txt", os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0666)
+                fd = os.open(filename + ".txt",
+                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0666)
                 self.log = os.fdopen(fd, "w")
             except IOError:
                 filename = basename + "_" + str(i)
@@ -38,33 +41,41 @@ class __ltclogger(object):
 
 __globallogger = __ltclogger()
 
+
 def set_default_level(level):
     __globallogger._set_default_level(level)
+
 
 def log(text, level=__globallogger.default_level):
     __globallogger._log(text, level)
 
+
 def debug(text):
     log(text, 10)
+
 
 def verbose(text):
     log(text, 15)
 
+
 def info(text):
     log(text, 20)
+
 
 def terse(text):
     log(text, 25)
 
+
 def warn(text):
     log(text, 30)
+
 
 def error(text):
     log(text, 40)
 
+
 def critical(text):
     log(text, 50)
-
 
 
 if __name__ == "__main__":
@@ -84,5 +95,3 @@ if __name__ == "__main__":
     log("TEST LEVEL 2", 2)
     log("TEST LEVEL 1", 1)
     log("Invalid level", "Dog")
-
-
