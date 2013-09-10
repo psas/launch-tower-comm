@@ -1,0 +1,47 @@
+digraph {
+	node [shape=box style=rounded];
+	rankdir=LR;
+	
+	Armed -> SP_on [color=orange];
+        Armed -> Abort [color=red];
+        Armed -> Disconnect [color=yellow];
+        Armed -> Popup [color=blue];
+        Armed -> SP_off [color=blue];
+        
+        Popup -> SP_on [color=orange];
+	Popup -> Armed [color=purple];
+        Popup -> Abort [color=red];
+        Popup -> Disconnect [color=yellow];
+        Popup -> Ign_blink [weight=888 color=blue];
+        Popup -> Armed [color=blue];
+        
+        Ign_blink -> Err_6A [color=orange];
+        Ign_blink -> Ignited;
+        Ign_blink -> Disconnect [color=yellow];
+        Ign_blink -> Ign_blinkAbort [color=blue];
+        
+        Ignited -> Err_2E [color=orange];
+        Ignited -> SP_off [style=dashed];
+        Ignited -> Disconnect [color=yellow];
+        Ignited -> Abort [color=blue];
+	Ignited -> Abort [color=purple];
+
+
+
+	subgraph cluster_abt{
+		color=invis	
+		Abort -> Ign_blinkAbort -> Err_6A -> Err_2E [color=invis];
+	}
+	subgraph cluster_armed {
+		Armed;
+		Popup;	
+		Ign_blink;
+		Ignited;
+	}
+	subgraph cluster_ua{
+		color=invis;
+		SP_on -> SP_off -> Disconnect [color=invis];
+	}       
+	Abort -> Popup [weight=88 color=invis];	
+	SP_on -> Popup [weight=88 color=invis];
+}

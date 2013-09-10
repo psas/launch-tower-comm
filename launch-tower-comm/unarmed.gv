@@ -1,0 +1,49 @@
+digraph ltcctrl {
+	node [shape=box style=rounded];
+	
+	Disconnect -> Init;
+		
+        Init -> SP_on;
+        Init -> SP_off;
+        Init -> Err_0E [color=red];
+        Init -> SP_on_blink [color=invis];
+        Init -> SP_off_blink [color=invis];
+	Init -> Disconnect [color=yellow];
+
+        SP_on -> Err_2E [color=red];
+       	SP_on -> SP_off [color=orange];
+	SP_on -> SP_on_blink [color=blue];
+	SP_on -> Disconnect [color=yellow];
+
+        SP_on_blink -> SP_off;
+	SP_on_blink -> SP_on [color=orange];
+        SP_on_blink -> Err_2E [color=red];
+	SP_on_blink -> Disconnect [color=yellow];
+	
+        SP_off -> Abort [color=red];
+	SP_off -> SP_on [color=orange];
+        SP_off -> Armed [color=blue];
+        SP_off -> SP_off_blink [color=blue];
+	SP_off -> Disconnect [color=yellow];
+
+        SP_off_blink -> SP_on;
+	SP_off_blink -> SP_off [color=orange];
+        SP_off_blink -> Abort [color=red];
+	SP_off_blink -> Disconnect [color=yellow];	
+
+	subgraph cluster_unarmed{
+                Disconnect;
+		Init;
+		subgraph {
+			rank=same;
+                	SP_on;
+                	SP_off;
+		}
+                subgraph {
+			rank=same;
+			SP_on_blink;
+                	SP_off_blink;
+		}
+        }
+
+}
