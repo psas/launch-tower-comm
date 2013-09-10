@@ -2,8 +2,6 @@
 ## Software Related
 ### Critical
 #### For version 1.0
-* Calibrated sensor values
-* SOP (e.g. check fuse)
 * comment/document code
 * Create diagram showing order of sensor connections on the Interface Kit, and how to change the order in software.
 
