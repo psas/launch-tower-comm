@@ -2,8 +2,7 @@
 ## Software Related
 ### Critical
 #### For version 1.0
-* comment/document code
-* Create diagram showing order of sensor connections on the Interface Kit, and how to change the order in software.
+DONE.
 
 #### For version 1.1
 * Local phidgets service (on LTC) and our own network communication code
