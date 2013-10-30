@@ -6,6 +6,7 @@ Several programs demonstrating Phidgets integrated into Kivy GUIs.
 
 * Install Kivy. (follow instructions at (kivy.org)[kivy.org]
 * Install the (Phidgets)[phidgets.com] libraries, Python module, and Webservice 
+* Install twisted
 
 ## InterfaceKit Demo - `kv-ph-demo.py`
 
@@ -48,4 +49,10 @@ Creates and updates four dictionary key/value pairs within the
 webservices' internal dictionary.  To be used in conjuction with the 
 Kivy app.
 
+# Twisted/Kivy demo
 
+`echo-client-app.py` and `echo-server-app.py` demo how to use Twisted with
+Kivy.  The server is like launch control and the client like the LTC. 
+
+The client will reconnect if you try to send text after the server comes
+back up.  
