@@ -1,8 +1,5 @@
-# install_twisted_rector must be called before importing
-# and using the reactor
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
-
 
 from twisted.internet import reactor
 from twisted.protocols.basic import LineOnlyReceiver

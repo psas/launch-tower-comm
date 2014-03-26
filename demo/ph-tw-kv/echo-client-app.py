@@ -12,9 +12,7 @@ class EchoClient(LineOnlyReceiver):
         self.factory.app.on_connection(self.transport, self.sendLine)
 
     def lineReceived(self, msg):
-        response = self.factory.app.handle_message(msg)
-        if response:
-            self.sendLine(response)
+        self.factory.app.handle_message(msg)
 
 
 class EchoFactory(protocol.ClientFactory):
