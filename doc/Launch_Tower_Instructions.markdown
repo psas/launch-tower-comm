@@ -134,7 +134,7 @@ View IP Addresses assigned to interfaces:
 
 ## Phidgets
 
-![Phidgets]([diagrams/Phidgets.png)
+![Phidgets](diagrams/Phidgets.png)
 
 
 
