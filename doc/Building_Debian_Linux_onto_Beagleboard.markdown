@@ -1,10 +1,8 @@
----
-title: Building Debian Linux onto Beagleboard
-layout: base
----
+# Building Debian Linux onto Beagleboard
 
 
-# Introduction
+
+## Introduction
 
 I just bought a Beagleboard xM for a project and the preference is to
 run Debain Linux on it so the common packages needed for the project
@@ -17,7 +15,7 @@ personal tutorial which starts from a basic level.
 
 
 
-# References
+## References
 
 * http://elinux.org/BeagleBoardDebian
 * http://www.ibm.com/developerworks/linux/library/l-beagleboard-xm/
@@ -25,7 +23,7 @@ personal tutorial which starts from a basic level.
 
 
 
-# Format The Sd Card So It Can Take Images
+## Format The Sd Card So It Can Take Images
 
 A normal SD card doesn't have proper formatting or partitions so we have to
 go through the formatting steps.

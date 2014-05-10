@@ -1,10 +1,8 @@
----
-title: Installing Debian On A BeagleBoard
-layout: base
----
+# Installing Debian On A BeagleBoard
 
 
-# Download The NetInstall
+
+## Download The NetInstall
 
 These files create bootable SD with basic installation setup for downloading full package
 Pay attention to what directory the ./mk_mmc.sh file uses for TEMP files::
@@ -16,7 +14,7 @@ Pay attention to what directory the ./mk_mmc.sh file uses for TEMP files::
 
 
 
-# Modify uEnv.txt
+## Modify uEnv.txt
 
 Makes output go to serial.
 NB: That is the capital letter o - not a zero::
@@ -25,7 +23,7 @@ NB: That is the capital letter o - not a zero::
 
 
 
-# Unzip And Copy File To Memory Stick
+## Unzip And Copy File To Memory Stick
 
 Have to do this because script corrupts file when it copies first
 time.
@@ -38,13 +36,13 @@ time.
 
 
 
-# Unmount The "boot" Drive
+## Unmount The "boot" Drive
 
 Must do this or the files can become corrupted and install will fail.
 
 
 
-# Continued Installation On Beagleboard
+## Continued Installation On Beagleboard
 
 * Plugged network into the Eathernet port
 * This image can run off USB power - though you need wall power to
@@ -104,7 +102,7 @@ HAPPEN - INSTRUCTIONS BELOW]
 
 
 
-# Install The Linux Driver For Phidgets
+## Install The Linux Driver For Phidgets
 
 Make sure a C compiler, make, and USB drivers are installed::
 
@@ -138,7 +136,7 @@ time - more than 20 minutes
 
 
 
-# Configure Network Interface Card
+## Configure Network Interface Card
 
         $ ip address show [find the IP address for the device - eth0]
         $ ip address del 192.168.1.100/24 dev eth0 [remove old IP address from eth0]
@@ -146,7 +144,7 @@ time - more than 20 minutes
 
 
 
-# Install WiFi Network Card
+## Install WiFi Network Card
 
 [NOTE :: We are using an Alfa Networks AWUS051NH 802.11a/b/g/n USB adapter]
 
@@ -169,7 +167,7 @@ time - more than 20 minutes
         $ aptitude install firmware-ralink wireless-tools   [this will also install iwconfig]
 
 
-## Step #2 - Install Daemon For WPA2 Encryption
+### Step #2 - Install Daemon For WPA2 Encryption
 
 [NOTE :: following instructions from:
 http://wiki.debian.org/WiFi/HowToUse#wpasupplicant]
@@ -177,7 +175,7 @@ http://wiki.debian.org/WiFi/HowToUse#wpasupplicant]
         $ apt-get install -y wpasupplicant [installs daemon needed for WPA encryption]
 
 
-# Step #3 - Set Default Configuration Settings For Wireless LAN
+## Step #3 - Set Default Configuration Settings For Wireless LAN
 
         $ chmod 0600 /etc/network/interfaces    [Restrict the permissions of /etc/network/interfaces, to prevent pre-shared key (PSK) disclosure]
         $ sensible-editor /etc/network/interfaces   [edit the network interface file]
@@ -203,7 +201,7 @@ second line]
 
 
 
-# Turn Off Exim
+## Turn Off Exim
 
 Slows boot and causing issues::
 
@@ -211,7 +209,7 @@ Slows boot and causing issues::
 
 
 
-# Auto-Run Script
+## Auto-Run Script
 
 [NOTE :: Need to put in a script so webservice starts at every boot]
 [NOTE :: Instructions: http://www.debian-administration.org/articles/28]
@@ -258,65 +256,46 @@ Modify /etc/rc.local file to make this run at the very end (or it can hang up ot
 
 
 
-# Copying SD Card
+## Copying SD Card
 
-Note :: Wherever file is copied to must have space for full maount of
+Note: Wherever file is copied to must have space for full maount of
 card. If you are copying a 2GB card the temp file will take 2GB
 regardless of actual files on card.
 
 1. Booted computer to linux
-1. Inserted the SD card with image
-1. dd if=/dev/mmcblk0 of=/media/see/sd-card.bin [Copy files to HDD (/media/see)]
-1. Inserted new blank SD card
-1. fdisk -l [Found the card name]
-1. dd if=/media/see/sd-card.bin of=/dev/mmcblk0 [Copy file of original card to new card]
-1. Unmounted and remounted card to verify complete copy with partitions
+2. Inserted the SD card with image
+3. dd if=/dev/mmcblk0 of=/media/see/sd-card.bin [Copy files to HDD (/media/see)]
+4. Inserted new blank SD card
+5. fdisk -l [Found the card name]
+6. dd if=/media/see/sd-card.bin of=/dev/mmcblk0 [Copy file of original card to new card]
+7. Unmounted and remounted card to verify complete copy with partitions
 
-NOTE :: When you boot up the next time with a copied SD card theres a
+Note: When you boot up the next time with a copied SD card theres a
 good chance it will error on check and require a reboot and scan.
 
 
 
-# Useful Commands
+## Useful Commands
 
-see what drives are mounted where::
-
-        mount
-
-stop Postgres::
-    
-        pg_dropcluster --stop 8.4 main
-
-see what SQL packages running::
-
-        dpkg --get-selections | grep sql
-
-remove postgres::
-
-        aptitude purge postgresql-8.4
-
-find the temp file::
-
-        find / -name "initrd.mod.gz"
-
-go to the temp directory::
-
-        cd /tmp/[TEMP NAME HERE]
-
-un gzip file::
-
-        gunzip -c initrd.mod.gz > initrd.net
-        zcat -c initrd.mod.gz > initrd.net
-
-diff the files to make sure::
-
-        diff initrd.net /media/boot/initrd.net
-
-get file size::
-
-        ls -l initrd.net
-
-copy file to memory stick::
-
-        cp initrd.net /media/boot/initrd.net
-        cp initrd.mod.gz /media/boot/initrd.net		# bad - will NOT unpack the file
+* See what drives are mounted where:
+    mount
+* Stop Postgres:
+    pg_dropcluster --stop 8.4 main
+* See what SQL packages running:
+    dpkg --get-selections | grep sql
+* Remove postgres:
+    aptitude purge postgresql-8.4
+* Find the temp file:
+    find / -name "initrd.mod.gz"
+* Go to the temp directory:
+    cd /tmp/[TEMP NAME HERE]
+* Expand gzip file:
+    gunzip -c initrd.mod.gz > initrd.net
+    zcat -c initrd.mod.gz > initrd.net
+* Diff the files to make sure:
+    diff initrd.net /media/boot/initrd.net
+* Get file size:
+    ls -l initrd.net
+* Copy file to memory stick::
+    cp initrd.net /media/boot/initrd.net
+    cp initrd.mod.gz /media/boot/initrd.net		# bad - will NOT unpack the file
