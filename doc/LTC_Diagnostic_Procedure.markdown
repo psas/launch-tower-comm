@@ -31,7 +31,7 @@
 ## Test Solar Panel Connection And Lights
 	
 1. S2 to “OFF”
-2. Connect 9-16 VDC (VINPUT) to J±
+2. Connect 9-16 VDC (Vinput) to J±
   * [PASS] L1 light is ON
   * [FAIL] L1 light is OFF
 3. Depress and hold S1
@@ -43,7 +43,7 @@
 ## Test System Battery Connection And Lights
 
 1. S2 to “OFF”
-2. Connect 9-16 VDC (VINPUT) to I± or L±
+2. Connect 9-16 VDC (Vinput) to I± or L±
   * [PASS] L2 light is ON
   * [FAIL] L2 light is OFF
 3. S2 to “OFF”
@@ -57,13 +57,15 @@
 ## Test Power Conversion
 
 1. S2 to “OFF”
-2. Connect 9-16 VDC (VINPUT) to I± or L±
+2. Connect 9-16 VDC (Vinput) to I± or L±
 3. S2 to “ON”
 4. Voltage Check: A± B± C± D± E± F±
+
        | A± and B±        | C± and D±   | E± and F±
 -------|------------------|-------------|------------
-[PASS] | (VINPUT) ± .02 V | 5 V ± .02 V | 24 V ± .02V
+[PASS] | (Vinput) ± .02 V | 5 V ± .02 V | 24 V ± .02V
 [FAIL] | != PASS          | != PASS     | != PASS
+
 5. S2 to “OFF”
 
 
@@ -74,8 +76,8 @@
 2. Connect: M±
 3. S2 to “ON”
 4. Voltage Check: M±
-  * [PASS] Voltage = (VINPUT) ± .02 V
-  * [FAIL] Voltage ! = (VINPUT) ± .02 V
+  * [PASS] Voltage = (Vinput) ± .02 V
+  * [FAIL] Voltage ! = (Vinput) ± .02 V
   * Note: OK if L5 goes out. This indicates Phidget board has turned
     off 24 V converter.
 5. S2 to “OFF”
@@ -86,25 +88,25 @@
 
 ### Board Power
 
-S2 to “OFF”
-Connect: Q±
-S2 to “ON”
-Voltage Check: Q±
-[PASS] Voltage = 5V ± .02V and L6 is ON
-[FAIL] Voltage != 5V ± .02V or L6 is OFF
-S2 to “OFF”
+1. S2 to “OFF”
+2. Connect: Q±
+3. S2 to “ON”
+4. Voltage Check: Q±
+  * [PASS] Voltage = 5V ± .02V and L6 is ON
+  * [FAIL] Voltage != 5V ± .02V or L6 is OFF
+5. S2 to “OFF”
 
 
 ### Shore Power
 
-Disconnect: M±
-Connect: R+
-S2 to “ON”
-Voltage Check: R+ / Q-
-[PASS] Voltage = 24V ± .02V and L5 is ON
-[FAIL] Voltage != 24V ± .02V or L5 is OFF
-S2 to “OFF”
-Re-Connect: M±
+1. Disconnect: M±
+2. Connect: R+
+3. S2 to “ON”
+4. Voltage Check: R+ / Q-
+  * [PASS] Voltage = 24V ± .02V and L5 is ON
+  * [FAIL] Voltage != 24V ± .02V or L5 is OFF
+5. S2 to “OFF”
+6. Re-Connect: M±
 
 
 ### Ignition Battery
@@ -115,34 +117,34 @@ NEED PROCEDURE HERE
 
 ## Test Ignition Battery Charger
 
-S2 to “OFF”
-S2 to “ON”
-Voltage Check: S (positive tip)
-[PASS] Voltage = (VINPUT) ± .02V
-[FAIL] Voltage != (VINPUT) ± .02V
-Connect: S
-[PASS] Battery charger turns on
-[FAIL] Battery charger does NOT turn on
-
-Note: If charger display shows “Er2” – it indicates the input voltage on S is greater than the 16V maximum input of charger.
-S2 to “OFF”
+1. S2 to “OFF”
+2. S2 to “ON”
+3. Voltage Check: S (positive tip)
+  * [PASS] Voltage = (Vinput) ± .02V
+  * [FAIL] Voltage != (Vinput) ± .02V
+4. Connect: S
+  * [PASS] Battery charger turns on
+  * [FAIL] Battery charger does NOT turn on
+  * If charger display shows “Er2”, the input voltage on S is greater
+    than the 16V maximum input of charger.
+5. S2 to “OFF”
 
 
 
 ## Test Beagleboard
 
-S2 to “OFF”
-S2 to “ON”
-Voltage Check: T (positive tip)
-[PASS] Voltage = 5V ± .02V
-[FAIL] Voltage != 5V ± .02V
-Connect: T
-[PASS] L7 is ON and L8 and L9 start flashing
-[FAIL] L7 is OFF or L7 is RED
-
-Note: Failure at this stage may indicate the polarity is revered on
-connection
-
-Note: At this stage it may not be a good idea to turn S2 to “OFF”
-because it could corrupt the beagleboard image. Instead, let computer
-boot – connect to it and power down the board normally.  S2 to “OFF”
+1. S2 to “OFF”
+2. S2 to “ON”
+3. Voltage Check: T (positive tip)
+  * [PASS] Voltage = 5V ± .02V
+  * [FAIL] Voltage != 5V ± .02V
+4. Connect: T
+  * [PASS] L7 is ON and L8 and L9 start flashing
+  * [FAIL] L7 is OFF or L7 is RED
+  * Failure at this stage may indicate the polarity is revered on
+    connection
+4.  Let computer boot, connect to it, and power down the board
+    normally.
+  * At this stage it may not be a good idea to turn S2 to “OFF”
+    because it could corrupt the BeagleBoard image.
+5. S2 to “OFF”
