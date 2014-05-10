@@ -6,6 +6,8 @@ layout: base
 
 # Wireless Network Configuration
 
+Name | Value
+-----|------
 Channel | 802.11b, Ch. 1
 SSID | psas
 WPA-2 |  psasrocket
@@ -14,7 +16,6 @@ DHCP Range | 192.168.128.50 - 192.168.128.100
 Static Range | 192.168.128.10 - 192.168.128.40
 Original LTC Computer | 192.168.128.2/24
 New LTC Computer | 192.168.128.250/24 (wireless), 192.168.128.251/24 (wired)
-
 Access point IP Address | 192.168.128.1
 Username | admin
 Password | psaslv1b (If password doesn’t work, try leaving it blank.)
