@@ -1,100 +1,90 @@
-﻿---
-title: Launch Tower Computer Diagnostic Test Procedures
-layout: base
----
+﻿# Launch Tower Computer Diagnostic Test Procedures
 
 
 
-# Initial Setup
+## Initial Setup
 
-Disconnect:	R± 	M± 	S 	T 	Q± 	
-I±	J±	K±	L±	 all of these don’t connect devices like batteries and solar panel to the exterior connection
-N (to battery) 	O (to charger)
-S2 to “OFF”
-
-
-
-# Test Main Power Switch
-
-S2 to “OFF”
-Continuity test across both H points
-[PASS] Have NO continuity across points
-[FAIL] Have continuity across points
-
-S2 to “ON”
-[PASS] Have continuity across points
-[FAIL] Have NO continuity across points
-S2 to “OFF”
+1. Disconnect
+  * R± M± S T Q±
+  * I± J± K± L±
+    * All of these don’t connect devices like batteries and solar
+      panel to the exterior connection.
+  * N (to battery) O (to charger)
+2. S2 to “OFF”
 
 
 
-# Test Solar Panel Connection And Lights
+## Test Main Power Switch
+
+1. S2 to “OFF”
+2. Continuity test across both H points
+  * [PASS] Have NO continuity across points
+  * [FAIL] Have continuity across points
+3. S2 to “ON”
+4. Continuity test across both H points
+  * [PASS] Have continuity across points
+  * [FAIL] Have NO continuity across points
+5. S2 to “OFF”
+
+
+
+## Test Solar Panel Connection And Lights
 	
-S2 to “OFF”
-Connect 9-16VDC (VINPUT) to J±
-[PASS] L1 light is ON
-[FAIL] L1 light is OFF
+1. S2 to “OFF”
+2. Connect 9-16 VDC (VINPUT) to J±
+  * [PASS] L1 light is ON
+  * [FAIL] L1 light is OFF
+3. Depress and hold S1
+  * [PASS] L1 light is OFF
+  * [FAIL] L1 light is ON
+4. S2 to “OFF”
 
-Depress and hold S1
-[PASS] L1 light is OFF
-[FAIL] L1 light is ON
-S2 to “OFF”
 
+## Test System Battery Connection And Lights
 
-# Test System Battery Connection And Lights
-
-S2 to “OFF”
-Connect 9-16VDC (VINPUT) to I± or L±
-[PASS] L2 light is ON
-[FAIL] L2 light is OFF
-S2 to “OFF”
-
-S2 to “ON”
-[PASS] L3 and L4 and L5 light is ON
-[FAIL] L3 and L4 and L5 light is OFF
-S2 to “OFF”
+1. S2 to “OFF”
+2. Connect 9-16 VDC (VINPUT) to I± or L±
+  * [PASS] L2 light is ON
+  * [FAIL] L2 light is OFF
+3. S2 to “OFF”
+4. S2 to “ON”
+  * [PASS] L3 and L4 and L5 light is ON
+  * [FAIL] L3 and L4 and L5 light is OFF
+5. S2 to “OFF”
 
 
 
-# Test Power Conversion
+## Test Power Conversion
 
-S2 to “OFF”
-Connect 9-16VDC (VINPUT) to I± or L±
-S2 to “ON”
-Voltage Check: A± B± C± D± E± F±
-
-A± and B±
-C± and D±
-E± and F±
-[PASS]
-(VINPUT) ± .02V
-5V ± .02V
-24V ± .02V
-[FAIL]
-!= PASS
-!= PASS
-!= PASS
-
-S2 to “OFF”
+1. S2 to “OFF”
+2. Connect 9-16 VDC (VINPUT) to I± or L±
+3. S2 to “ON”
+4. Voltage Check: A± B± C± D± E± F±
+       | A± and B±        | C± and D±   | E± and F±
+-------|------------------|-------------|------------
+[PASS] | (VINPUT) ± .02 V | 5 V ± .02 V | 24 V ± .02V
+[FAIL] | != PASS          | != PASS     | != PASS
+5. S2 to “OFF”
 
 
 
-# Test Phidget Board
+## Test Phidget Board
 
-S2 to “OFF”
-Connect: M±
-S2 to “ON”
-Voltage Check: M±
-[PASS] Voltage = (VINPUT) ± .02V
-[FAIL] Voltage ! = (VINPUT) ± .02V
-Note: Ok if L5 goes out. This indicates Phidget board has turned off 24v converter.
-S2 to “OFF”
+1. S2 to “OFF”
+2. Connect: M±
+3. S2 to “ON”
+4. Voltage Check: M±
+  * [PASS] Voltage = (VINPUT) ± .02 V
+  * [FAIL] Voltage ! = (VINPUT) ± .02 V
+  * Note: OK if L5 goes out. This indicates Phidget board has turned
+    off 24 V converter.
+5. S2 to “OFF”
 
 
 
-# Test Ignition Board
+## Test Ignition Board
 
-## Board Power
+### Board Power
 
 S2 to “OFF”
 Connect: Q±
@@ -105,7 +95,7 @@ Voltage Check: Q±
 S2 to “OFF”
 
 
-## Shore Power
+### Shore Power
 
 Disconnect: M±
 Connect: R+
@@ -117,13 +107,13 @@ S2 to “OFF”
 Re-Connect: M±
 
 
-## Ignition Battery
+### Ignition Battery
 
 NEED PROCEDURE HERE
 
 
 
-# Test Ignition Battery Charger
+## Test Ignition Battery Charger
 
 S2 to “OFF”
 S2 to “ON”
@@ -139,7 +129,7 @@ S2 to “OFF”
 
 
 
-# Test Beagleboard
+## Test Beagleboard
 
 S2 to “OFF”
 S2 to “ON”

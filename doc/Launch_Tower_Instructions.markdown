@@ -1,10 +1,8 @@
----
-title: Launch Tower Instructions
-layout: base
----
+# Launch Tower Instructions
 
 
-# Wireless Network Configuration
+
+## Wireless Network Configuration
 
 Name | Value
 -----|------
@@ -22,16 +20,16 @@ Password | psaslv1b (If password doesn’t work, try leaving it blank.)
 
 
 
-# Basic Setup
+## Basic Setup
 
-## Tools Needed
+### Tools Needed
 
 * Miniature flathead screwdriver
 * Miniature flathead screwdriver
 * Large Phillips screwdriver
 
 
-## Mounting
+### Mounting
 1. Mount LTC box to already-standing launch tower [graphic]
 1. Turn “side bulkhead” POWER and ARMING switches to “OFF” position
    [graphic]
@@ -39,7 +37,7 @@ Password | psaslv1b (If password doesn’t work, try leaving it blank.)
 1. Remove bottom plate cover from cable enclosure [graphic]
 
 
-## Power Cable Routing
+### Power Cable Routing
 
 Note: Route each powerpole connector one at a time and they will fit
 through opening. If you attempt to run all three at once, they will
@@ -53,13 +51,13 @@ not fit.
    connect to 5&6
 
 
-## Data Cable Routing
+### Data Cable Routing
 
 1. Connect rocket umbilical to “bottom bulkhead” receptor “B”
 1. Connect sensor data cable into “bottom bulkhead” receptor “C”
 1. Connect Wireless antenna cable to “bottom bulkhead” receptor “D”
 
-### Initializing
+#### Initializing
 1. Turn “side bulkhead” Power switch to “ON”
 1. Look for lights on devices to indicate operation 
   * L7/L8/L9 should be flashing
@@ -70,22 +68,21 @@ not fit.
 
 
 
-# Login
+## Login
 
 1. Open Telnet / SSH session
-  * Ip Address (wireless): 192.168.128.250
-  * Ip Address (wired): 192.168.128.251
+  * IP Address (wireless): 192.168.128.250
+  * IP Address (wired): 192.168.128.251
 
 Instructions fer setting up wifi:
 https://help.ubuntu.com/community/WifiDocs/WiFiHowTo
 
-```sh
-sudo /etc/init.d/networking stop
-sudo /etc/init.d/networking start
-```
+    sh
+    sudo /etc/init.d/networking stop
+    sudo /etc/init.d/networking start
 
 
-## Start Up
+### Start Up
 
 1. Power up the BeagleBoard
 2. Begin pinging the IP address of the BeagleBoard to determine when
@@ -102,52 +99,52 @@ sudo /etc/init.d/networking start
 
 
 
-# Common Commands
+## Common Commands
 
 Reboot Computer Instantly:
-        # reboot –t now
+    #reboot –t now
 
 Turn off computer instantly:
-        # poweroff –t now
+    #poweroff –t now
 
 View IP Addresses assigned to interfaces:
-        # ip address show
+    #ip address show
 
 
 
-# Internal Connections
+## Internal Connections
 
 
-## PowerPole Connection
+### PowerPole Connection
 
 ![PowerPole Connection](diagrams/Powerpole_Connection.png)
 
 
-## Umbilical Connection
+### Umbilical Connection
 
 ![Umbilical Connection](diagrams/Umbilical_Connection.png)
 
 
-## Phidgets
+### Phidgets
 
 ![Phidgets](diagrams/Phidgets.png)
 
 
 
-# Internal Routing
+## Internal Routing
 
-## LTC Connections Schematic
+### LTC Connections Schematic
 
 ![LTC Connections Schematic](diagrams/LTC_connections_schematic.png)
 
 
 
-# Bottom Bulkhead
+## Bottom Bulkhead
 
 ![Bottom Bulkhead](diagrams/Bottom_Bulkhead.png)
 
 
 
-# Side Bulkhead
+## Side Bulkhead
 
 ![Side Bulkhead](diagrams/Side_Bulkhead.png)
