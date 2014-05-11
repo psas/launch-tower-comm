@@ -149,15 +149,18 @@ time - more than 20 minutes
 [NOTE : We are using an Alfa Networks AWUS051NH 802.11a/b/g/n USB adapter]
 
 
-## Step #1 - Install The Drivers For RT2870
+### Step #1 - Install The Drivers For RT2870
 
 [NOTE - the below failed - think its because there are unbuntu drivers that do not work with BB-Debian]
 
-###   Install the drivers onto the BeagleBoard
-###   - I used WinSCP to copy drivers from CD-rom on my machine to the tmp drive on the BeagleBoard
-###   - The file was unpacked on my machine and the folder transferred (saved installing bzunzip utility)
-###   $ cd [move to root home folder]
-###   $ cd /drivers/2010_0709_RT2870_Linux_STA_v2.4.0.1 [move into folder]
+Install the drivers onto the BeagleBoard
+
+* I used WinSCP to copy drivers from CD-rom on my machine to the tmp
+  drive on the BeagleBoard
+* The file was unpacked on my machine and the folder transferred
+  (saved installing bzunzip utility)
+    $ cd [move to root home folder]
+    $ cd /drivers/2010_0709_RT2870_Linux_STA_v2.4.0.1 [move into folder]
 
 [NOTE : Followed instructions from http://wiki.debian.org/rt2870sta]
 
@@ -175,7 +178,7 @@ http://wiki.debian.org/WiFi/HowToUse#wpasupplicant]
     $ apt-get install -y wpasupplicant [installs daemon needed for WPA encryption]
 
 
-## Step #3 - Set Default Configuration Settings For Wireless LAN
+### Step #3 - Set Default Configuration Settings For Wireless LAN
 
     $ chmod 0600 /etc/network/interfaces    [Restrict the permissions of /etc/network/interfaces, to prevent pre-shared key (PSK) disclosure]
     $ sensible-editor /etc/network/interfaces   [edit the network interface file]
@@ -195,7 +198,8 @@ second line]
     $ rebot -t now  [reboot so all settings engage - came up before but did not get online until reboot]
     $ wget http://www.google.com  [test that we are online]
 
-// DISABLE THE ETHERNET CONNECTION AT BOOT
+Disable the Ethernet connection at boot:
+
     $ sensible-editor /etc/rc.local
     ifconfig eth0 down
 
