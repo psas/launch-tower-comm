@@ -159,6 +159,7 @@ Install the drivers onto the BeagleBoard
   drive on the BeagleBoard
 * The file was unpacked on my machine and the folder transferred
   (saved installing bzunzip utility)
+
     $ cd [move to root home folder]
     $ cd /drivers/2010_0709_RT2870_Linux_STA_v2.4.0.1 [move into folder]
 
@@ -216,6 +217,7 @@ Slows boot and causing issues:
 ## Auto-Run Script
 
 [NOTE : Need to put in a script so webservice starts at every boot]
+
 [NOTE : Instructions: http://www.debian-administration.org/articles/28]
 
 /etc/init.d/phidgetswebservice:
