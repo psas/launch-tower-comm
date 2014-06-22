@@ -229,7 +229,10 @@
        width="200"
        height="134.5"
        x="305.62119"
-       y="94.571739" />
+       y="94.571739"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
     <rect
        style="fill:none;stroke:#ff0000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect3859"
@@ -466,7 +469,10 @@
     </g>
     <g
        id="g3191"
-       transform="translate(155.0354,-192.4007)">
+       transform="translate(155.0354,-192.4007)"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <rect
          y="291.03317"
          x="237.70135"
@@ -505,7 +511,10 @@
     </g>
     <g
        id="g3207"
-       transform="translate(155.0354,-192.4007)">
+       transform="translate(155.0354,-192.4007)"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <path
          inkscape:connector-curvature="0"
          id="rect3847"
@@ -538,7 +547,10 @@
     </g>
     <g
        id="g3200"
-       transform="translate(155.0354,-192.4007)">
+       transform="translate(155.0354,-192.4007)"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <rect
          y="352.9928"
          x="237.79884"
@@ -643,7 +655,10 @@
        x="345.38025"
        y="115.44643"
        id="text3066"
-       sodipodi:linespacing="100%"><tspan
+       sodipodi:linespacing="100%"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
          sodipodi:role="line"
          x="345.38025"
          y="115.44643"
@@ -1114,7 +1129,10 @@
     <g
        transform="translate(-263.21633,-8.12903)"
        style="display:inline"
-       id="g4160-2">
+       id="g4160-2"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <path
          sodipodi:type="arc"
          style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
@@ -1142,14 +1160,17 @@
            id="tspan4154-1"
            x="606.034"
            y="265.91052"
-           style="font-size:12px">???</tspan></text>
+           style="font-size:12px">power</tspan></text>
     </g>
     <g
        transform="translate(-129.58783,-45.03447)"
        style="display:inline"
        id="g4160-2-6"
        inkscape:transform-center-x="6.2813885"
-       inkscape:transform-center-y="-6.5140325">
+       inkscape:transform-center-y="-6.5140325"
+       inkscape:export-filename="/tmp/ignition_board.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
       <path
          sodipodi:type="arc"
          style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
