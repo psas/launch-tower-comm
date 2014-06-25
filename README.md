@@ -70,48 +70,49 @@ directories should only be installed to by dpkg, using .deb packages.
    (*python-twisted*)  with apt-get.  Any dependencies (including the
    Python runtime, PyGame, etc.) will be automagically resolved and
    installed:
-    ```
-    # apt-get install python-kivy python-pil python-twisted
-    ```
+
+        # apt-get install python-kivy python-pil python-twisted
+
 2. Install Debian's libusb development support package (*libusb-dev*):
-    ```
-    # apt-get install libusb-dev
-    ```
+
+        # apt-get install libusb-dev
+
 3. Download the Phidgets libraries and web service tarballs from
    http://www.phidgets.com/docs/OS_-_Linux
+
 4. Configure and install the libraries and web service.
-    ```
-    $ tar xzf libphidget_2.1.8.20140319.tar.gz
-    $ tar xzf phidgetwebservice_2.1.8.20140319.tar.gz
-    $ cd libphidget-2.1.8.20140319
-    $ ./configure --prefix=$HOME/local/
-    [ ... time passes ... ]
-    $ make install
-    [ ... more time passes ... ]
-    $ cd ../phidgetwebservice-2.1.8.20140319/
-    $ export C_INCLUDE_PATH=$HOME/local/include
-    $ export LIBRARY_PATH=$HOME/local/lib
-    $ ./configure --prefix=$HOME/local/
-    [ ... sit still ... ]
-    $ make install
-    [ ... hold fast ... ]
-    $ export PATH=$HOME/local/bin:$PATH
-    $ export LD_LIBRARY_PATH=$HOME/local/lib
-    ```
+
+        $ tar xzf libphidget_2.1.8.20140319.tar.gz
+        $ tar xzf phidgetwebservice_2.1.8.20140319.tar.gz
+        $ cd libphidget-2.1.8.20140319
+        $ ./configure --prefix=$HOME/local/
+        [ ... time passes ... ]
+        $ make install
+        [ ... more time passes ... ]
+        $ cd ../phidgetwebservice-2.1.8.20140319/
+        $ export C_INCLUDE_PATH=$HOME/local/include
+        $ export LIBRARY_PATH=$HOME/local/lib
+        $ ./configure --prefix=$HOME/local/
+        [ ... sit still ... ]
+        $ make install
+        [ ... hold fast ... ]
+        $ export PATH=$HOME/local/bin:$PATH
+        $ export LD_LIBRARY_PATH=$HOME/local/lib
+
 5. Download the Phidgets Python library from
    http://www.phidgets.com/docs/Language_-_Python
+
 6. Install the Phidgets Python library:
-    ```
-    $ unzip PhidgetsPython_2.1.8.20140428.zip
-    $ cd PhidgetsPython
-    $ python setup.py install --prefix=$HOME/local
-    $ export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
-    ```
+
+        $ unzip PhidgetsPython_2.1.8.20140428.zip
+        $ cd PhidgetsPython
+        $ python setup.py install --prefix=$HOME/local
+        $ export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
+
 7. Add the environment variables defined above to your .bashrc:
-    ```
-    export C_INCLUDE_PATH=$HOME/local/include
-    export LD_LIBRARY_PATH=$HOME/local/lib
-    export LIBRARY_PATH=$HOME/local/lib
-    export PATH=$HOME/local/bin:$PATH
-    export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
-    ```
+
+        export C_INCLUDE_PATH=$HOME/local/include
+        export LD_LIBRARY_PATH=$HOME/local/lib
+        export LIBRARY_PATH=$HOME/local/lib
+        export PATH=$HOME/local/bin:$PATH
+        export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
