@@ -1,4 +1,5 @@
 # Launch Tower Comm
+
 Launch Tower Comm is the Portland State Aerospace Society's launch tower 
 control.  
 
@@ -28,6 +29,7 @@ may require dependencies not listed here.
 * [Kivy](http://kivy.org/#download)
 * At least one Phidgets Interfacekit connected throught the Phidgets webservice 
 
+
 # Installation of Kivy and Twisted
 
 ## OS X 10.9 (Mavericks) 
@@ -54,3 +56,62 @@ version. Copy the examples somewhere and try to run one of them. If things
 don't work, get to googling.  If successful, you now need Twisted.
 
     pip install Twisted
+
+
+# Preparing A Debian GNU/Linux "Unstable" System For launch-tower-comm
+
+The following procedure installs any software not available from
+regular Debian sources to the user's home directory ($HOME/local/), as
+opposed to regular system directories (/usr/lib, etc.).  System
+directories should only be installed to by dpkg, using .deb packages.  
+
+1. Install Debian's Kivy package (*python-kivy*), Python Imaging
+   Library package (*python-pil*), and Twisted package
+   (*python-twisted*)  with apt-get.  Any dependencies (including the
+   Python runtime, PyGame, etc.) will be automagically resolved and
+   installed:
+
+    # apt-get install python-kivy python-pil python-twisted
+
+1. Install Debian's libusb development support package (*libusb-dev*):
+
+    # apt-get install libusb-dev
+
+1. Download the Phidgets libraries and web service tarballs from
+   http://www.phidgets.com/docs/OS_-_Linux
+
+1. Configure and install the libraries and web service.
+
+    $ tar xzf libphidget_2.1.8.20140319.tar.gz
+    $ tar xzf phidgetwebservice_2.1.8.20140319.tar.gz
+    $ cd libphidget-2.1.8.20140319
+    $ ./configure --prefix=$HOME/local/
+    [ ... time passes ... ]
+    $ make install
+    [ ... more time passes ... ]
+    $ cd ../phidgetwebservice-2.1.8.20140319/
+    $ export C_INCLUDE_PATH=$HOME/local/include
+    $ export LIBRARY_PATH=$HOME/local/lib
+    $ ./configure --prefix=$HOME/local/
+    [ ... sit still ... ]
+    $ make install
+    $ export PATH=$HOME/local/bin:$PATH
+    $ export LD_LIBRARY_PATH=$HOME/local/lib
+
+1. Download the Phidgets Python library from
+   http://www.phidgets.com/docs/Language_-_Python
+
+1. Install the Phidgets Python library:
+
+    $ unzip PhidgetsPython_2.1.8.20140428.zip
+    $ cd PhidgetsPython
+    $ python setup.py install --prefix=$HOME/local
+    $ export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
+
+2. Add the environment variables defined above to your .bashrc:
+
+    export C_INCLUDE_PATH=$HOME/local/include
+    export LD_LIBRARY_PATH=$HOME/local/lib
+    export LIBRARY_PATH=$HOME/local/lib
+    export PATH=$HOME/local/bin:$PATH
+    export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
