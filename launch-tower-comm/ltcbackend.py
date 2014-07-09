@@ -6,7 +6,7 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 ########### Phidgets Setup ########
 
-LTCIP = '192.168.128.2'
+LTCIP = 'ltc.psas.lan'
 
 
 class Sensor(object):

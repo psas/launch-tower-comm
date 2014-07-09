@@ -155,15 +155,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.57863248"
+     inkscape:zoom="0.70512821"
      inkscape:cx="450"
      inkscape:cy="585"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="in"
-     inkscape:window-width="1434"
-     inkscape:window-height="853"
+     inkscape:window-width="1676"
+     inkscape:window-height="1010"
      inkscape:window-x="0"
      inkscape:window-y="18"
      inkscape:window-maximized="0"
@@ -180,7 +180,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -240,7 +240,7 @@
          sodipodi:role="line"
          x="112.60614"
          y="992.77948"
-         id="tspan3153">Rev. 1 (2014-06-22)</tspan><tspan
+         id="tspan3153">Rev. 1 (2014-06-30)</tspan><tspan
          sodipodi:role="line"
          x="112.60614"
          y="1015.2795"
@@ -1175,7 +1175,7 @@
         <path
            inkscape:transform-center-y="5"
            transform="matrix(0.83772645,0,0,0.88426673,-39.053641,-451.12425)"
-           d="m 620.47514,717.229 a 5.1979837,4.9244061 0 1 1 -10.39596,0 5.1979837,4.9244061 0 1 1 10.39596,0 z"
+           d="m 620.47514,717.229 c 0,2.71968 -2.32721,4.92441 -5.19798,4.92441 -2.87077,0 -5.19798,-2.20473 -5.19798,-4.92441 0,-2.71967 2.32721,-4.9244 5.19798,-4.9244 2.87077,0 5.19798,2.20473 5.19798,4.9244 z"
            sodipodi:ry="4.9244061"
            sodipodi:rx="5.1979837"
            sodipodi:cy="717.229"
@@ -1521,36 +1521,32 @@
       </g>
     </g>
     <g
-       id="g3279"
-       transform="translate(-0.91656494,-2.4440618)"
-       inkscape:export-filename="/tmp/bottom_bulkhead.png"
-       inkscape:export-xdpi="150"
-       inkscape:export-ydpi="150">
+       id="g3584">
       <rect
-         style="fill:none;stroke:#0000ff;stroke-width:1.83059645;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
+         style="fill:none;stroke:#ff0000;stroke-width:1.83059645000000004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
          id="rect3256"
          width="78.169403"
          height="58.169403"
-         x="528.83966"
-         y="804.34625" />
+         x="527.9231"
+         y="801.90216" />
       <text
          sodipodi:linespacing="100%"
          id="text3265"
-         y="825.19855"
-         x="568.17047"
+         y="822.75446"
+         x="567.25391"
          style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
          xml:space="preserve"><tspan
-           y="825.19855"
-           x="568.17047"
+           y="822.75446"
+           x="567.25391"
            id="tspan3267"
            sodipodi:role="line">Opening &quot;A&quot;</tspan><tspan
            id="tspan3269"
-           y="837.19855"
-           x="568.17047"
+           y="834.75446"
+           x="567.25391"
            sodipodi:role="line">(power</tspan><tspan
            id="tspan3271"
-           y="849.19855"
-           x="568.17047"
+           y="846.75446"
+           x="567.25391"
            sodipodi:role="line">cables)</tspan></text>
     </g>
     <g
