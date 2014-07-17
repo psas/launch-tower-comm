@@ -6,7 +6,7 @@ from Phidgets.Devices.InterfaceKit import InterfaceKit
 
 ########### Phidgets Setup ########
 
-LTCIP = '192.168.128.2'
+LTCIP = 'ltc'
 
 
 class Sensor(object):
@@ -191,14 +191,11 @@ class CorePhidget(LTCPhidget):
     IP = LTCIP
     port = 5001
 
-    shorepower = Relay('Shore Power Relay', 7)
-
     # Here, sensor[n] describes the nth sensor on the Interface Kit (IK),
     # following the Phidget convention. If sensor positions on the IK are
     # changed, the 'sensor' dictionary keys must be properly updated here.
     inputWindspeed = 7  # make a sensor?
     output = {}
-    output[7] = shorepower
     sensor = {}
     sensor[0] = TemperatureSensor("Internal Temperature", 0, 40, 15)
     sensor[1] = VoltageSensor("Ignition Battery", 1, 9, 5)
@@ -221,10 +218,6 @@ class CorePhidget(LTCPhidget):
             self.ik.setRatiometric(False)
         super(CorePhidget, self)._onSensor(event)
 
-    def set24vState(self, state):
-        log.info("Setting shorepower state to {}".format(state))
-        self.ik.setOutputState(self.shorepower.index, state)
-
 
 class IgnitionRelay(LTCPhidget):
     # Interface Kit 0/0/4 with relays
@@ -232,8 +225,10 @@ class IgnitionRelay(LTCPhidget):
     IP = LTCIP
     port = 5001
     relay = Relay('Ignition Relay', 0)
+    shorepower = Relay('Shorepower Relay', 3)
     output = {}
     output[0] = relay
+    output[3] = shorepower
 
     def _onOutput(self, event):
         if event.index == self.relay.index:
@@ -248,6 +243,9 @@ class IgnitionRelay(LTCPhidget):
         log.info("Setting ignition relay state to {}".format(state))
         self.ik.setOutputState(self.relay.index, state)
 
+    def setShorepowerState(self, state):
+        log.info("Setting shorepower state to {}".format(state))
+        self.ik.setOutputState(self.shorepower.index, state)
 
 class LTCbackend(object):
 
@@ -258,7 +256,7 @@ class LTCbackend(object):
 
         self.core = CorePhidget()
         self.core.add_callback(self.attach, "attach")
-        self.core.shorepower.add_callback(self.output, 'value')
+        self.relay.shorepower.add_callback(self.output, 'value')
 
         self.set_status = set_status
 
@@ -276,7 +274,7 @@ class LTCbackend(object):
         self.ignite(False)
 
     def output(self, event):
-        if event.index == self.core.shorepower.index:
+        if event.index == self.relay.shorepower.index:
             self.shorepower_state = event.state
 
     def close(self, event):
@@ -305,7 +303,7 @@ class LTCbackend(object):
 
     def shorepower(self, state):
         try:
-            self.core.set24vState(state)
+            self.relay.setShorepowerState(state)
             self.set_status("Nominal")
         except PhidgetException:
             self.set_status("Phidget Call Failed")

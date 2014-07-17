@@ -230,7 +230,7 @@ class LTCApp(App):
         sens8 = IOIndicator(backend.core.sensor[6])
         sens9 = IOIndicator(backend.core.sensor[7])
         sens4 = IOIndicator(backend.core.sensor[4])
-        relay1 = IOIndicator(backend.core.shorepower)
+        relay1 = IOIndicator(backend.relay.shorepower)
         relay2 = IOIndicator(backend.relay.relay)
 
         input_panel = InterfaceKitPanel()
@@ -258,7 +258,7 @@ class LTCApp(App):
         backend.relay.relay.add_callback(status.on_ignite, 'value')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
-        backend.core.shorepower.add_callback(ctrl.on_shorepower, "value")
+        backend.relay.shorepower.add_callback(ctrl.on_shorepower, "value")
         backend.relay.relay.add_callback(ctrl.on_ignite, "value")
 
         ltc = LTC()
