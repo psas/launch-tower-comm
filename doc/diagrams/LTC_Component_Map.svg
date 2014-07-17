@@ -155,15 +155,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.57863248"
+     inkscape:zoom="0.70512821"
      inkscape:cx="450"
      inkscape:cy="585"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="in"
-     inkscape:window-width="1434"
-     inkscape:window-height="853"
+     inkscape:window-width="1676"
+     inkscape:window-height="1010"
      inkscape:window-x="0"
      inkscape:window-y="18"
      inkscape:window-maximized="0"
@@ -180,7 +180,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -225,16 +225,6 @@
      style="display:inline">
     <rect
        style="fill:none;stroke:#ff0000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       id="rect3845"
-       width="200"
-       height="134.5"
-       x="305.62119"
-       y="94.571739"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300" />
-    <rect
-       style="fill:none;stroke:#ff0000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect3859"
        width="233.5"
        height="176.5"
@@ -250,7 +240,7 @@
          sodipodi:role="line"
          x="112.60614"
          y="992.77948"
-         id="tspan3153">Rev. 1 (2014-06-22)</tspan><tspan
+         id="tspan3153">Rev. 1 (2014-06-30)</tspan><tspan
          sodipodi:role="line"
          x="112.60614"
          y="1015.2795"
@@ -468,118 +458,6 @@
            sodipodi:role="line">Phidget</tspan></text>
     </g>
     <g
-       id="g3191"
-       transform="translate(155.0354,-192.4007)"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <rect
-         y="291.03317"
-         x="237.70135"
-         height="60.185158"
-         width="70.185158"
-         id="rect3849"
-         style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <text
-         transform="translate(0,-0.00243262)"
-         sodipodi:linespacing="89.999998%"
-         id="text5151"
-         y="302.83875"
-         x="272.76465"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-         xml:space="preserve"><tspan
-           id="tspan5155"
-           y="302.83875"
-           x="272.76465"
-           sodipodi:role="line">Rocket</tspan><tspan
-           id="tspan3097"
-           y="313.63873"
-           x="272.76465"
-           sodipodi:role="line">Ready</tspan><tspan
-           id="tspan3075"
-           y="324.43875"
-           x="272.76465"
-           sodipodi:role="line">Voltage</tspan><tspan
-           id="tspan3071"
-           y="335.23874"
-           x="272.76465"
-           sodipodi:role="line">Sensor</tspan><tspan
-           id="tspan5190"
-           y="346.03876"
-           x="272.76465"
-           sodipodi:role="line">Phidget</tspan></text>
-    </g>
-    <g
-       id="g3207"
-       transform="translate(155.0354,-192.4007)"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <path
-         inkscape:connector-curvature="0"
-         id="rect3847"
-         d="m 183.755,335.13396 52.23678,0 0,60.82279 -52.23678,0 z"
-         style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <text
-         transform="translate(0,-0.00243262)"
-         sodipodi:linespacing="89.999998%"
-         id="text5157"
-         y="353.05786"
-         x="210.04393"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-         xml:space="preserve"><tspan
-           id="tspan5161"
-           y="353.05786"
-           x="210.04393"
-           sodipodi:role="line">Ignition</tspan><tspan
-           id="tspan3077"
-           y="363.85785"
-           x="210.04393"
-           sodipodi:role="line">Voltage</tspan><tspan
-           id="tspan3073"
-           y="374.65787"
-           x="210.04393"
-           sodipodi:role="line">Sensor</tspan><tspan
-           id="tspan5192"
-           y="385.45786"
-           x="210.04393"
-           sodipodi:role="line">Phidget</tspan></text>
-    </g>
-    <g
-       id="g3200"
-       transform="translate(155.0354,-192.4007)"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <rect
-         y="352.9928"
-         x="237.79884"
-         height="42.9902"
-         width="69.990204"
-         id="rect5194"
-         style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <text
-         transform="translate(0,-0.00243262)"
-         xml:space="preserve"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-         x="272.35156"
-         y="366.81631"
-         id="text5179"
-         sodipodi:linespacing="89.999998%"><tspan
-           sodipodi:role="line"
-           x="272.35156"
-           y="366.81631"
-           id="tspan5181">Temp.</tspan><tspan
-           id="tspan5188"
-           sodipodi:role="line"
-           x="272.35156"
-           y="377.6163">Sensor</tspan><tspan
-           id="tspan5186"
-           sodipodi:role="line"
-           x="272.35156"
-           y="388.41632">Phidget</tspan></text>
-    </g>
-    <g
        id="g3106"
        transform="translate(155.0354,-192.4007)">
       <rect
@@ -649,24 +527,6 @@
            x="536.2207"
            sodipodi:role="line">Phidget</tspan></text>
     </g>
-    <text
-       xml:space="preserve"
-       style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-       x="345.38025"
-       y="115.44643"
-       id="text3066"
-       sodipodi:linespacing="100%"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300"><tspan
-         sodipodi:role="line"
-         x="345.38025"
-         y="115.44643"
-         id="tspan3960">Ignition</tspan><tspan
-         sodipodi:role="line"
-         x="345.38025"
-         y="133.44643"
-         id="tspan3070">Board</tspan></text>
     <g
        id="g4838">
       <rect
@@ -691,7 +551,10 @@
            sodipodi:role="line">Side Bulkhead</tspan></text>
     </g>
     <g
-       id="g4843">
+       id="g4843"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <rect
          y="775.70856"
          x="521.35693"
@@ -1127,78 +990,218 @@
       </g>
     </g>
     <g
-       transform="translate(-263.21633,-8.12903)"
-       style="display:inline"
-       id="g4160-2"
+       id="g3325"
        inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <path
-         sodipodi:type="arc"
-         style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         id="path4148-0"
-         sodipodi:cx="615.27716"
-         sodipodi:cy="717.229"
-         sodipodi:rx="5.1979837"
-         sodipodi:ry="4.9244061"
-         d="m 620.47514,717.229 c 0,2.71968 -2.32721,4.92441 -5.19798,4.92441 -2.87077,0 -5.19798,-2.20473 -5.19798,-4.92441 0,-2.71967 2.32721,-4.9244 5.19798,-4.9244 2.87077,0 5.19798,2.20473 5.19798,4.9244 z"
-         transform="matrix(0.83772645,0,0,0.88426673,90.683053,-406.08978)"
-         inkscape:transform-center-y="5" />
-      <path
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Mend);display:inline"
-         d="m 606.12661,254.5492 0,-18.6534"
-         id="path4150-3"
-         inkscape:connector-curvature="0" />
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
+      <rect
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         y="94.571739"
+         x="305.62119"
+         height="134.5"
+         width="200"
+         id="rect3845"
+         style="fill:none;stroke:#ff0000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <g
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         transform="translate(155.0354,-192.4007)"
+         id="g3191">
+        <rect
+           style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect3849"
+           width="70.185158"
+           height="60.185158"
+           x="237.70135"
+           y="291.03317" />
+        <text
+           xml:space="preserve"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+           x="272.76465"
+           y="302.83875"
+           id="text5151"
+           sodipodi:linespacing="89.999998%"
+           transform="translate(0,-0.00243262)"><tspan
+             sodipodi:role="line"
+             x="272.76465"
+             y="302.83875"
+             id="tspan5155">Rocket</tspan><tspan
+             sodipodi:role="line"
+             x="272.76465"
+             y="313.63873"
+             id="tspan3097">Ready</tspan><tspan
+             sodipodi:role="line"
+             x="272.76465"
+             y="324.43875"
+             id="tspan3075">Voltage</tspan><tspan
+             sodipodi:role="line"
+             x="272.76465"
+             y="335.23874"
+             id="tspan3071">Sensor</tspan><tspan
+             sodipodi:role="line"
+             x="272.76465"
+             y="346.03876"
+             id="tspan5190">Phidget</tspan></text>
+      </g>
+      <g
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         transform="translate(155.0354,-192.4007)"
+         id="g3207">
+        <path
+           style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           d="m 183.755,335.13396 52.23678,0 0,60.82279 -52.23678,0 z"
+           id="rect3847"
+           inkscape:connector-curvature="0" />
+        <text
+           xml:space="preserve"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+           x="210.04393"
+           y="353.05786"
+           id="text5157"
+           sodipodi:linespacing="89.999998%"
+           transform="translate(0,-0.00243262)"><tspan
+             sodipodi:role="line"
+             x="210.04393"
+             y="353.05786"
+             id="tspan5161">Ignition</tspan><tspan
+             sodipodi:role="line"
+             x="210.04393"
+             y="363.85785"
+             id="tspan3077">Voltage</tspan><tspan
+             sodipodi:role="line"
+             x="210.04393"
+             y="374.65787"
+             id="tspan3073">Sensor</tspan><tspan
+             sodipodi:role="line"
+             x="210.04393"
+             y="385.45786"
+             id="tspan5192">Phidget</tspan></text>
+      </g>
+      <g
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         transform="translate(155.0354,-192.4007)"
+         id="g3200">
+        <rect
+           style="fill:none;stroke:#0000ff;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect5194"
+           width="69.990204"
+           height="42.9902"
+           x="237.79884"
+           y="352.9928" />
+        <text
+           sodipodi:linespacing="89.999998%"
+           id="text5179"
+           y="366.81631"
+           x="272.35156"
+           style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:89.99999762%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+           xml:space="preserve"
+           transform="translate(0,-0.00243262)"><tspan
+             id="tspan5181"
+             y="366.81631"
+             x="272.35156"
+             sodipodi:role="line">Temp.</tspan><tspan
+             y="377.6163"
+             x="272.35156"
+             sodipodi:role="line"
+             id="tspan5188">Sensor</tspan><tspan
+             y="388.41632"
+             x="272.35156"
+             sodipodi:role="line"
+             id="tspan5186">Phidget</tspan></text>
+      </g>
       <text
-         xml:space="preserve"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
-         x="606.034"
-         y="265.91052"
-         id="text4152-0"
-         sodipodi:linespacing="100%"><tspan
-           sodipodi:role="line"
-           id="tspan4154-1"
-           x="606.034"
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         sodipodi:linespacing="100%"
+         id="text3066"
+         y="115.44643"
+         x="345.38025"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+         xml:space="preserve"><tspan
+           id="tspan3960"
+           y="115.44643"
+           x="345.38025"
+           sodipodi:role="line">Ignition</tspan><tspan
+           id="tspan3070"
+           y="133.44643"
+           x="345.38025"
+           sodipodi:role="line">Board</tspan></text>
+      <g
+         inkscape:export-ydpi="300"
+         inkscape:export-xdpi="300"
+         inkscape:export-filename="/tmp/ignition_board.png"
+         id="g4160-2"
+         style="display:inline"
+         transform="translate(-263.21633,-8.12903)">
+        <path
+           inkscape:transform-center-y="5"
+           transform="matrix(0.83772645,0,0,0.88426673,90.683053,-406.08978)"
+           d="m 620.47514,717.229 c 0,2.71968 -2.32721,4.92441 -5.19798,4.92441 -2.87077,0 -5.19798,-2.20473 -5.19798,-4.92441 0,-2.71967 2.32721,-4.9244 5.19798,-4.9244 2.87077,0 5.19798,2.20473 5.19798,4.9244 z"
+           sodipodi:ry="4.9244061"
+           sodipodi:rx="5.1979837"
+           sodipodi:cy="717.229"
+           sodipodi:cx="615.27716"
+           id="path4148-0"
+           style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           sodipodi:type="arc" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path4150-3"
+           d="m 606.12661,254.5492 0,-18.6534"
+           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Mend);display:inline" />
+        <text
+           sodipodi:linespacing="100%"
+           id="text4152-0"
            y="265.91052"
-           style="font-size:12px">power</tspan></text>
-    </g>
-    <g
-       transform="translate(-129.58783,-45.03447)"
-       style="display:inline"
-       id="g4160-2-6"
-       inkscape:transform-center-x="6.2813885"
-       inkscape:transform-center-y="-6.5140325"
-       inkscape:export-filename="/tmp/ignition_board.png"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
-      <path
-         sodipodi:type="arc"
-         style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-         id="path4148-0-2"
-         sodipodi:cx="615.27716"
-         sodipodi:cy="717.229"
-         sodipodi:rx="5.1979837"
-         sodipodi:ry="4.9244061"
-         d="m 620.47514,717.229 c 0,2.71968 -2.32721,4.92441 -5.19798,4.92441 -2.87077,0 -5.19798,-2.20473 -5.19798,-4.92441 0,-2.71967 2.32721,-4.9244 5.19798,-4.9244 2.87077,0 5.19798,2.20473 5.19798,4.9244 z"
-         transform="matrix(0.83772645,0,0,0.88426673,90.683053,-406.08978)"
-         inkscape:transform-center-y="5" />
-      <path
-         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Mend);display:inline"
-         d="m 606.12661,254.5492 0,-18.6534"
-         id="path4150-3-4"
-         inkscape:connector-curvature="0" />
-      <text
-         xml:space="preserve"
-         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
-         x="606.034"
-         y="265.91052"
-         id="text4152-0-5"
-         sodipodi:linespacing="100%"><tspan
-           sodipodi:role="line"
-           id="tspan4154-1-8"
            x="606.034"
-           y="265.91052"
-           style="font-size:12px">???</tspan></text>
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+           xml:space="preserve"><tspan
+             style="font-size:12px"
+             y="265.91052"
+             x="606.034"
+             id="tspan4154-1"
+             sodipodi:role="line">power</tspan></text>
+      </g>
+      <g
+         id="g3319">
+        <path
+           inkscape:transform-center-y="5"
+           transform="matrix(0.83772645,0,0,0.88426673,-39.053641,-451.12425)"
+           d="m 620.47514,717.229 c 0,2.71968 -2.32721,4.92441 -5.19798,4.92441 -2.87077,0 -5.19798,-2.20473 -5.19798,-4.92441 0,-2.71967 2.32721,-4.9244 5.19798,-4.9244 2.87077,0 5.19798,2.20473 5.19798,4.9244 z"
+           sodipodi:ry="4.9244061"
+           sodipodi:rx="5.1979837"
+           sodipodi:cy="717.229"
+           sodipodi:cx="615.27716"
+           id="path4148-0-2"
+           style="fill:none;stroke:#008000;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           sodipodi:type="arc" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path4150-3-4"
+           d="m 476.38992,246.23925 0,-55.37792"
+           style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow2Mend);display:inline"
+           sodipodi:nodetypes="cc" />
+        <text
+           sodipodi:linespacing="100%"
+           id="text4152-0-5"
+           y="257.78149"
+           x="476.0141"
+           style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+           xml:space="preserve"><tspan
+             id="tspan3311"
+             style="font-size:12px"
+             y="257.78149"
+             x="476.0141"
+             sodipodi:role="line">rocket ready</tspan></text>
+      </g>
     </g>
     <g
        id="g4825">
@@ -1318,86 +1321,75 @@
            sodipodi:role="line">Fuse</tspan></text>
     </g>
     <g
-       id="g4873">
+       id="g3258"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <rect
-         y="877.86877"
-         x="525.56366"
-         height="55.745453"
-         width="97.36364"
+         y="877.36261"
+         x="527.9231"
+         height="58.169403"
+         width="78.169403"
          id="rect4001"
-         style="fill:none;stroke:#0000ff;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline" />
+         style="fill:none;stroke:#0000ff;stroke-width:1.83059645;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline" />
       <text
          sodipodi:linespacing="100%"
          id="text3457"
-         y="898.21515"
-         x="573.91443"
+         y="898.92096"
+         x="566.67676"
          style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
          xml:space="preserve"><tspan
-           y="898.21515"
-           x="573.91443"
+           y="898.92096"
+           x="566.67676"
            id="tspan3459"
            sodipodi:role="line">Rocket</tspan><tspan
            id="tspan3465"
-           y="910.21515"
-           x="573.91443"
+           y="910.92096"
+           x="566.67676"
            sodipodi:role="line">Umbilical</tspan><tspan
            id="tspan3473"
-           y="922.21515"
-           x="573.91443"
+           y="922.92096"
+           x="566.67676"
            sodipodi:role="line">Connector</tspan></text>
     </g>
     <g
-       id="g4867">
+       id="g3304"
+       transform="translate(23.218587,-3.360585)"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <rect
-         style="fill:none;stroke:#0000ff;stroke-width:2.29720497;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
+         style="fill:none;stroke:#0000ff;stroke-width:1.83059621;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
          id="rect4003"
-         width="129.13916"
-         height="55.448246"
-         x="715.47589"
-         y="878.78101" />
+         width="78.169403"
+         height="58.169403"
+         x="739.98877"
+         y="879.34821" />
       <text
          sodipodi:linespacing="100%"
          id="text3461"
-         y="904.97876"
-         x="780.3941"
+         y="900.90656"
+         x="778.74243"
          style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
          xml:space="preserve"><tspan
-           y="904.97876"
-           x="780.3941"
+           y="900.90656"
+           x="778.74243"
            id="tspan3463"
-           sodipodi:role="line">WiFi Antenna</tspan><tspan
+           sodipodi:role="line">WiFi</tspan><tspan
+           id="tspan3302"
+           y="912.90656"
+           x="778.74243"
+           sodipodi:role="line">Antenna</tspan><tspan
            id="tspan3471"
-           y="916.97876"
-           x="780.3941"
+           y="924.90656"
+           x="778.74243"
            sodipodi:role="line">Connector</tspan></text>
     </g>
     <g
-       id="g4861">
-      <rect
-         y="809.74725"
-         x="764.42395"
-         height="56.061176"
-         width="68.661179"
-         id="rect4005"
-         style="fill:none;stroke:#0000ff;stroke-width:1.68427718;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline" />
-      <text
-         sodipodi:linespacing="100%"
-         id="text3467"
-         y="836.25146"
-         x="798.42346"
-         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
-         xml:space="preserve"><tspan
-           y="836.25146"
-           x="798.42346"
-           id="tspan3469"
-           sodipodi:role="line">Unused</tspan><tspan
-           id="tspan3488"
-           y="848.25146"
-           x="798.42346"
-           sodipodi:role="line">Connector</tspan></text>
-    </g>
-    <g
-       id="g4885">
+       id="g4885"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <text
          sodipodi:linespacing="100%"
          id="text3535-8"
@@ -1417,7 +1409,10 @@
          style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-5)" />
     </g>
     <g
-       id="g4880">
+       id="g4880"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <text
          sodipodi:linespacing="100%"
          id="text3535"
@@ -1437,7 +1432,10 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="g4890">
+       id="g4890"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <text
          sodipodi:linespacing="100%"
          id="text3702"
@@ -1457,7 +1455,10 @@
          style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-5)" />
     </g>
     <g
-       id="g4895">
+       id="g4895"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <text
          sodipodi:linespacing="100%"
          id="text3698"
@@ -1477,7 +1478,10 @@
          sodipodi:nodetypes="ccc" />
     </g>
     <g
-       id="g4905">
+       id="g4905"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
       <text
          sodipodi:linespacing="100%"
          id="text3496"
@@ -1515,6 +1519,72 @@
            inkscape:connector-curvature="0"
            transform="translate(0,-207.64025)" />
       </g>
+    </g>
+    <g
+       id="g3584">
+      <rect
+         style="fill:none;stroke:#ff0000;stroke-width:1.83059645000000004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
+         id="rect3256"
+         width="78.169403"
+         height="58.169403"
+         x="527.9231"
+         y="801.90216" />
+      <text
+         sodipodi:linespacing="100%"
+         id="text3265"
+         y="822.75446"
+         x="567.25391"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         xml:space="preserve"><tspan
+           y="822.75446"
+           x="567.25391"
+           id="tspan3267"
+           sodipodi:role="line">Opening &quot;A&quot;</tspan><tspan
+           id="tspan3269"
+           y="834.75446"
+           x="567.25391"
+           sodipodi:role="line">(power</tspan><tspan
+           id="tspan3271"
+           y="846.75446"
+           x="567.25391"
+           sodipodi:role="line">cables)</tspan></text>
+    </g>
+    <g
+       id="g3290"
+       transform="translate(6.1534624,1.694492)"
+       inkscape:export-filename="/tmp/bottom_bulkhead.png"
+       inkscape:export-xdpi="150"
+       inkscape:export-ydpi="150">
+      <text
+         sodipodi:linespacing="100%"
+         id="text3467"
+         y="821.64258"
+         x="795.80756"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:100%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+         xml:space="preserve"><tspan
+           y="821.64258"
+           x="795.80756"
+           id="tspan3469"
+           sodipodi:role="line">Weather</tspan><tspan
+           id="tspan3286"
+           y="833.64258"
+           x="795.80756"
+           sodipodi:role="line">Station</tspan><tspan
+           id="tspan3488"
+           y="845.64258"
+           x="795.80756"
+           sodipodi:role="line">Connector</tspan><tspan
+           id="tspan3288"
+           y="857.64258"
+           x="795.80756"
+           sodipodi:role="line">(unused)</tspan></text>
+      <rect
+         y="806.79028"
+         x="757.05389"
+         height="58.169403"
+         width="78.169403"
+         id="rect3273"
+         style="fill:none;stroke:#0000ff;stroke-width:1.83059645;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline" />
     </g>
   </g>
 </svg>
