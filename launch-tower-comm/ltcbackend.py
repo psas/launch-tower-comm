@@ -233,6 +233,8 @@ class IgnitionRelay(LTCPhidget):
     def _onOutput(self, event):
         if event.index == self.relay.index:
             super(IgnitionRelay, self)._onOutput(event)
+	if event.index == self.shorepower.index:
+	    super(IgnitionRelay, self)._onOutput(event)
 
     def toggleIgnitionRelayState(self, event):
         if self.ik.isAttached():
