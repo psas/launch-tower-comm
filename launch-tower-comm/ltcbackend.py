@@ -70,13 +70,18 @@ class TemperatureSensor(Sensor):
 
 
 class Relay(Sensor):
+    def __init__(self, name, index, invert=False):
+        super(Relay, self).__init__(name, index)
+        self.abnormal = 'Open' if invert else 'Closed'
+        self.nominal = 'Closed' if invert else 'Open'
+
     def convert(self, sample):
         return "Closed" if sample else "Open"
 
     def nominal_value(self, val):
-        if val == "Closed":
+        if val == self.abnormal:
             return (1, 0, 0, 1)
-        elif val == "Open":
+        elif val == self.nominal:
             return (0, 1, 0, 1)
         else:
             raise TypeError
@@ -225,7 +230,7 @@ class IgnitionRelay(LTCPhidget):
     IP = LTCIP
     port = 5001
     relay = Relay('Ignition Relay', 0)
-    shorepower = Relay('Shorepower Relay', 3)
+    shorepower = Relay('Shorepower Relay', 3, invert=True)
     output = {}
     output[0] = relay
     output[3] = shorepower
