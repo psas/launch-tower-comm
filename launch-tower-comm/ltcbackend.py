@@ -197,14 +197,14 @@ class CorePhidget(LTCPhidget):
     inputWindspeed = 7  # make a sensor?
     output = {}
     sensor = {}
-    sensor[0] = TemperatureSensor("Internal Temperature", 0, 40, 15)
-    sensor[1] = VoltageSensor("Ignition Battery", 1, 9, 5)
-    sensor[2] = Sensor("Humidity", 3)
-    sensor[3] = TemperatureSensor("External Temperature", 4, 40, 15)
-    sensor[4] = VoltageSensor("Rocket Ready", 2, 0.5, -0.5)
-    sensor[5] = VoltageSensor("System Battery", 5, 9, 5)
-    sensor[6] = VoltageSensor("Solar Voltage", 6, 13, 5)
-    sensor[7] = VoltageSensor("Shore Power", 7, 19, 16)
+    sensor[0] = TemperatureSensor("Internal Temperature",   0,  40.0, 10.0)
+    sensor[1] = VoltageSensor(    "Ignition Battery",       1, 4.1*4, 3.6*4)
+    sensor[2] = Sensor(           "Humidity",               3)
+    sensor[3] = TemperatureSensor("External Temperature",   4,  40.0, 10.0)
+    sensor[4] = VoltageSensor(    "Rocket Ready",           2,   0.5, -0.5)
+    sensor[5] = VoltageSensor(    "System Battery",         5,  15.0, 11.0)
+    sensor[6] = VoltageSensor(    "Solar Voltage",          6,  25.0, 11.0)
+    sensor[7] = VoltageSensor(    "Shore Power",            7,  20.0, 18.0)
 
     def _onAttach(self, event):
         self.ik.setRatiometric(False)
