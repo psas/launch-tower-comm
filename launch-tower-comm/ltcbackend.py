@@ -206,7 +206,7 @@ class CorePhidget(LTCPhidget):
     sensor[1] = VoltageSensor(    "Ignition Battery",       1, 4.1*4, 3.6*4)
     sensor[2] = Sensor(           "Humidity",               3)
     sensor[3] = TemperatureSensor("External Temperature",   4,  40.0, 10.0)
-    sensor[4] = VoltageSensor(    "Rocket Ready",           2,   0.5, -0.5)
+    sensor[4] = VoltageSensor(    "Rocket Ready",           2,   5.0,  1.5)
     sensor[5] = VoltageSensor(    "System Battery",         5,  15.0, 11.0)
     sensor[6] = VoltageSensor(    "Solar Voltage",          6,  25.0, 11.0)
     sensor[7] = VoltageSensor(    "Shore Power",            7,  20.0, 18.0)
