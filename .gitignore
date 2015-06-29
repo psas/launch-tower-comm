@@ -3,3 +3,6 @@
 *.ini
 *.swp
 logs/
+
+# ignore runtime cruft
+*.out
