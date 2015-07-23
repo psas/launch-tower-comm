@@ -1,5 +1,7 @@
 # Launch Tower Comm
 
+![Launch Tower Comm and friends](ground-control-software.png)
+
 Launch Tower Comm is the Portland State Aerospace Society's launch tower 
 control.  
 
