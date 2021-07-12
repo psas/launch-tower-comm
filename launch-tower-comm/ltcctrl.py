@@ -14,7 +14,7 @@ class LTCButton(Button):
     def _do_press(self):
         pass
 
-    def _do_release(self):
+    def _do_release(self, *args):
         pass
 
 
