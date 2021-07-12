@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Launch Tower Comm
+Comment=PSAS launch-tower-comm client
+Exec=sh -c "$HOME/launch-tower-comm/launch-tower-comm/start.sh"
+Icon=/usr/share/icons/Adwaita/512x512/mimetypes/application-x-executable.png
+Terminal=true
+Type=Application
+Categories=Utility;Application;

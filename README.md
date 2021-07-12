@@ -111,10 +111,10 @@ directories should only be installed to by dpkg, using .deb packages.
         $ python setup.py install --prefix=$HOME/local
         $ export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
 
-7. Add the environment variables defined above to your .bashrc:
+7. Start the client:
 
-        export C_INCLUDE_PATH=$HOME/local/include
-        export LD_LIBRARY_PATH=$HOME/local/lib
-        export LIBRARY_PATH=$HOME/local/lib
-        export PATH=$HOME/local/bin:$PATH
-        export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
+        launch-tower-comm/launch-tower-comm/start.sh
+
+8. Optionally, install the desktop launcher:
+
+        cp launch-tower-comm/launch-tower-comm/TowerComm.desktop ~/Desktop/
