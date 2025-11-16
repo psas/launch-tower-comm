@@ -1,32 +1,27 @@
 import time
-import os
+from pathlib import Path
 
 
-class __ltclogger(object):
+class __LTCLogger:
     default_level = 20
 
     def __init__(self):
         self.level = self.default_level
+        logdir = Path("logs")
+        logdir.mkdir(exist_ok=True)
 
-        try:
-            os.mkdir("logs")
-        except OSError:
-            pass
-
-        timestamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-        basename = "logs/logltc_" + timestamp
+        basename = "logltc_" + time.strftime("%Y-%m-%dT%H-%M-%S")
         filename = basename
 
         for i in range(1, 1000):
             try:
-                # To prevent race condition
-                fd = os.open(filename + ".txt",
-                             os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0666)
-                self.log = os.fdopen(fd, "w")
-            except IOError:
-                filename = basename + "_" + str(i)
+                self.log = (logdir / filename).with_suffix(".txt").open('x')
+            except FileExistsError:  # noqa: PERF203 I can't see how to satisfy this and not TOCTOU
+                filename = f'{basename}_{i:03}'
             else:
                 break
+        else:
+            raise RuntimeError("No valid log filenames")
 
     def __del__(self):
         self.log.close()
@@ -36,10 +31,11 @@ class __ltclogger(object):
 
     def _log(self, text, level):
         if level >= self.level:
-            timestamp = time.strftime("%Y-%m-%d %X", time.localtime())
-            self.log.write(str(level) + "|" + timestamp + "| " + text + "\n")
+            timestamp = time.strftime("%Y-%m-%d %X")
+            self.log.write(f"{level}|{timestamp}|{text}\n")
 
-__globallogger = __ltclogger()
+
+__globallogger = __LTCLogger()
 
 
 def set_default_level(level):
