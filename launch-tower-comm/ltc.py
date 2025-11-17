@@ -199,7 +199,14 @@ class IOIndicator(BoxLayout):
         try:
             val = event.value
         except AttributeError:
-            val = event.state
+            # FIXME: What was this supposed to do?
+            # 'VoltageSensor' object has no attribute 'state'
+            # val = event.state
+
+            # print(event)
+            # print(type(event))
+
+            val = 0
 
         if val == 0:  # The sensors seem to return 0 when absent.
             self.status_ind.set_state('Unknown', 'Not Found')

@@ -33,7 +33,7 @@ class LTCPhidget(Phidget):
         log.debug(f"Adding callback to {self.name}")
         self._callback[event_type].append(cb)
 
-    def _on_attach(self):
+    def _on_attach(self, unknown):
         log.verbose(f"attach event received")
         for cb in self._callback['attach']:
             cb()
@@ -49,7 +49,7 @@ class LTCPhidget(Phidget):
         for cb in self._callback['error']:
             cb(code)
 
-    def _on_property(self, name):
+    def _on_property(self, name, unknown):
         log.verbose("property {name} changed")
         for cb in self._callback['value']:
             cb(name)
@@ -57,9 +57,11 @@ class LTCPhidget(Phidget):
 class Relay(LTCPhidget, DigitalOutput):
     def __init__(self, name, devserial, channel, *, invert=False):
         super().__init__()
+        print(name, type(name), devserial, type(devserial), channel, type(channel))
         self.setDeviceLabel(name)
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
+        self.openWaitForAttachment(1000)
 
         self._callback['value'] = self._callback['property']
 
@@ -67,10 +69,14 @@ class Relay(LTCPhidget, DigitalOutput):
         self.name = name
         self.abnormal = 'Open' if invert else 'Closed'
         self.nominal = 'Closed' if invert else 'Open'
+        self.channel = channel
 
     def setState(self, state):
         log.info(f"Setting {self.name} state to {state}")
-        super().setState(state)
+        if self.getAttached():
+            super().setState(state)
+        else:
+            print(f"Channel {self.channel} Not Attached to {self.name}")
 
     def convert(self, sample):
         return "Closed" if sample else "Open"
@@ -98,8 +104,9 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         self.upper = upper
         self.lower = lower
 
-    def _on_voltage(self, ratio):
-        log.verbose("ratio {ratio} changed")
+    def _on_voltage(self, ratio, unknown):
+        log.verbose(f"ratio {ratio} changed; unknown: {unknown}")
+        log.verbose(f"{type(ratio)} {type(unknown)}")
         for cb in self._callback['value']:
             cb(ratio)
 
@@ -123,7 +130,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         self.upper = upper
         self.lower = lower
 
-    def _on_voltage(self, value):
+    def _on_voltage(self, value, unknown):
         log.verbose("voltage {value} changed")
         for cb in self._callback['value']:
             cb(value)
@@ -141,9 +148,13 @@ class LTCbackend:
     def __init__(self, set_status):
         log.info("Starting Backend")
         # Interface Kit 0/0/4 with relays - 1014
+        # FIXME: Making self.ignition into a DigitalOutput and then setting the devserial/channel
+        # seems to let it open, but how do we make this a Relay?
         self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
         self.ignition.add_callback(self.attach, 'attach')
+        log.info("ignition initialized")
         self.shore = Relay('Shorepower Relay', devserial=259173, channel=3, invert=True)
+        log.info("shore initialized")
         self.shore.add_callback(self.output, 'property')
 
         # Interface Kit 8/8/8 with sensors attached - 1018
@@ -168,14 +179,14 @@ class LTCbackend:
         self.set_status = set_status
 
     def start(self, event):
-        #Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
-        Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
-        self.ignition.open()
-        self.shore.open()
+        # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
+        # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
+        self.ignition.openWaitForAttachment(1000)
+        self.shore.openWaitForAttachment(1000)
         for sensor in self.sensors:
-            sensor.open()
+            sensor.openWaitForAttachment(1000)
 
-    def attach(self, event):
+    def attach(self):
         self.ignite(False)
 
     def output(self, name):
