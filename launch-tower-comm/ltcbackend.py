@@ -43,7 +43,7 @@ class LTCPhidget(Phidget):
         for cb in self._callback['attach']:
             cb()
 
-    def _on_error(self, code, description):
+    def _on_error(self, code, description, unknown):
         log.debug(description)
         log.verbose(f"error code {code} received")
         for cb in self._callback['error']:
@@ -57,11 +57,8 @@ class LTCPhidget(Phidget):
 class Relay(LTCPhidget, DigitalOutput):
     def __init__(self, name, devserial, channel, *, invert=False):
         super().__init__()
-        print(name, type(name), devserial, type(devserial), channel, type(channel))
-        self.setDeviceLabel(name)
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
-        self.openWaitForAttachment(1000)
 
         self._callback['value'] = self._callback['property']
 
@@ -95,7 +92,6 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         self._callback['value'] = []
         self.setOnVoltageRatioChangeHandler(self._on_voltage)
 
-        self.setDeviceLabel(name)
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
 
@@ -181,16 +177,17 @@ class LTCbackend:
     def start(self, event):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
-        self.ignition.openWaitForAttachment(1000)
-        self.shore.openWaitForAttachment(1000)
+        self.ignition.openWaitForAttachment(5000)
+        self.ignition.setDeviceLabel("Relay Ignition")
+        self.shore.openWaitForAttachment(5000)
+        self.shore.setDeviceLabel("Shore Ignition")
         for sensor in self.sensors:
-            sensor.openWaitForAttachment(1000)
+            sensor.open()
 
     def attach(self):
         self.ignite(False)
 
     def output(self, name):
-        print(name)
         # FIXME state might not even exist, use getState?
         # This also seems like unecesary indirection
         self.shorepower_state = name.state

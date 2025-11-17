@@ -100,7 +100,7 @@ class RelayLabel(Label):
         else:
             self.color = [1, 1, 1, 1]
 
-    def on_attach(self, event):
+    def on_attach(self):
         self.set_state("Thinking")
 
     def on_detach(self, event):
@@ -146,7 +146,7 @@ class StatusDisplay(BoxLayout):
         super().__init__(**kwargs)
         self.set_state("Disconnected")
 
-    def on_attach(self, event):
+    def on_attach(self):
         self.set_state("Nominal")
 
     def on_detach(self, event):
@@ -189,7 +189,7 @@ class IOIndicator(BoxLayout):
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
 
-    def on_attach(self, event):
+    def on_attach(self):
         self.status_ind.set_state('Closed')
 
     def on_detach(self, event):
