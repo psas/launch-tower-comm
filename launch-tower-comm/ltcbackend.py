@@ -178,9 +178,7 @@ class LTCbackend:
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
         self.ignition.openWaitForAttachment(5000)
-        self.ignition.setDeviceLabel("Relay Ignition")
         self.shore.openWaitForAttachment(5000)
-        self.shore.setDeviceLabel("Shore Ignition")
         for sensor in self.sensors:
             sensor.open()
 
