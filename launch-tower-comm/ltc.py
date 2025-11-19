@@ -100,7 +100,7 @@ class RelayLabel(Label):
         else:
             self.color = [1, 1, 1, 1]
 
-    def on_attach(self):
+    def on_attach(self, event):
         self.set_state("Thinking")
 
     def on_detach(self, event):
@@ -185,6 +185,7 @@ class IOIndicator(BoxLayout):
         self.conversion = sensor.convert
         self.device_label.text = sensor.name
         self.status_ind.set_state('Unknown')
+        self.prev_val = 1.0
         sensor.add_callback(self.on_attach, 'attach')
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
@@ -195,18 +196,12 @@ class IOIndicator(BoxLayout):
     def on_detach(self, event):
         self.status_ind.set_state('Detached')
 
-    def on_value(self, event):
+    def on_value(self, value):
         try:
-            val = event.value
+            val = value
         except AttributeError:
-            # FIXME: What was this supposed to do?
-            # 'VoltageSensor' object has no attribute 'state'
-            # val = event.state
-
-            # print(event)
-            # print(type(event))
-
-            val = 0
+            print("e")
+            val = self.prev_val
 
         if val == 0:  # The sensors seem to return 0 when absent.
             self.status_ind.set_state('Unknown', 'Not Found')
@@ -220,6 +215,7 @@ class IOIndicator(BoxLayout):
             self.status_ind.text = f'{newval:.1f} {self.unit}'
 
         self.status_ind.background_color = self.nominal_value(newval)
+        self.prev_val = val
 
 
 class LTCApp(App):

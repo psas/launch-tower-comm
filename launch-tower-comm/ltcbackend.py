@@ -70,10 +70,7 @@ class Relay(LTCPhidget, DigitalOutput):
 
     def setState(self, state):
         log.info(f"Setting {self.name} state to {state}")
-        if self.getAttached():
-            super().setState(state)
-        else:
-            print(f"Channel {self.channel} Not Attached to {self.name}")
+        super().setState(state)
 
     def convert(self, sample):
         return "Closed" if sample else "Open"
@@ -100,9 +97,8 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         self.upper = upper
         self.lower = lower
 
-    def _on_voltage(self, ratio, unknown):
-        log.verbose(f"ratio {ratio} changed; unknown: {unknown}")
-        log.verbose(f"{type(ratio)} {type(unknown)}")
+
+    def _on_voltage(self, unused, ratio):
         for cb in self._callback['value']:
             cb(ratio)
 
@@ -118,6 +114,8 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
 class VoltageSensor(LTCPhidget, VoltageInput):
     def __init__(self, name, devserial, channel, upper, lower):
         super().__init__()
+        self.setDeviceSerialNumber(devserial)
+        self.setChannel(channel)
         self._callback['value'] = []
         self.setOnVoltageChangeHandler(self._on_voltage)
 
@@ -126,7 +124,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         self.upper = upper
         self.lower = lower
 
-    def _on_voltage(self, value, unknown):
+    def _on_voltage(self, unused, value):
         log.verbose("voltage {value} changed")
         for cb in self._callback['value']:
             cb(value)
@@ -144,8 +142,6 @@ class LTCbackend:
     def __init__(self, set_status):
         log.info("Starting Backend")
         # Interface Kit 0/0/4 with relays - 1014
-        # FIXME: Making self.ignition into a DigitalOutput and then setting the devserial/channel
-        # seems to let it open, but how do we make this a Relay?
         self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
         self.ignition.add_callback(self.attach, 'attach')
         log.info("ignition initialized")
@@ -158,6 +154,7 @@ class LTCbackend:
         # following the Phidget convention. If sensor positions on the IK are
         # changed, the 'sensor' dictionary keys must be properly updated here.
         self.inputWindspeed = 7  # make a sensor?
+
         self.sensors = [
             TemperatureSensor("Internal Temperature", 178346, 0,  40.0, 10.0),
             VoltageSensor(    "Ignition Battery",     178346, 1, 4.1*4, 3.6*4),
@@ -180,7 +177,7 @@ class LTCbackend:
         self.ignition.openWaitForAttachment(5000)
         self.shore.openWaitForAttachment(5000)
         for sensor in self.sensors:
-            sensor.open()
+            sensor.openWaitForAttachment(5000)
 
     def attach(self):
         self.ignite(False)
@@ -205,7 +202,7 @@ class LTCbackend:
         try:
             if not state:
                 self.ignition.setState(False)
-            elif not self.shorepower_state:
+            elif not self.shore.getState():
                 self.ignition.setState(True)
             else:
                 # TODO: more descriptive errno?
