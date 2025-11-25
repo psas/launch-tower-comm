@@ -103,7 +103,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
             cb(ratio)
 
     def convert(self, sample):
-        return (sample * 2.0 / 9.0) - 61.111
+        return self.getSensorValue()
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
@@ -135,7 +135,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         return RED
 
     def convert(self, sample):
-        return (sample / 200.0 - 2.5) / 0.0681
+        return self.getSensorValue()
 
 
 class LTCbackend:
@@ -174,10 +174,14 @@ class LTCbackend:
     def start(self, event):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
-        self.ignition.openWaitForAttachment(5000)
-        self.shore.openWaitForAttachment(5000)
+        self.ignition.openWaitForAttachment(1000)
+        self.shore.openWaitForAttachment(1000)
         for sensor in self.sensors:
             sensor.openWaitForAttachment(5000)
+            if sensor.name in {"Internal Temperature", "External Temperature"}:
+                sensor.setSensorType(0x2be8)
+            else:
+                sensor.setSensorType(0x2c56)
 
     def attach(self):
         self.ignite(False)
