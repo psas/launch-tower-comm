@@ -68,6 +68,7 @@ class LTCctrl(Accordion):
     def on_shorepower(self, event):
         """Callback function to set shorepower buttons state"""
         # This function is the only place where the shorepower buttons are set
+        print(event.state)
         if event.state is True:
             self.button_shorepower_on.state = 'down'
             self.button_shorepower_off.state = 'normal'

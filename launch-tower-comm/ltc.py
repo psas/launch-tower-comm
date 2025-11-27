@@ -41,6 +41,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from ltcbackend import LTCbackend
 from ltcctrl import LTCctrl
+from Phidget22.PhidgetException import PhidgetException
 
 VERSION = '0.2'
 
@@ -179,13 +180,14 @@ class IOIndicator(BoxLayout):
     def __init__(self, sensor, **kwargs):
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
+
         self.nominal_value = sensor.nominal_value
         self.name = sensor.name
         self.unit = sensor.unit
-        self.conversion = sensor.convert
+        self.get_reading = sensor.get_reading
         self.device_label.text = sensor.name
         self.status_ind.set_state('Unknown')
-        self.prev_val = 1.0
+
         sensor.add_callback(self.on_attach, 'attach')
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
@@ -196,26 +198,18 @@ class IOIndicator(BoxLayout):
     def on_detach(self, event):
         self.status_ind.set_state('Detached')
 
-    def on_value(self, value):
+    def on_value(self):
         try:
-            val = value
-        except AttributeError:
-            print("e")
-            val = self.prev_val
+            sensor_reading = self.get_reading()
+            print(f"{self.name}: {sensor_reading} type: {type(sensor_reading)}")
+            if isinstance(sensor_reading, str):
+                self.status_ind.text = f'{sensor_reading} {self.unit}'
+            else:
+                self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
 
-        if val == 0:  # The sensors seem to return 0 when absent.
-            self.status_ind.set_state('Unknown', 'Not Found')
-            return
-
-        newval = self.conversion(val)
-        log.info(f"{self.name}: {newval}{self.unit}")
-        if isinstance(newval, str):
-            self.status_ind.text = f'{newval} {self.unit}'
-        else:
-            self.status_ind.text = f'{newval:.1f} {self.unit}'
-
-        self.status_ind.background_color = self.nominal_value(newval)
-        self.prev_val = val
+            self.status_ind.background_color = self.nominal_value(sensor_reading)
+        except PhidgetException as e:
+            log.error(f"{self.name}: {e}")
 
 
 class LTCApp(App):
@@ -236,6 +230,7 @@ class LTCApp(App):
         sens8 = IOIndicator(backend.sensors[6])
         sens9 = IOIndicator(backend.sensors[7])
         sens4 = IOIndicator(backend.sensors[4])
+
         relay1 = IOIndicator(backend.shore)
         relay2 = IOIndicator(backend.ignition)
 
@@ -268,8 +263,8 @@ class LTCApp(App):
         backend.shore.add_callback(status.on_error, 'error')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
-        backend.shore.add_callback(ctrl.on_shorepower, "value")
-        backend.ignition.add_callback(ctrl.on_ignite, "value")
+        # backend.shore.add_callback(ctrl.on_shorepower, "value")
+        # backend.ignition.add_callback(ctrl.on_ignite, "value")
 
         ltc = LTC()
         ltc.toplayout.add_widget(ctrl)

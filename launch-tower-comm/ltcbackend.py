@@ -2,8 +2,8 @@ import ltclogger as log
 
 # Phidgets specific imports
 from Phidget22.Devices.DigitalOutput import DigitalOutput
-from Phidget22.Devices.VoltageInput import VoltageInput
-from Phidget22.Devices.VoltageRatioInput import VoltageRatioInput
+from Phidget22.Devices.VoltageInput import VoltageInput, VoltageSensorType
+from Phidget22.Devices.VoltageRatioInput import VoltageRatioInput, VoltageRatioSensorType
 from Phidget22.Net import Net
 from Phidget22.Phidget import Phidget
 from Phidget22.PhidgetException import PhidgetException
@@ -12,6 +12,7 @@ from Phidget22.PhidgetException import PhidgetException
 
 RED = (1, 0, 0, 1)
 GREEN = (0, 1, 0, 1)
+
 
 class LTCPhidget(Phidget):
     def __init__(self):
@@ -38,7 +39,7 @@ class LTCPhidget(Phidget):
         for cb in self._callback['attach']:
             cb()
 
-    def _on_detach(self):
+    def _on_detach(self, unused):
         log.verbose(f"detach event received")
         for cb in self._callback['attach']:
             cb()
@@ -54,13 +55,13 @@ class LTCPhidget(Phidget):
         for cb in self._callback['value']:
             cb(name)
 
+
 class Relay(LTCPhidget, DigitalOutput):
     def __init__(self, name, devserial, channel, *, invert=False):
         super().__init__()
+        self._callback['value'] = []
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
-
-        self._callback['value'] = self._callback['property']
 
         self.unit = ''
         self.name = name
@@ -69,11 +70,16 @@ class Relay(LTCPhidget, DigitalOutput):
         self.channel = channel
 
     def setState(self, state):
-        log.info(f"Setting {self.name} state to {state}")
+        log.info(f"Setting {self.name} to {state}")
+
+        for cb in self._callback['value']:
+            cb()
+
         super().setState(state)
 
-    def convert(self, sample):
-        return "Closed" if sample else "Open"
+    def get_reading(self):
+        print(self.getState())
+        return "Closed" if self.getState() else "Open"
 
     def nominal_value(self, val):
         if val == self.abnormal:
@@ -87,8 +93,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
     def __init__(self, name, devserial, channel, upper, lower):
         super().__init__()
         self._callback['value'] = []
-        self.setOnVoltageRatioChangeHandler(self._on_voltage)
-
+        self.setOnSensorChangeHandler(self._on_voltage)
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
 
@@ -97,18 +102,29 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         self.upper = upper
         self.lower = lower
 
+        # Set the sensor type after attaching only
+        self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, unused, ratio):
-        for cb in self._callback['value']:
-            cb(ratio)
+    def _on_voltage(self, device, ratio, unit):
+        if isinstance(ratio, float):
+            for cb in self._callback['value']:
+                cb(ratio)
 
-    def convert(self, sample):
-        return self.getSensorValue()
+    def get_reading(self):
+        try:
+            ret = self.getSensorValue()
+            # print(f"{self.name}: {ret}{self.unit}")
+        except PhidgetException as e:
+            log.error(f"Could not read {self.name}: {e}")
+        return ret
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
             return GREEN
         return RED
+
+    def set_type(self):
+        self.setSensorType(VoltageRatioSensorType.SENSOR_TYPE_1124)
 
 
 class VoltageSensor(LTCPhidget, VoltageInput):
@@ -117,25 +133,32 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
         self._callback['value'] = []
-        self.setOnVoltageChangeHandler(self._on_voltage)
+
+        self.setOnSensorChangeHandler(self._on_voltage)
 
         self.unit = "V"
         self.name = name
         self.upper = upper
         self.lower = lower
 
-    def _on_voltage(self, unused, value):
-        log.verbose("voltage {value} changed")
+        self.add_callback(self.set_type, 'attach')
+
+    def _on_voltage(self, device, value, unit):
         for cb in self._callback['value']:
-            cb(value)
+            cb()
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
             return GREEN
         return RED
 
-    def convert(self, sample):
-        return self.getSensorValue()
+    def get_reading(self):
+        ret = self.getSensorValue()
+        # print(f"{self.name} ret: {ret}{self.unit}")
+        return ret
+
+    def set_type(self):
+        self.setSensorType(VoltageSensorType.SENSOR_TYPE_1135)
 
 
 class LTCbackend:
@@ -144,10 +167,7 @@ class LTCbackend:
         # Interface Kit 0/0/4 with relays - 1014
         self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
         self.ignition.add_callback(self.attach, 'attach')
-        log.info("ignition initialized")
         self.shore = Relay('Shorepower Relay', devserial=259173, channel=3, invert=True)
-        log.info("shore initialized")
-        self.shore.add_callback(self.output, 'property')
 
         # Interface Kit 8/8/8 with sensors attached - 1018
         # Here, sensor[n] describes the nth sensor on the Interface Kit (IK),
@@ -156,14 +176,14 @@ class LTCbackend:
         self.inputWindspeed = 7  # make a sensor?
 
         self.sensors = [
-            TemperatureSensor("Internal Temperature", 178346, 0,  40.0, 10.0),
-            VoltageSensor(    "Ignition Battery",     178346, 1, 4.1*4, 3.6*4),
-            VoltageSensor(    "Humidity",             178346, 3,  1000,    0), # FIXME: type, maxmin
-            TemperatureSensor("External Temperature", 178346, 4,  40.0, 10.0),
-            VoltageSensor(    "Rocket Ready",         178346, 2,   5.0,  1.5),
-            VoltageSensor(    "System Battery",       178346, 5,  15.0, 11.0),
-            VoltageSensor(    "Solar Voltage",        178346, 6,  25.0, 11.0),
-            VoltageSensor(    "Shore Power",          178346, 7,  20.0, 18.0),
+            TemperatureSensor("Internal Temperature", 178346, 0, 40.0, 10.0),
+            VoltageSensor("Ignition Battery", 178346, 1, 4.1 * 4, 3.6 * 4),
+            VoltageSensor("Humidity", 178346, 3, 1000, 0),  # FIXME: type, maxmin
+            TemperatureSensor("External Temperature", 178346, 4, 40.0, 10.0),
+            VoltageSensor("Rocket Ready", 178346, 2, 5.0, 1.5),
+            VoltageSensor("System Battery", 178346, 5, 15.0, 11.0),
+            VoltageSensor("Solar Voltage", 178346, 6, 25.0, 11.0),
+            VoltageSensor("Shore Power", 178346, 7, 20.0, 18.0),
         ]
 
         for sensor in self.sensors:
@@ -178,18 +198,9 @@ class LTCbackend:
         self.shore.openWaitForAttachment(1000)
         for sensor in self.sensors:
             sensor.openWaitForAttachment(5000)
-            if sensor.name in {"Internal Temperature", "External Temperature"}:
-                sensor.setSensorType(0x2be8)
-            else:
-                sensor.setSensorType(0x2c56)
 
     def attach(self):
         self.ignite(False)
-
-    def output(self, name):
-        # FIXME state might not even exist, use getState?
-        # This also seems like unecesary indirection
-        self.shorepower_state = name.state
 
     def close(self, event):
         log.debug("Closing LTCBackend")
