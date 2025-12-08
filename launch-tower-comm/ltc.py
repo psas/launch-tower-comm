@@ -184,7 +184,6 @@ class IOIndicator(BoxLayout):
         self.nominal_value = sensor.nominal_value
         self.name = sensor.name
         self.unit = sensor.unit
-        self.get_reading = sensor.get_reading
         self.device_label.text = sensor.name
         self.status_ind.set_state('Unknown')
 
@@ -194,6 +193,7 @@ class IOIndicator(BoxLayout):
 
     def on_attach(self, *args, **kwargs):
         self.status_ind.set_state('Closed')
+        self.status_ind.text = "Unknown"
 
     def on_detach(self, *args, **kwargs):
         self.status_ind.set_state('Detached')
@@ -202,8 +202,13 @@ class IOIndicator(BoxLayout):
         if isinstance(sensor_reading, float):
             self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
             self.status_ind.background_color = self.nominal_value(sensor_reading)
-        except PhidgetException as e:
-            log.error(f"{self.name}: {e}")
+        elif isinstance(sensor_reading, bool):
+            self.status_ind.text = 'Open' if sensor_reading else 'Closed'
+            self.status_ind.background_color = self.nominal_value(sensor_reading)
+        else:
+            log.error(
+                f"Unsupported type passed to Value callback: {self.name} - {type(sensor_reading)}"
+            )
 
 
 class LTCApp(App):
@@ -257,8 +262,8 @@ class LTCApp(App):
         backend.shore.add_callback(status.on_error, 'error')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
-        # backend.shore.add_callback(ctrl.on_shorepower, "value")
-        # backend.ignition.add_callback(ctrl.on_ignite, "value")
+        backend.shore.add_callback(ctrl.on_shorepower, "value")
+        backend.ignition.add_callback(ctrl.on_ignite, "value")
 
         ltc = LTC()
         ltc.toplayout.add_widget(ctrl)

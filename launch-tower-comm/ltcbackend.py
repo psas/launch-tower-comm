@@ -65,30 +65,29 @@ class Relay(LTCPhidget, DigitalOutput):
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
 
+        self._callback['value'] = self._callback['property']
+
         self.unit = ''
         self.name = name
         self.abnormal = 'Open' if invert else 'Closed'
         self.nominal = 'Closed' if invert else 'Open'
         self.channel = channel
 
-    def setState(self, state):
+    def setState(self, state: bool):
         log.info(f"Setting {self.name} to {state}")
 
         for cb in self._callback['value']:
-            cb()
+            cb(state)
 
         super().setState(state)
 
-    def get_reading(self):
-        print(self.getState())
-        return "Closed" if self.getState() else "Open"
-
-    def nominal_value(self, val):
+    def nominal_value(self, reading):
+        val = 'Open' if reading else 'Closed'
         if val == self.abnormal:
             return RED
         if val == self.nominal:
             return GREEN
-        raise TypeError
+        raise TypeError(f"expected str, got: {val}")
 
 
 class TemperatureSensor(LTCPhidget, VoltageRatioInput):
@@ -109,11 +108,12 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
 
     def _on_voltage(self, _device, ratio, *args, **kwargs):
         try:
-            ret = self.getSensorValue()
-            # print(f"{self.name}: {ret}{self.unit}")
+            read = self.getSensorValue()
         except PhidgetException as e:
             log.error(f"Could not read {self.name}: {e}")
-        return ret
+
+        for cb in self._callback['value']:
+            cb(read)
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
@@ -121,7 +121,10 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         return RED
 
     def set_type(self):
-        self.setSensorType(VoltageRatioSensorType.SENSOR_TYPE_1124)
+        try:
+            self.setSensorType(VoltageRatioSensorType.SENSOR_TYPE_1124)
+        except PhidgetException as e:
+            log.error(f"Error setting sensor type for {self.name}: {e}")
 
 
 class VoltageSensor(LTCPhidget, VoltageInput):
@@ -143,17 +146,12 @@ class VoltageSensor(LTCPhidget, VoltageInput):
     def _on_voltage(self, *args, **kwargs):
         read = self.getSensorValue()
         for cb in self._callback['value']:
-            cb()
+            cb(read)
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
             return GREEN
         return RED
-
-    def get_reading(self):
-        ret = self.getSensorValue()
-        # print(f"{self.name} ret: {ret}{self.unit}")
-        return ret
 
     def set_type(self):
         self.setSensorType(VoltageSensorType.SENSOR_TYPE_1135)
@@ -176,8 +174,8 @@ class LTCbackend:
         self.sensors = [
             TemperatureSensor("Internal Temperature", 178346, 0, 40.0, 10.0),
             VoltageSensor("Ignition Battery", 178346, 1, 4.1 * 4, 3.6 * 4),
-            VoltageSensor("Humidity", 178346, 3, 1000, 0),  # FIXME: type, maxmin
-            TemperatureSensor("External Temperature", 178346, 4, 40.0, 10.0),
+            # VoltageSensor("Humidity", 178346, 3, 1000, 0),  # FIXME: type, maxmin
+            # TemperatureSensor("External Temperature", 178346, 4, 40.0, 10.0),
             VoltageSensor("Rocket Ready", 178346, 2, 5.0, 1.5),
             VoltageSensor("System Battery", 178346, 5, 15.0, 11.0),
             VoltageSensor("Solar Voltage", 178346, 6, 25.0, 11.0),
@@ -220,16 +218,16 @@ class LTCbackend:
             else:
                 # TODO: more descriptive errno?
                 raise PhidgetException(1)  # noqa: TRY301 Not sure how to restructure this
-        except PhidgetException:
-            self.set_status("Phidget Call Failed")
+        except PhidgetException as e:
+            self.set_status(f"Phidget Call Failed: {e}")
             raise
 
     def shorepower(self, state):
         try:
             self.shore.setState(state)
             self.set_status("Nominal")
-        except PhidgetException:
-            self.set_status("Phidget Call Failed")
+        except PhidgetException as e:
+            self.set_status(f"Phidget Call Failed: {e}")
             raise
 
 

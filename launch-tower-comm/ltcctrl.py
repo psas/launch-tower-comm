@@ -65,35 +65,34 @@ class LTCctrl(Accordion):
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
-    def on_shorepower(self, event):
+    def on_shorepower(self, state):
         """Callback function to set shorepower buttons state"""
         # This function is the only place where the shorepower buttons are set
-        print(event.state)
-        if event.state is True:
+        if state is True:
             self.button_shorepower_on.state = 'down'
             self.button_shorepower_off.state = 'normal'
             if self.state['ignition'] is True:
                 # TODO: log that shorepower was turned on while ignition is on
                 self.abort()
-        elif event.state is False:
+        elif state is False:
             self.button_shorepower_on.state = 'normal'
             self.button_shorepower_off.state = 'down'
         else:
             raise TypeError
 
-        self.state['shorepower'] = event.state
+        self.state['shorepower'] = state
 
-    def on_ignite(self, event):
+    def on_ignite(self, state):
         """Callback function to set the ignite button state"""
         # This function is the only place where the ignite button is set
-        if event.state is True:
+        if state is True:
             self.button_ignite.state = 'down'
             self.state['ignition'] = True
             self.state['popup_abort_lockin'] = False
             # if ignite happens showing it takes precedence over everything
             self.accordion_armed.collapse = False
             self.popup.dismiss()
-        elif event.state is False:
+        elif state is False:
             self.button_ignite.state = 'normal'
             self.button_abort.state = 'normal'
             self.state['abort'] = False
