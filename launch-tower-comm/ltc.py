@@ -101,10 +101,10 @@ class RelayLabel(Label):
         else:
             self.color = [1, 1, 1, 1]
 
-    def on_attach(self, event):
+    def on_attach(self, *args, **kwargs):
         self.set_state("Thinking")
 
-    def on_detach(self, event):
+    def on_detach(self, *args, **kwargs):
         self.set_state("Detached")
 
     def on_output_changed(self, event):
@@ -113,10 +113,10 @@ class RelayLabel(Label):
         else:
             self.set_state("Open")
 
-    def on_error(self, event):
+    def on_error(self, *args, **kwargs):
         self.set_state("Error")
 
-    def on_button(self, event):
+    def on_button(self, *args, **kwargs):
         self.set_state("Thinking")
 
 
@@ -147,13 +147,13 @@ class StatusDisplay(BoxLayout):
         super().__init__(**kwargs)
         self.set_state("Disconnected")
 
-    def on_attach(self):
+    def on_attach(self, *args, **kwargs):
         self.set_state("Nominal")
 
-    def on_detach(self, event):
+    def on_detach(self, *args, **kwargs):
         self.set_state("Disconnected")
 
-    def on_error(self, event):
+    def on_error(self, *args, **kwargs):
         self.set_state("Phidget Call Failed")
 
     def on_ignite(self, event):
@@ -162,7 +162,7 @@ class StatusDisplay(BoxLayout):
         else:
             self.set_state("Nominal")
 
-    def on_value(self, event):
+    def on_value(self, *args, **kwargs):
         self.set_state("Nominal")
 
     def set_state(self, state):
@@ -192,21 +192,15 @@ class IOIndicator(BoxLayout):
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
 
-    def on_attach(self):
+    def on_attach(self, *args, **kwargs):
         self.status_ind.set_state('Closed')
 
-    def on_detach(self, event):
+    def on_detach(self, *args, **kwargs):
         self.status_ind.set_state('Detached')
 
-    def on_value(self):
-        try:
-            sensor_reading = self.get_reading()
-            print(f"{self.name}: {sensor_reading} type: {type(sensor_reading)}")
-            if isinstance(sensor_reading, str):
-                self.status_ind.text = f'{sensor_reading} {self.unit}'
-            else:
-                self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
-
+    def on_value(self, sensor_reading, *args, **kwargs):
+        if isinstance(sensor_reading, float):
+            self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
             self.status_ind.background_color = self.nominal_value(sensor_reading)
         except PhidgetException as e:
             log.error(f"{self.name}: {e}")

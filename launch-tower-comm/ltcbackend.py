@@ -34,26 +34,28 @@ class LTCPhidget(Phidget):
         log.debug(f"Adding callback to {self.name}")
         self._callback[event_type].append(cb)
 
-    def _on_attach(self, unknown):
-        log.verbose(f"attach event received")
+    def _on_attach(self, *args, **kwargs):
+        log.verbose("attach event received")
         for cb in self._callback['attach']:
             cb()
 
-    def _on_detach(self, unused):
-        log.verbose(f"detach event received")
+    def _on_detach(self, *args, **kwargs):
+        log.verbose("detach event received")
         for cb in self._callback['attach']:
             cb()
 
-    def _on_error(self, code, description, unknown):
-        log.debug(description)
-        log.verbose(f"error code {code} received")
+    def _on_error(self, _device, code, description, *args, **kwargs):
+        log.error(f"error code {code} received: {description}")
         for cb in self._callback['error']:
             cb(code)
 
-    def _on_property(self, name, unknown):
-        log.verbose("property {name} changed")
-        for cb in self._callback['value']:
-            cb(name)
+    def _on_property(self, name, *args, **kwargs):
+        log.verbose(f"property {name} changed")
+        try:
+            for cb in self._callback['value']:
+                cb(name)
+        except TypeError as e:
+            log.error(f"Error executing callback for {self.name}: {e}")
 
 
 class Relay(LTCPhidget, DigitalOutput):
@@ -105,12 +107,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         # Set the sensor type after attaching only
         self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, device, ratio, unit):
-        if isinstance(ratio, float):
-            for cb in self._callback['value']:
-                cb(ratio)
-
-    def get_reading(self):
+    def _on_voltage(self, _device, ratio, *args, **kwargs):
         try:
             ret = self.getSensorValue()
             # print(f"{self.name}: {ret}{self.unit}")
@@ -143,7 +140,8 @@ class VoltageSensor(LTCPhidget, VoltageInput):
 
         self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, device, value, unit):
+    def _on_voltage(self, *args, **kwargs):
+        read = self.getSensorValue()
         for cb in self._callback['value']:
             cb()
 
@@ -191,7 +189,7 @@ class LTCbackend:
 
         self.set_status = set_status
 
-    def start(self, event):
+    def start(self, *args, **kwargs):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
         self.ignition.openWaitForAttachment(1000)
@@ -202,7 +200,7 @@ class LTCbackend:
     def attach(self):
         self.ignite(False)
 
-    def close(self, event):
+    def close(self, *args, **kwargs):
         log.debug("Closing LTCBackend")
         try:
             self.ignite(False)
