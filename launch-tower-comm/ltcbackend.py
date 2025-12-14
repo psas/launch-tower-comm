@@ -157,6 +157,12 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         self.setSensorType(VoltageSensorType.SENSOR_TYPE_1135)
 
 
+class LTCError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class LTCbackend:
     def __init__(self, set_status):
         log.info("Starting Backend")
@@ -210,24 +216,25 @@ class LTCbackend:
             sensor.close()
 
     def ignite(self, state):
-        try:
+        def try_ignite(state):
             if not state:
                 self.ignition.setState(False)
             elif not self.shore.getState():
                 self.ignition.setState(True)
             else:
-                # TODO: more descriptive errno?
-                raise PhidgetException(1)  # noqa: TRY301 Not sure how to restructure this
-        except PhidgetException as e:
-            self.set_status(f"Phidget Call Failed: {e}")
-            raise
+                raise LTCError("Can't ignite with shorepower on")
+
+        try:
+            try_ignite(state)
+        except LTCError as e:
+            self.set_status("Error", e)
 
     def shorepower(self, state):
         try:
             self.shore.setState(state)
             self.set_status("Nominal")
         except PhidgetException as e:
-            self.set_status(f"Phidget Call Failed: {e}")
+            self.set_status("Error", e)
             raise
 
 

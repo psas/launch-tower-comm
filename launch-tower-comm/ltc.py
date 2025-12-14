@@ -133,8 +133,8 @@ class StatusDisplay(BoxLayout):
             "ARMED": ("You could abort", [1, 0, 0, 1]),
             "Disarmed": ("The igniter is now off and safe", [0.5, 0.5, 0.5, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, 0.5, 1]),
-            "Phidget Call Failed": (
-                "Phidgets didn't get the message, \nplease try again",
+            "Error": (
+                "An error occurred, \nplease try again",
                 [1, 0, 0, 1],
             ),
             "Disconnected": ("Please leave a message or call again.", [1, 1, 0, 1]),
@@ -153,8 +153,12 @@ class StatusDisplay(BoxLayout):
     def on_detach(self, *args, **kwargs):
         self.set_state("Disconnected")
 
-    def on_error(self, *args, **kwargs):
-        self.set_state("Phidget Call Failed")
+    def on_error(self, errno, *args, **kwargs):
+        match errno:
+            case 4103:
+                log.error("Sensor value out of range")
+            case _:
+                self.set_state("Error")
 
     def on_ignite(self, event):
         if event.state:
@@ -165,11 +169,14 @@ class StatusDisplay(BoxLayout):
     def on_value(self, *args, **kwargs):
         self.set_state("Nominal")
 
-    def set_state(self, state):
+    def set_state(self, state, *args):
         log.info(f"State changed:{state}")
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
-        self.state_message.text = self.states[state][0]
+        if args:
+            self.state_message.text = args[0].message
+        else:
+            self.state_message.text = self.states[state][0]
 
 
 class InterfaceKitPanel(BoxLayout):
