@@ -41,7 +41,7 @@ class LTCPhidget(Phidget):
 
     def _on_detach(self, *args, **kwargs):
         log.verbose("detach event received")
-        for cb in self._callback['attach']:
+        for cb in self._callback['detach']:
             cb()
 
     def _on_error(self, _device, code, description, *args, **kwargs):
