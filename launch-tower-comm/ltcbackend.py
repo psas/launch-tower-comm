@@ -69,8 +69,7 @@ class Relay(LTCPhidget, DigitalOutput):
 
         self.unit = ''
         self.name = name
-        self.abnormal = 'Open' if invert else 'Closed'
-        self.nominal = 'Closed' if invert else 'Open'
+        self.invert = invert # invert == True ? Nominal closed : Nominal open
         self.channel = channel
 
     def setState(self, state: bool):
@@ -81,13 +80,14 @@ class Relay(LTCPhidget, DigitalOutput):
 
         super().setState(state)
 
-    def nominal_value(self, reading):
-        val = 'Open' if reading else 'Closed'
-        if val == self.abnormal:
-            return RED
-        if val == self.nominal:
+    def nominal_value(self, val):
+        if isinstance(val, bool):
+            if val == self.invert:
+                return RED
+
             return GREEN
-        raise TypeError(f"expected str, got: {val}")
+
+        raise TypeError(f"expected bool, got: {val}")
 
 
 class TemperatureSensor(LTCPhidget, VoltageRatioInput):
