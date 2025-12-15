@@ -88,18 +88,15 @@ class RelayLabel(Label):
         self.set_state("Detached")
 
     def set_state(self, state, text=''):
-        self.background_color = self.states[state]
+        self.color = [1, 1, 1, 1]
+        # self.background_color = self.states[state]
+
         if state == "Thinking":
             self.text = ""
-        elif text:
+        elif len(text) > 0:
             self.text = text
         else:
             self.text = state
-
-        if state == 'Unknown':
-            self.color = [1, 1, 1, 0.1]
-        else:
-            self.color = [1, 1, 1, 1]
 
     def on_attach(self, *args, **kwargs):
         self.set_state("Thinking")
@@ -129,7 +126,7 @@ class StatusDisplay(BoxLayout):
     # TODO: scrollable log
     states = MappingProxyType(
         {
-            "Nominal": ("Disable Shore power to arm", [0.5, 0.5, 0.5, 1]),
+            "Nominal": ("Shore power must be closed to arm", [0.5, 0.5, 0.5, 1]),
             "ARMED": (
                 "Press abort to disarm and return to unarmed tab",
                 [1, 0, 0, 1],
@@ -137,7 +134,7 @@ class StatusDisplay(BoxLayout):
             "Disarmed": ("The igniter is now off and safe", [0.5, 0.5, 0.5, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, 0.5, 1]),
             "Error": (
-                "An error occurred, \nplease try again",
+                "An error occurred, \nPlease try again",
                 [1, 0, 0, 1],
             ),
             "Disconnected": ("Please leave a message or call again.", [1, 1, 0, 1]),
@@ -173,7 +170,7 @@ class StatusDisplay(BoxLayout):
         self.set_state("Nominal")
 
     def set_state(self, state, *args):
-        log.info(f"State changed:{state}")
+        log.info(f"Setting StatusDisplay state to {state}")
         self.state_info.text = state
         self.state_info.color = self.states[state][1]
         if args:
@@ -195,15 +192,13 @@ class IOIndicator(BoxLayout):
         self.name = sensor.name
         self.unit = sensor.unit
         self.device_label.text = sensor.name
-        self.status_ind.set_state('Unknown')
 
         sensor.add_callback(self.on_attach, 'attach')
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
 
     def on_attach(self, *args, **kwargs):
-        self.status_ind.set_state('Closed')
-        self.status_ind.text = "Unknown"
+        self.status_ind.set_state('Unknown')
 
     def on_detach(self, *args, **kwargs):
         self.status_ind.set_state('Detached')
@@ -217,7 +212,7 @@ class IOIndicator(BoxLayout):
             self.status_ind.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
-                f"Unsupported type passed to Value callback: {self.name} - {type(sensor_reading)}"
+                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
             )
 
 

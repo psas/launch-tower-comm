@@ -72,7 +72,7 @@ class Relay(LTCPhidget, DigitalOutput):
         self.invert = invert # invert == True ? Nominal closed : Nominal open
         self.channel = channel
 
-    def setState(self, state: bool):
+    def setState(self, state: bool):  # noqa: N802
         log.info(f"Setting {self.name} to {state}")
 
         for cb in self._callback['value']:
@@ -197,7 +197,9 @@ class LTCbackend:
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
         self.ignition.openWaitForAttachment(1000)
+        self.ignition.setState(False)
         self.shore.openWaitForAttachment(1000)
+        self.shore.setState(False)
         for sensor in self.sensors:
             sensor.openWaitForAttachment(5000)
 
