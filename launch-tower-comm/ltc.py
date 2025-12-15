@@ -130,7 +130,10 @@ class StatusDisplay(BoxLayout):
     states = MappingProxyType(
         {
             "Nominal": ("Disable Shore power to arm", [0.5, 0.5, 0.5, 1]),
-            "ARMED": ("You could abort", [1, 0, 0, 1]),
+            "ARMED": (
+                "Press abort to disarm and return to unarmed tab",
+                [1, 0, 0, 1],
+            ),
             "Disarmed": ("The igniter is now off and safe", [0.5, 0.5, 0.5, 1]),
             "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, 0.5, 1]),
             "Error": (
