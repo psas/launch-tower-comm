@@ -8,11 +8,12 @@
     button_shorepower_on: button_shorepower_on
     button_abort: button_abort
     button_ignite: button_ignite
-    
+ 
     LTCAccordionItem:
         font_size: 40
         id: accordian_unarmed
         title: 'Unarmed'
+        disabled: True if root.accordion_unarmed.collapse else False
         BoxLayout:
             orientation: 'vertical'
             LTCButton:
@@ -33,6 +34,7 @@
         font_size: 40
         id: accordian_armed
         title: 'Armed'
+        disabled: True if root.accordion_armed.collapse else False
         BoxLayout:
             orientation: 'vertical'
             LTCButton:
