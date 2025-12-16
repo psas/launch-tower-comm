@@ -115,10 +115,10 @@
             pos: int(self.center_x - self.texture_size[0] / 2.), int(self.center_y - self.texture_size[1] / 2.)
 
 
-## kv lang templates.
+## kv lang Dynamic Classes.
 ### use them by their name (the part before the @)
 
-[VSeparator@Widget]:
+<VSeparator@Widget>:
     size_hint_x: None
     width: 10
     canvas:
@@ -128,7 +128,7 @@
             size: 1, self.height
             pos: self.center_x, self.y
 
-[HSeparator@Widget]:
+<HSeparator@Widget>:
     size_hint_y: 0.005
     width: 1
     canvas:
@@ -138,12 +138,12 @@
             size: self.width * 0.99, 2
             pos: self.x, self.center_y
 
-[NameLabel@Label]:
+<NameLabel@Label>:
     size_hint_y: 1
     height: max(dp(45), self.texture_size[1] + dp(10))
-    text: ctx.text if 'text' in ctx else ''
+    text: ''
     text_size: self.width, self.height
-    font_size: ctx.font_size if 'font_size' in ctx else 30
+    font_size: 30
     valign: 'middle'
     halign: 'center'
     canvas.before:
