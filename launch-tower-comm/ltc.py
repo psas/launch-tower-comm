@@ -75,8 +75,8 @@ class RelayLabel(Label):
         {
             "Detached": [0.1, 0.1, 0.1, 1],
             "Thinking": [0, 1, 1, 1],
-            "Open": [1, 0, 0, 1],
-            "Closed": [0, 1, 0.5, 1],
+            "On": [1, 0, 0, 1],
+            "Off": [0, 1, 0.5, 1],
             "Error": [1, 1, 0, 1],
             "Unknown": [0.1, 0.1, 0.1, 1],
         }
@@ -106,9 +106,9 @@ class RelayLabel(Label):
 
     def on_output_changed(self, event):
         if event.state:
-            self.set_state("Closed")
+            self.set_state("Off")
         else:
-            self.set_state("Open")
+            self.set_state("On")
 
     def on_error(self, *args, **kwargs):
         self.set_state("Error")
@@ -208,7 +208,7 @@ class IOIndicator(BoxLayout):
             self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
             self.status_ind.background_color = self.nominal_value(sensor_reading)
         elif isinstance(sensor_reading, bool):
-            self.status_ind.text = 'Open' if sensor_reading else 'Closed'
+            self.status_ind.text = 'On' if sensor_reading else 'Off'
             self.status_ind.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
