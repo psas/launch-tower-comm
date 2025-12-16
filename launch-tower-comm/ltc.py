@@ -241,13 +241,13 @@ class LTCApp(App):
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
 
+        input_panel.add_widget(sens4)
         input_panel.add_widget(sens8)
         input_panel.add_widget(sens7)
         input_panel.add_widget(sens0)
         # input_panel.add_widget(sens1)
         # input_panel.add_widget(sens5)
 
-        relay_panel.add_widget(sens4)
         relay_panel.add_widget(relay2)
         relay_panel.add_widget(sens6)
         relay_panel.add_widget(relay1)
