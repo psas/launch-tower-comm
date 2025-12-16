@@ -41,7 +41,6 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from ltcbackend import LTCbackend
 from ltcctrl import LTCctrl
-from Phidget22.PhidgetException import PhidgetException
 
 VERSION = '0.2'
 
@@ -216,6 +215,13 @@ class IOIndicator(BoxLayout):
             )
 
 
+class RocketReadyIndicator(IOIndicator):
+    def on_value(self, sensor_reading, *args, **kwargs):
+        if isinstance(sensor_reading, float):
+            self.status_ind.text = 'High' if sensor_reading >= 5.0 else 'Low'
+            self.status_ind.background_color = self.nominal_value(sensor_reading)
+
+
 class LTCApp(App):
     def build(self):
         # The 'build' method is called when the app is run.
@@ -233,7 +239,7 @@ class LTCApp(App):
         sens7 = IOIndicator(backend.sensors[3])
         sens8 = IOIndicator(backend.sensors[4])
         sens9 = IOIndicator(backend.sensors[5])
-        sens4 = IOIndicator(backend.sensors[2])
+        sens4 = RocketReadyIndicator(backend.sensors[2])
 
         relay1 = IOIndicator(backend.shore)
         relay2 = IOIndicator(backend.ignition)
