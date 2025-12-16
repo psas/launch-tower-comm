@@ -187,6 +187,7 @@ class IOIndicator(BoxLayout):
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
 
+
         self.nominal_value = sensor.nominal_value
         self.name = sensor.name
         self.unit = sensor.unit
@@ -216,6 +217,9 @@ class IOIndicator(BoxLayout):
 
 
 class RocketReadyIndicator(IOIndicator):
+    def __init__(self, sensor, **kwargs):
+        super().__init__(sensor, **kwargs)
+
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
             self.status_ind.text = 'High' if sensor_reading >= 5.0 else 'Low'
