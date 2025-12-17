@@ -125,7 +125,7 @@ class StatusDisplay(BoxLayout):
     # TODO: scrollable log
     states = MappingProxyType(
         {
-            "Nominal": ("Shore power must be closed to arm", [0.5, 0.5, 0.5, 1]),
+            "Nominal": ("Shore power must be off to arm", [0.5, 0.5, 0.5, 1]),
             "ARMED": (
                 "Press abort to disarm and return to unarmed tab",
                 [1, 0, 0, 1],
@@ -187,7 +187,6 @@ class IOIndicator(BoxLayout):
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
 
-
         self.nominal_value = sensor.nominal_value
         self.name = sensor.name
         self.unit = sensor.unit
@@ -203,12 +202,28 @@ class IOIndicator(BoxLayout):
     def on_detach(self, *args, **kwargs):
         self.status_ind.set_state('Detached')
 
+
+class VoltageSensorIndicator(IOIndicator):
+    def __init__(self, sensor, **kwargs):
+        super().__init__(sensor, **kwargs)
+
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
-            self.status_ind.text = f'{sensor_reading:.1f} {self.unit}'
+            self.status_ind.text = f"{sensor_reading:.1f} {self.unit}"
             self.status_ind.background_color = self.nominal_value(sensor_reading)
-        elif isinstance(sensor_reading, bool):
-            self.status_ind.text = 'On' if sensor_reading else 'Off'
+        else:
+            log.error(
+                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
+            )
+
+
+class RelayIndicator(IOIndicator):
+    def __init__(self, sensor, **kwargs):
+        super().__init__(sensor, **kwargs)
+
+    def on_value(self, sensor_reading, *args, **kwargs):
+        if isinstance(sensor_reading, bool):
+            self.status_ind.text = "On" if sensor_reading else "Off"
             self.status_ind.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
@@ -221,10 +236,13 @@ class RocketReadyIndicator(IOIndicator):
         super().__init__(sensor, **kwargs)
 
     def on_value(self, sensor_reading, *args, **kwargs):
-        print(sensor_reading)
         if isinstance(sensor_reading, float):
-            self.status_ind.text = 'High' if sensor_reading >= 2.0 else 'Low'
+            self.status_ind.text = "High" if sensor_reading >= 2.0 else "Low"
             self.status_ind.background_color = self.nominal_value(sensor_reading)
+        else:
+            log.error(
+                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
+            )
 
 
 class LTCApp(App):
@@ -237,17 +255,17 @@ class LTCApp(App):
         self.bind(on_stop=backend.close)
         self.bind(on_start=backend.start)
 
-        sens0 = IOIndicator(backend.sensors[0])
+        sens0 = VoltageSensorIndicator(backend.sensors[0])
         # sens1 = IOIndicator(backend.sensors[3])
         # sens5 = IOIndicator(backend.sensors[2])
-        sens6 = IOIndicator(backend.sensors[1])
-        sens7 = IOIndicator(backend.sensors[3])
-        sens8 = IOIndicator(backend.sensors[4])
-        sens9 = IOIndicator(backend.sensors[5])
+        sens6 = VoltageSensorIndicator(backend.sensors[1])
+        sens7 = VoltageSensorIndicator(backend.sensors[3])
+        sens8 = VoltageSensorIndicator(backend.sensors[4])
+        sens9 = VoltageSensorIndicator(backend.sensors[5])
         sens4 = RocketReadyIndicator(backend.sensors[2])
 
-        relay1 = IOIndicator(backend.shore)
-        relay2 = IOIndicator(backend.ignition)
+        relay1 = RelayIndicator(backend.shore)
+        relay2 = RelayIndicator(backend.ignition)
 
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
