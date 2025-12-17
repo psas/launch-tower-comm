@@ -221,8 +221,9 @@ class RocketReadyIndicator(IOIndicator):
         super().__init__(sensor, **kwargs)
 
     def on_value(self, sensor_reading, *args, **kwargs):
+        print(sensor_reading)
         if isinstance(sensor_reading, float):
-            self.status_ind.text = 'High' if sensor_reading >= 5.0 else 'Low'
+            self.status_ind.text = 'High' if sensor_reading >= 2.0 else 'Low'
             self.status_ind.background_color = self.nominal_value(sensor_reading)
 
 
