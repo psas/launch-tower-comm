@@ -1,2 +1,5 @@
 [tool.ruff.lint]
-ignore = [ "ARG002" ]
+ignore = [ "ARG002" ] # ignore unused args
+
+[tool.ruff.format]
+quotes = ["preserve"] # preserve single/double quotes
