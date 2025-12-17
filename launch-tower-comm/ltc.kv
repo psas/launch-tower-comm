@@ -80,7 +80,7 @@
 <IOIndicator>:
     label_slot: label_slot
     device_label: device_label
-    status_ind: status_ind
+    ltc_label: ltc_label
 
     BoxLayout:
         id: label_slot
@@ -93,13 +93,13 @@
             id: device_label
             text: 'device'
 
-        RelayLabel:
-            id: status_ind
+        LTCLabel:
+            id: ltc_label
             text: ' '
             font_size: 30
 
 
-<RelayLabel>:
+<LTCLabel>:
     canvas:
         Color:
             rgba: self.background_color

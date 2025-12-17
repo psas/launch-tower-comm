@@ -62,7 +62,7 @@ class LTC(Widget):
     version = StringProperty(VERSION)
 
 
-class RelayLabel(Label):
+class LTCLabel(Label):
     '''A display widget for the Phidget Relays in the launch tower computer.
 
     Loads from the kv lang file. Used by ltcbackend sensors.
