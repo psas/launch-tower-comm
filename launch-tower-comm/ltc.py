@@ -197,10 +197,10 @@ class IOIndicator(BoxLayout):
         sensor.add_callback(self.on_value, 'value')
 
     def on_attach(self, *args, **kwargs):
-        self.status_ind.set_state('Unknown')
+        self.ltc_label.set_state(LTCLabel.State.UNKNOWN)
 
     def on_detach(self, *args, **kwargs):
-        self.status_ind.set_state('Detached')
+        self.ltc_label.set_state(LTCLabel.State.DETACHED)
 
 
 class VoltageSensorIndicator(IOIndicator):
@@ -209,8 +209,8 @@ class VoltageSensorIndicator(IOIndicator):
 
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
-            self.status_ind.text = f"{sensor_reading:.1f} {self.unit}"
-            self.status_ind.background_color = self.nominal_value(sensor_reading)
+            self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
+            self.ltc_label.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
@@ -223,8 +223,8 @@ class RelayIndicator(IOIndicator):
 
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, bool):
-            self.status_ind.text = "On" if sensor_reading else "Off"
-            self.status_ind.background_color = self.nominal_value(sensor_reading)
+            self.ltc_label.text = "On" if sensor_reading else "Off"
+            self.ltc_label.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
@@ -237,8 +237,8 @@ class RocketReadyIndicator(IOIndicator):
 
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
-            self.status_ind.text = "High" if sensor_reading >= 2.0 else "Low"
-            self.status_ind.background_color = self.nominal_value(sensor_reading)
+            self.ltc_label.text = "High" if sensor_reading >= 2.0 else "Low"
+            self.ltc_label.background_color = self.nominal_value(sensor_reading)
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
