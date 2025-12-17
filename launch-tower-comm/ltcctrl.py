@@ -46,12 +46,16 @@ class IgnitionPopup(Popup):
 
 class LTCctrl(Accordion):
     def __init__(
-        self, ignite=lambda _: None, shorepower=lambda _: None, status=lambda _: None, **kwargs
+        self,
+        ignite=lambda _: None,
+        shorepower=lambda _: None,
+        status=lambda _: None,
+        **kwargs,
     ):
         # setup callbacks
         self.ignite = ignite
         self.shorepower = shorepower
-        self.set_status = status
+        self.set_status_display_state = status
         # setup internal state
         self.state = {
             'shorepower': None,
@@ -104,20 +108,29 @@ class LTCctrl(Accordion):
             raise TypeError
 
     def arm(self, state):
+        from ltc import StatusDisplay
+
         if state:
             if self.state['shorepower'] is False:
                 self.accordion_armed.collapse = False
-                self.set_status('ARMED')
+                self.set_status_display_state(StatusDisplay.State.ARMED)
             # TODO: else log that arm was attempted with sp true
         elif not self.state['ignition']:
             self.accordion_unarmed.collapse = False
-            self.set_status('Disarmed')
+            self.set_status_display_state(StatusDisplay.State.DISARMED)
         else:
-            raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
+            raise RuntimeError(
+                "Attempt to disarm was made while ignition relay was closed"
+            )
 
     def abort(self, event=None):
+        from ltc import StatusDisplay
+
         Clock.unschedule(self.abort)
-        if self.state['ignition'] is False and self.state['popup_abort_lockin'] is not True:
+        if (
+            self.state['ignition'] is False
+            and self.state['popup_abort_lockin'] is not True
+        ):
             self.arm(False)
         else:
             self.button_abort.state = 'down'
@@ -127,7 +140,7 @@ class LTCctrl(Accordion):
             except PhidgetException:
                 self.button_abort.state = 'normal'
                 self.state['abort'] = False
-                self.set_status('Abort Failed')
+                self.set_status_display_state(StatusDisplay.State.ABORT_FAILED)
 
     def on_button_ignite(self):
         if self.state['abort'] is True:

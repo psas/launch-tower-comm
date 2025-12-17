@@ -28,7 +28,7 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
-from types import MappingProxyType
+from enum import Enum
 
 import kivy
 import ltclogger as log
@@ -68,52 +68,50 @@ class LTCLabel(Label):
     Loads from the kv lang file. Used by ltcbackend sensors.
     '''
 
+    class State(Enum):
+        DETACHED = [0.1, 0.1, 0.1, 1]
+        THINKING = [0, 1, 1, 1]
+        ON = [1, 0, 0, 1]
+        OFF = [0, 1, 0.5, 1]
+        ERROR = [1, 1, 0, 1]
+        UNKNOWN = [0.1, 0.1, 0.1, 1]
+
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty([1, 1, 1, 1])
-    states = MappingProxyType(
-        {
-            "Detached": [0.1, 0.1, 0.1, 1],
-            "Thinking": [0, 1, 1, 1],
-            "On": [1, 0, 0, 1],
-            "Off": [0, 1, 0.5, 1],
-            "Error": [1, 1, 0, 1],
-            "Unknown": [0.1, 0.1, 0.1, 1],
-        }
-    )
 
     def __init__(self, **kwargs):
         # load from kv lang file first
         super().__init__(**kwargs)
-        self.set_state("Detached")
+        self.color = [1, 1, 1, 1]  # Set font color to white
+        self.set_state(self.State.DETACHED)
 
-    def set_state(self, state, text=''):
-        self.color = [1, 1, 1, 1]
-        # self.background_color = self.states[state]
-
-        if state == "Thinking":
-            self.text = ""
-        elif len(text) > 0:
-            self.text = text
-        else:
-            self.text = state
+    def set_state(self, state: State, text=''):
+        match state:
+            case self.State.THINKING:
+                self.text = ""
+            case _:
+                if len(text) > 0:
+                    self.text = text
+                else:
+                    self.text = state.name
 
     def on_attach(self, *args, **kwargs):
-        self.set_state("Thinking")
+        self.set_state(self.State.THINKING)
 
     def on_detach(self, *args, **kwargs):
-        self.set_state("Detached")
+        self.set_state(self.State.DETACHED)
 
     def on_output_changed(self, event):
         if event.state:
-            self.set_state("Off")
+            self.set_state(self.State.OFF)
         else:
-            self.set_state("On")
+            self.set_state(self.State.ON)
 
     def on_error(self, *args, **kwargs):
-        self.set_state("Error")
+        self.set_state(self.State.ERROR)
 
     def on_button(self, *args, **kwargs):
-        self.set_state("Thinking")
+        self.set_state(self.State.THINKING)
 
 
 class StatusDisplay(BoxLayout):
@@ -122,60 +120,72 @@ class StatusDisplay(BoxLayout):
     Loaded from kv lang file first.
     '''
 
+    class State(Enum):
+        NOMINAL = ("Shore power must be off to arm", [0.5, 0.5, 0.5, 1])
+        ARMED = (
+            "Press abort to disarm and return to unarmed tab",
+            [1, 0, 0, 1],
+        )
+        DISARMED = ("The igniter is now off and safe", [0.5, 0.5, 0.5, 1])
+        IGNITED = (
+            "Click Ignite again to disable Ignition power",
+            [0, 1, 0.5, 1],
+        )
+        ERROR = (
+            "An error occurred, \nPlease try again",
+            [1, 0, 0, 1],
+        )
+        DISCONNECTED = ("Please leave a message or call again.", [1, 1, 0, 1])
+        ABORT_FAILED = (
+            "The attempt to shut off the igniter failed.",
+            [1, 0, 0, 1],
+        )
+
+        @property
+        def message(self):
+            return self.value[0]
+
+        @property
+        def color(self):
+            return self.value[1]
+
     # TODO: scrollable log
-    states = MappingProxyType(
-        {
-            "Nominal": ("Shore power must be off to arm", [0.5, 0.5, 0.5, 1]),
-            "ARMED": (
-                "Press abort to disarm and return to unarmed tab",
-                [1, 0, 0, 1],
-            ),
-            "Disarmed": ("The igniter is now off and safe", [0.5, 0.5, 0.5, 1]),
-            "IGNITED!": ("Click Ignite again to disable Ignition power", [0, 1, 0.5, 1]),
-            "Error": (
-                "An error occurred, \nPlease try again",
-                [1, 0, 0, 1],
-            ),
-            "Disconnected": ("Please leave a message or call again.", [1, 1, 0, 1]),
-            "Abort Failed": ("The attempt to shut off the igniter failed.", [1, 0, 0, 1]),
-        }
-    )
 
     def __init__(self, **kwargs):
         # load from the kv lang file
         super().__init__(**kwargs)
-        self.set_state("Disconnected")
+        self.set_state(self.State.DISCONNECTED)
 
     def on_attach(self, *args, **kwargs):
-        self.set_state("Nominal")
+        self.set_state(self.State.NOMINAL)
 
     def on_detach(self, *args, **kwargs):
-        self.set_state("Disconnected")
+        self.set_state(self.State.DISCONNECTED)
 
     def on_error(self, errno, *args, **kwargs):
         match errno:
             case 4103:
                 log.error("Sensor value out of range")
             case _:
-                self.set_state("Error")
+                self.set_state(self.State.ERROR)
 
     def on_ignite(self, event):
         if event.state:
-            self.set_state('IGNITED!')
+            self.set_state(self.State.IGNITED)
         else:
-            self.set_state("Nominal")
+            self.set_state(self.State.NOMINAL)
 
     def on_value(self, *args, **kwargs):
-        self.set_state("Nominal")
+        self.set_state(self.State.NOMINAL)
 
-    def set_state(self, state, *args):
+    def set_state(self, state: State, *args):
         log.info(f"Setting StatusDisplay state to {state}")
-        self.state_info.text = state
-        self.state_info.color = self.states[state][1]
+        self.state_info.text = state.name
+        self.state_info.color = state.color
         if args:
             self.state_message.text = args[0].message
         else:
-            self.state_message.text = self.states[state][0]
+            self.state_message.text = state.message
 
 
 class InterfaceKitPanel(BoxLayout):

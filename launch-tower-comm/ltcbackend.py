@@ -3,7 +3,10 @@ import ltclogger as log
 # Phidgets specific imports
 from Phidget22.Devices.DigitalOutput import DigitalOutput
 from Phidget22.Devices.VoltageInput import VoltageInput, VoltageSensorType
-from Phidget22.Devices.VoltageRatioInput import VoltageRatioInput, VoltageRatioSensorType
+from Phidget22.Devices.VoltageRatioInput import (
+    VoltageRatioInput,
+    VoltageRatioSensorType,
+)
 from Phidget22.Net import Net
 from Phidget22.Phidget import Phidget
 from Phidget22.PhidgetException import PhidgetException
@@ -69,7 +72,7 @@ class Relay(LTCPhidget, DigitalOutput):
 
         self.unit = ''
         self.name = name
-        self.invert = invert # invert == True ? Nominal closed : Nominal open
+        self.invert = invert  # invert == True ? Nominal closed : Nominal open
         self.channel = channel
 
     def setState(self, state: bool):  # noqa: N802
@@ -164,7 +167,7 @@ class LTCError(Exception):
 
 
 class LTCbackend:
-    def __init__(self, set_status):
+    def __init__(self, set_status_display_state):
         log.info("Starting Backend")
         # Interface Kit 0/0/4 with relays - 1014
         self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
@@ -191,7 +194,7 @@ class LTCbackend:
         for sensor in self.sensors:
             sensor.add_callback(self.attach, 'attach')
 
-        self.set_status = set_status
+        self.set_status_display_state = set_status_display_state
 
     def start(self, *args, **kwargs):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
@@ -229,14 +232,16 @@ class LTCbackend:
         try:
             try_ignite(state)
         except LTCError as e:
-            self.set_status("Error", e)
+            self.set_status_display_state("Error", e)
 
     def shorepower(self, state):
+        from ltc import StatusDisplay
+
         try:
             self.shore.setState(state)
-            self.set_status("Nominal")
+            self.set_status_display_state(StatusDisplay.State.NOMINAL)
         except PhidgetException as e:
-            self.set_status("Error", e)
+            self.set_status_display_state(StatusDisplay.State.ERROR, e)
             raise
 
 
