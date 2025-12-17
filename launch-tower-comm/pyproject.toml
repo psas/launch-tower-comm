@@ -2,4 +2,4 @@
 ignore = [ "ARG002" ] # ignore unused args
 
 [tool.ruff.format]
-quotes = ["preserve"] # preserve single/double quotes
+quote-style = "preserve" # preserve single/double quotes
