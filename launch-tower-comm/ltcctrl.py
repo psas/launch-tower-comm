@@ -6,6 +6,7 @@ from kivy.clock import Clock
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
+from kivy.input.providers.mouse import MouseMotionEvent
 from Phidget22.PhidgetException import PhidgetException
 
 import ltclogger as log
@@ -24,7 +25,7 @@ class LTCButton(Button):
 
 
 class LTCAccordionItem(AccordionItem):
-    def on_touch_down(self, touch):
+    def on_touch_down(self, touch: MouseMotionEvent):
         if not self.collide_point(*touch.pos):
             return None
         return super().on_touch_down(touch)
@@ -60,6 +61,16 @@ class IgnitionPopup(Popup):
 
 
 class LTCctrl(Accordion):
+    StateType = TypedDict(
+        "StateType",
+        {
+            'shorepower': bool,
+            'ignition': bool,
+            'abort': bool,
+            'popup_abort_lockin': bool,
+        },
+    )
+
     def __init__(
         self,
         ignite=lambda _: None,
@@ -74,17 +85,8 @@ class LTCctrl(Accordion):
 
         # setup internal state
         # nothing explicitly depends on the arm state
-        LTCStateType = TypedDict(
-            "LTCStateType",
-            {
-                'shorepower': bool,
-                'ignition': bool,
-                'abort': bool,
-                'popup_abort_lockin': bool,
-            },
-        )
 
-        self.state: LTCStateType = {
+        self.state: LTCctrl.StateType = {
             'shorepower': None,
             'ignition': None,
             'abort': None,
@@ -136,7 +138,7 @@ class LTCctrl(Accordion):
                 self.state['ignition'] = False
                 self.arm(False)
 
-    def arm(self, state):
+    def arm(self, state: bool):
         if state:
             if self.state['shorepower'] is False:
                 self.accordion_armed.collapse = False
@@ -150,7 +152,7 @@ class LTCctrl(Accordion):
                 "Attempt to disarm was made while ignition relay was closed"
             )
 
-    def abort(self, event=None):
+    def abort(self):
         Clock.unschedule(self.abort)
 
         if (
@@ -177,7 +179,7 @@ class LTCctrl(Accordion):
         else:
             self.popup.open()
 
-    def on_button_shorepower(self, state):
+    def on_button_shorepower(self, state: bool):
         with suppress(PhidgetException):
             try:
                 self.shorepower(Relay.State.ON if state else Relay.State.OFF)

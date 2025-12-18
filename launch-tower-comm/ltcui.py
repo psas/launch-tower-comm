@@ -1,5 +1,6 @@
 from enum import Enum
 
+from Phidget22.Phidget import Phidget
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -33,7 +34,7 @@ class LTCLabel(Label):
         self.color = [1, 1, 1, 1]  # Set font color to white
         self.set_state(self.State.DETACHED)
 
-    def set_state(self, state: State, text=''):
+    def set_state(self, state: State, text: str=''):
         match state:
             case self.State.THINKING:
                 self.text = ""
@@ -67,7 +68,7 @@ class InterfaceKitPanel(BoxLayout):
 
 
 class IOIndicator(BoxLayout):
-    def __init__(self, sensor, **kwargs):
+    def __init__(self, sensor: Phidget, **kwargs):
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
 
@@ -88,10 +89,10 @@ class IOIndicator(BoxLayout):
 
 
 class VoltageSensorIndicator(IOIndicator):
-    def __init__(self, sensor, **kwargs):
+    def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
 
-    def on_value(self, sensor_reading, *args, **kwargs):
+    def on_value(self, sensor_reading: float, *args, **kwargs):
         if isinstance(sensor_reading, float):
             self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
             self.ltc_label.background_color = (
@@ -106,7 +107,7 @@ class VoltageSensorIndicator(IOIndicator):
 class RelayIndicator(IOIndicator):
     from ltcbackend import Relay
 
-    def __init__(self, sensor, **kwargs):
+    def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
 
     def on_value(self, sensor_reading: Relay.State, *args, **kwargs):
@@ -117,10 +118,10 @@ class RelayIndicator(IOIndicator):
 
 
 class RocketReadyIndicator(IOIndicator):
-    def __init__(self, sensor, **kwargs):
+    def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
 
-    def on_value(self, sensor_reading, *args, **kwargs):
+    def on_value(self, sensor_reading: float, *args, **kwargs):
         if isinstance(sensor_reading, float):
             self.ltc_label.text = "High" if sensor_reading >= 2.0 else "Low"
             self.ltc_label.background_color = (
@@ -180,7 +181,7 @@ class StatusDisplay(BoxLayout):
     def on_detach(self, *args, **kwargs):
         self.set_state(self.State.DISCONNECTED)
 
-    def on_error(self, errno, *args, **kwargs):
+    def on_error(self, errno: int, *args, **kwargs):
         match errno:
             case 4103:
                 log.error("Sensor value out of range")

@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Callable
 
 # Phidgets specific imports
 from Phidget22.Devices.DigitalOutput import DigitalOutput
@@ -32,7 +33,7 @@ class LTCPhidget(Phidget):
         self.setOnErrorHandler(self._on_error)
         self.setOnPropertyChangeHandler(self._on_property)
 
-    def add_callback(self, cb, event_type):
+    def add_callback(self, cb: Callable, event_type: str):
         log.debug(f"Adding callback to {self.name}")
         self._callback[event_type].append(cb)
 
@@ -46,12 +47,12 @@ class LTCPhidget(Phidget):
         for cb in self._callback['detach']:
             cb()
 
-    def _on_error(self, _device, code, description, *args, **kwargs):
+    def _on_error(self, _device: Phidget, code: int, description: str, *args, **kwargs):
         log.error(f"error code {code} received: {description}")
         for cb in self._callback['error']:
             cb(code)
 
-    def _on_property(self, name, *args, **kwargs):
+    def _on_property(self, name: str, *args, **kwargs):
         log.verbose(f"property {name} changed")
         try:
             for cb in self._callback['value']:
@@ -61,7 +62,7 @@ class LTCPhidget(Phidget):
 
 
 class Relay(LTCPhidget, DigitalOutput):
-    def __init__(self, name, devserial, channel, *, invert=False):
+    def __init__(self, name: str, devserial: int, channel: int, *, invert: bool=False):
         super().__init__()
         self._callback['value'] = []
         self.setDeviceSerialNumber(devserial)
@@ -86,7 +87,7 @@ class Relay(LTCPhidget, DigitalOutput):
 
         super().setState(state.value)
 
-    def nominal_value(self, val):
+    def nominal_value(self, val: bool):
         if isinstance(val, bool):
             if val == self.invert:
                 return False
@@ -97,7 +98,7 @@ class Relay(LTCPhidget, DigitalOutput):
 
 
 class TemperatureSensor(LTCPhidget, VoltageRatioInput):
-    def __init__(self, name, devserial, channel, upper, lower):
+    def __init__(self, name: str, devserial: int, channel: int, upper: float, lower: float):
         super().__init__()
         self._callback['value'] = []
         self.setOnSensorChangeHandler(self._on_voltage)
@@ -112,7 +113,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         # Set the sensor type after attaching only
         self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, _device, ratio, *args, **kwargs):
+    def _on_voltage(self, _device: Phidget, ratio: float, *args, **kwargs):
         try:
             read = self.getSensorValue()
         except PhidgetException as e:
@@ -121,7 +122,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         for cb in self._callback['value']:
             cb(read)
 
-    def nominal_value(self, val):
+    def nominal_value(self, val: float):
         if self.lower < val < self.upper:
             return True
         return False
@@ -134,7 +135,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
 
 
 class VoltageSensor(LTCPhidget, VoltageInput):
-    def __init__(self, name, devserial, channel, upper, lower):
+    def __init__(self, name: str, devserial: int, channel: int, upper: float, lower: float):
         super().__init__()
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
@@ -154,7 +155,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
         for cb in self._callback['value']:
             cb(read)
 
-    def nominal_value(self, val):
+    def nominal_value(self, val: float):
         if self.lower < val < self.upper:
             return True
         return False
@@ -164,7 +165,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
 
 
 class LTCError(Exception):
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
 
