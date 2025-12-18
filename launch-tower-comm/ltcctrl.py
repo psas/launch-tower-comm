@@ -1,4 +1,5 @@
 from contextlib import suppress
+from typing import TypedDict
 
 import kivy
 from kivy.clock import Clock
@@ -61,7 +62,17 @@ class LTCctrl(Accordion):
 
         # setup internal state
         # nothing explicitly depends on the arm state
-        self.state = {
+        LTCStateType = TypedDict(
+            "LTCStateType",
+            {
+                'shorepower': bool,
+                'ignition': bool,
+                'abort': bool,
+                'popup_abort_lockin': bool,
+            },
+        )
+
+        self.state: LTCStateType = {
             'shorepower': None,
             'ignition': None,
             'abort': None,
