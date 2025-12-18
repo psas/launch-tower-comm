@@ -228,17 +228,14 @@ class VoltageSensorIndicator(IOIndicator):
 
 
 class RelayIndicator(IOIndicator):
+    from ltcbackend import Relay
+
     def __init__(self, sensor, **kwargs):
         super().__init__(sensor, **kwargs)
 
-    def on_value(self, sensor_reading, *args, **kwargs):
-        if isinstance(sensor_reading, bool):
-            self.ltc_label.text = "On" if sensor_reading else "Off"
-            self.ltc_label.background_color = self.nominal_value(sensor_reading)
-        else:
-            log.error(
-                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
-            )
+    def on_value(self, sensor_reading: Relay.State, *args, **kwargs):
+        self.ltc_label.text = sensor_reading.name
+        self.ltc_label.background_color = self.nominal_value(sensor_reading.value)
 
 
 class RocketReadyIndicator(IOIndicator):

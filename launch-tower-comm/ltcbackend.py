@@ -1,3 +1,4 @@
+from enum import Enum
 import ltclogger as log
 
 # Phidgets specific imports
@@ -75,13 +76,17 @@ class Relay(LTCPhidget, DigitalOutput):
         self.invert = invert  # invert == True ? Nominal closed : Nominal open
         self.channel = channel
 
-    def setState(self, state: bool):  # noqa: N802
+    class State(Enum):
+        ON = True
+        OFF = False
+
+    def setState(self, state: State):
         log.info(f"Setting {self.name} to {state}")
 
         for cb in self._callback['value']:
             cb(state)
 
-        super().setState(state)
+        super().setState(state.value)
 
     def nominal_value(self, val):
         if isinstance(val, bool):
@@ -200,19 +205,19 @@ class LTCbackend:
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
         self.ignition.openWaitForAttachment(1000)
-        self.ignition.setState(False)
+        self.ignition.setState(Relay.State.OFF)
         self.shore.openWaitForAttachment(1000)
-        self.shore.setState(False)
+        self.shore.setState(Relay.State.OFF)
         for sensor in self.sensors:
             sensor.openWaitForAttachment(5000)
 
     def attach(self):
-        self.ignite(False)
+        self.ignite(Relay.State.OFF)
 
     def close(self, *args, **kwargs):
         log.debug("Closing LTCBackend")
         try:
-            self.ignite(False)
+            self.ignite(Relay.State.OFF)
         except PhidgetException:
             log.info("Unable to turn off ignite on quit")
         self.ignition.close()
@@ -220,21 +225,24 @@ class LTCbackend:
         for sensor in self.sensors:
             sensor.close()
 
-    def ignite(self, state):
-        def try_ignite(state):
-            if not state:
-                self.ignition.setState(False)
-            elif not self.shore.getState():
-                self.ignition.setState(True)
-            else:
-                raise LTCError("Can't ignite with shorepower on")
+    def ignite(self, state: Relay.State):
+        def try_ignite(state: Relay.State):
+            match state:
+                case Relay.State.ON:
+                    if not self.shore.getState():
+                        self.ignition.setState(state)
+                    else:
+                        raise LTCError("Can't ignite with shorepower on")
+
+                case Relay.State.OFF:
+                    self.ignition.setState(state)
 
         try:
             try_ignite(state)
         except LTCError as e:
             self.set_status_display_state("Error", e)
 
-    def shorepower(self, state):
+    def shorepower(self, state: Relay.State):
         from ltc import StatusDisplay
 
         try:

@@ -5,7 +5,7 @@ from kivy.clock import Clock
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from ltcbackend import LTCbackend
+from ltcbackend import LTCbackend, Relay
 from Phidget22.PhidgetException import PhidgetException
 
 kivy.require('1.0.5')
@@ -36,9 +36,11 @@ class IgnitionPopup(Popup):
         super().__init__(auto_dismiss=False, **kwargs)
 
     def on_button_ignite(self):
+        from ltcbackend import Relay
+
         try:
             Clock.schedule_once(self.abort, self.ignition_abort_timeout)
-            self.ignite(True)
+            self.ignite(Relay.State.ON)
             self.state['popup_abort_lockin'] = True
         except PhidgetException:
             self.abort()
@@ -56,56 +58,58 @@ class LTCctrl(Accordion):
         self.ignite = ignite
         self.shorepower = shorepower
         self.set_status_display_state = status
+
         # setup internal state
+        # nothing explicitly depends on the arm state
         self.state = {
             'shorepower': None,
             'ignition': None,
             'abort': None,
             'popup_abort_lockin': None,
         }
-        # nothing explicitly depends on the arm state
+
         # setup GUI
         self.popup = IgnitionPopup(ignite, self.abort, self.state)
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
-    def on_shorepower(self, state):
+    def on_shorepower(self, state: Relay.State):
         """Callback function to set shorepower buttons state"""
         # This function is the only place where the shorepower buttons are set
-        if state is True:
-            self.button_shorepower_on.state = 'down'
-            self.button_shorepower_off.state = 'normal'
-            if self.state['ignition'] is True:
-                # TODO: log that shorepower was turned on while ignition is on
-                self.abort()
-        elif state is False:
-            self.button_shorepower_on.state = 'normal'
-            self.button_shorepower_off.state = 'down'
-        else:
-            raise TypeError
+        match state:
+            case Relay.State.ON:
+                self.button_shorepower_on.state = 'down'
+                self.button_shorepower_off.state = 'normal'
+                if self.state['ignition'] is True:
+                    # TODO: log that shorepower was turned on while ignition is on
+                    self.abort()
 
-        self.state['shorepower'] = state
+            case Relay.State.OFF:
+                self.button_shorepower_on.state = 'normal'
+                self.button_shorepower_off.state = 'down'
 
-    def on_ignite(self, state):
+        self.state['shorepower'] = state.value
+
+    def on_ignite(self, state: Relay.State):
         """Callback function to set the ignite button state"""
         # This function is the only place where the ignite button is set
-        if state is True:
-            self.button_ignite.state = 'down'
-            self.state['ignition'] = True
-            self.state['popup_abort_lockin'] = False
-            # if ignite happens showing it takes precedence over everything
-            self.accordion_armed.collapse = False
-            self.popup.dismiss()
-        elif state is False:
-            self.button_ignite.state = 'normal'
-            self.button_abort.state = 'normal'
-            self.state['abort'] = False
-            Clock.unschedule(self.abort)
-            # self.arm depends on self.state['ignition'] being correct
-            self.state['ignition'] = False
-            self.arm(False)
-        else:
-            raise TypeError
+
+        match state:
+            case Relay.State.ON:
+                self.button_ignite.state = 'down'
+                self.state['ignition'] = True
+                self.state['popup_abort_lockin'] = False
+                # if ignite happens showing it takes precedence over everything
+                self.accordion_armed.collapse = False
+                self.popup.dismiss()
+            case Relay.State.OFF:
+                self.button_ignite.state = 'normal'
+                self.button_abort.state = 'normal'
+                self.state['abort'] = False
+                Clock.unschedule(self.abort)
+                # self.arm depends on self.state['ignition'] being correct
+                self.state['ignition'] = False
+                self.arm(False)
 
     def arm(self, state):
         from ltc import StatusDisplay
@@ -127,6 +131,7 @@ class LTCctrl(Accordion):
         from ltc import StatusDisplay
 
         Clock.unschedule(self.abort)
+
         if (
             self.state['ignition'] is False
             and self.state['popup_abort_lockin'] is not True
@@ -136,7 +141,7 @@ class LTCctrl(Accordion):
             self.button_abort.state = 'down'
             self.state['abort'] = True
             try:
-                self.ignite(False)
+                self.ignite(Relay.State.OFF)
             except PhidgetException:
                 self.button_abort.state = 'normal'
                 self.state['abort'] = False
@@ -153,7 +158,7 @@ class LTCctrl(Accordion):
 
     def on_button_shorepower(self, state):
         with suppress(PhidgetException):
-            self.shorepower(state)
+            self.shorepower(Relay.State.ON if state else Relay.State.OFF)
 
 
 ######### Module test ########
