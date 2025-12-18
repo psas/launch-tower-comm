@@ -172,7 +172,7 @@ class LTCError(Exception):
 
 
 class LTCbackend:
-    def __init__(self, set_status_display_state):
+    def __init__(self):
         log.info("Starting Backend")
         # Interface Kit 0/0/4 with relays - 1014
         self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
@@ -199,8 +199,6 @@ class LTCbackend:
         for sensor in self.sensors:
             sensor.add_callback(self.attach, 'attach')
 
-        self.set_status_display_state = set_status_display_state
-
     def start(self, *args, **kwargs):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
@@ -226,31 +224,21 @@ class LTCbackend:
             sensor.close()
 
     def ignite(self, state: Relay.State):
-        def try_ignite(state: Relay.State):
-            match state:
-                case Relay.State.ON:
-                    if not self.shore.getState():
-                        self.ignition.setState(state)
-                    else:
-                        raise LTCError("Can't ignite with shorepower on")
-
-                case Relay.State.OFF:
+        match state:
+            case Relay.State.ON:
+                if not self.shore.getState():
                     self.ignition.setState(state)
+                else:
+                    raise LTCError("Can't ignite with shorepower on")
 
-        try:
-            try_ignite(state)
-        except LTCError as e:
-            self.set_status_display_state("Error", e)
+            case Relay.State.OFF:
+                self.ignition.setState(state)
 
     def shorepower(self, state: Relay.State):
-        from ltc import StatusDisplay
-
         try:
             self.shore.setState(state)
-            self.set_status_display_state(StatusDisplay.State.NOMINAL)
         except PhidgetException as e:
-            self.set_status_display_state(StatusDisplay.State.ERROR, e)
-            raise
+            log.error(f"{e}")
 
 
 # Relays 1014-2

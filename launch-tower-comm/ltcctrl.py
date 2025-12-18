@@ -8,6 +8,8 @@ from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from ltcbackend import LTCbackend, Relay
 from Phidget22.PhidgetException import PhidgetException
+from ltcui import StatusDisplay
+import ltclogger as log
 
 kivy.require('1.0.5')
 
@@ -30,10 +32,18 @@ class LTCAccordionItem(AccordionItem):
 class IgnitionPopup(Popup):
     ignition_abort_timeout = 10
 
-    def __init__(self, ignite=lambda: None, abort=lambda: None, state=None, **kwargs):
+    def __init__(
+        self,
+        set_status_display_state,
+        ignite=lambda: None,
+        abort=lambda: None,
+        state=None,
+        **kwargs,
+    ):
         self.ignite = ignite
         self.abort = abort
         self.state = {} if state is None else state
+        self.set_status_display_state = set_status_display_state
         super().__init__(auto_dismiss=False, **kwargs)
 
     def on_button_ignite(self):
@@ -43,6 +53,7 @@ class IgnitionPopup(Popup):
             Clock.schedule_once(self.abort, self.ignition_abort_timeout)
             self.ignite(Relay.State.ON)
             self.state['popup_abort_lockin'] = True
+            self.set_status_display_state(StatusDisplay.State.IGNITED)
         except PhidgetException:
             self.abort()
 
@@ -80,7 +91,9 @@ class LTCctrl(Accordion):
         }
 
         # setup GUI
-        self.popup = IgnitionPopup(ignite, self.abort, self.state)
+        self.popup = IgnitionPopup(
+            self.set_status_display_state, ignite, self.abort, self.state
+        )
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
@@ -89,8 +102,8 @@ class LTCctrl(Accordion):
         # This function is the only place where the shorepower buttons are set
         match state:
             case Relay.State.ON:
-                self.button_shorepower_on.state = 'down'
                 self.button_shorepower_off.state = 'normal'
+                self.button_shorepower_on.state = 'down'
                 if self.state['ignition'] is True:
                     # TODO: log that shorepower was turned on while ignition is on
                     self.abort()
@@ -123,8 +136,6 @@ class LTCctrl(Accordion):
                 self.arm(False)
 
     def arm(self, state):
-        from ltc import StatusDisplay
-
         if state:
             if self.state['shorepower'] is False:
                 self.accordion_armed.collapse = False
@@ -139,8 +150,6 @@ class LTCctrl(Accordion):
             )
 
     def abort(self, event=None):
-        from ltc import StatusDisplay
-
         Clock.unschedule(self.abort)
 
         if (
@@ -169,7 +178,12 @@ class LTCctrl(Accordion):
 
     def on_button_shorepower(self, state):
         with suppress(PhidgetException):
-            self.shorepower(Relay.State.ON if state else Relay.State.OFF)
+            try:
+                self.shorepower(Relay.State.ON if state else Relay.State.OFF)
+                self.set_status_display_state(StatusDisplay.State.NOMINAL)
+            except PhidgetException as e:
+                self.set_status_display_state(StatusDisplay.State.ERROR)
+                log.error(f"{e}")
 
 
 ######### Module test ########
@@ -183,7 +197,7 @@ if __name__ == '__main__':
         def build(self):
             try:
                 if sys.argv[1] == '-t':
-                    ltc = LTCbackend({})
+                    ltc = LTCbackend()
                     return LTCctrl(ltc.ignite, ltc.shorepower)
                 return LTCctrl()
             except IndexError:
