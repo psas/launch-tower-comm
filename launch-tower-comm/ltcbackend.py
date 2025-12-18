@@ -15,9 +15,6 @@ import ltclogger as log
 
 ########### Phidgets Setup ########
 
-RED = (1, 0, 0, 1)
-GREEN = (0, 1, 0, 1)
-
 
 class LTCPhidget(Phidget):
     def __init__(self):
@@ -92,9 +89,9 @@ class Relay(LTCPhidget, DigitalOutput):
     def nominal_value(self, val):
         if isinstance(val, bool):
             if val == self.invert:
-                return RED
+                return False
 
-            return GREEN
+            return True
 
         raise TypeError(f"expected bool, got: {val}")
 
@@ -126,8 +123,8 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
-            return GREEN
-        return RED
+            return True
+        return False
 
     def set_type(self):
         try:
@@ -159,8 +156,8 @@ class VoltageSensor(LTCPhidget, VoltageInput):
 
     def nominal_value(self, val):
         if self.lower < val < self.upper:
-            return GREEN
-        return RED
+            return True
+        return False
 
     def set_type(self):
         self.setSensorType(VoltageSensorType.SENSOR_TYPE_1135)

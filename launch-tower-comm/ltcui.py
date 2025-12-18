@@ -6,6 +6,9 @@ from kivy.uix.label import Label
 
 import ltclogger as log
 
+RED = (1, 0, 0, 1)
+GREEN = (0, 1, 0, 1)
+
 
 class LTCLabel(Label):
     '''A display widget for the Phidget Devices in the launch tower computer.
@@ -91,7 +94,9 @@ class VoltageSensorIndicator(IOIndicator):
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
             self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
-            self.ltc_label.background_color = self.nominal_value(sensor_reading)
+            self.ltc_label.background_color = (
+                GREEN if self.nominal_value(sensor_reading) else RED
+            )
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
@@ -106,7 +111,9 @@ class RelayIndicator(IOIndicator):
 
     def on_value(self, sensor_reading: Relay.State, *args, **kwargs):
         self.ltc_label.text = sensor_reading.name
-        self.ltc_label.background_color = self.nominal_value(sensor_reading.value)
+        self.ltc_label.background_color = (
+            GREEN if self.nominal_value(sensor_reading.value) else RED
+        )
 
 
 class RocketReadyIndicator(IOIndicator):
@@ -116,7 +123,9 @@ class RocketReadyIndicator(IOIndicator):
     def on_value(self, sensor_reading, *args, **kwargs):
         if isinstance(sensor_reading, float):
             self.ltc_label.text = "High" if sensor_reading >= 2.0 else "Low"
-            self.ltc_label.background_color = self.nominal_value(sensor_reading)
+            self.ltc_label.background_color = (
+                GREEN if self.nominal_value(sensor_reading) else RED
+            )
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
