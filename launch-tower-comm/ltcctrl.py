@@ -6,10 +6,11 @@ from kivy.clock import Clock
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from ltcbackend import LTCbackend, Relay
 from Phidget22.PhidgetException import PhidgetException
-from ltcui import StatusDisplay
+
 import ltclogger as log
+from ltcbackend import LTCbackend, Relay
+from ltcui import StatusDisplay
 
 kivy.require('1.0.5')
 

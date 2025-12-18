@@ -1,5 +1,4 @@
 from enum import Enum
-import ltclogger as log
 
 # Phidgets specific imports
 from Phidget22.Devices.DigitalOutput import DigitalOutput
@@ -11,6 +10,8 @@ from Phidget22.Devices.VoltageRatioInput import (
 from Phidget22.Net import Net
 from Phidget22.Phidget import Phidget
 from Phidget22.PhidgetException import PhidgetException
+
+import ltclogger as log
 
 ########### Phidgets Setup ########
 

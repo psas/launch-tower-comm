@@ -1,6 +1,7 @@
 from enum import Enum
-from kivy.uix.boxlayout import BoxLayout
+
 from kivy.properties import ListProperty
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 
 import ltclogger as log

@@ -29,6 +29,15 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 '''
 
 import kivy
+from kivy.app import App
+from kivy.config import Config
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.widget import Widget
+
+import ltclogger as log
+from ltcbackend import LTCbackend
+from ltcctrl import LTCctrl
 from ltcui import (
     InterfaceKitPanel,
     RelayIndicator,
@@ -36,14 +45,6 @@ from ltcui import (
     StatusDisplay,
     VoltageSensorIndicator,
 )
-import ltclogger as log
-from kivy.app import App
-from kivy.config import Config
-from kivy.lang import Builder
-from kivy.uix.widget import Widget
-from ltcbackend import LTCbackend
-from ltcctrl import LTCctrl
-from kivy.properties import ObjectProperty, StringProperty
 
 VERSION = '0.2'
 
