@@ -49,11 +49,11 @@ class LTCLabel(Label):
     def on_detach(self, *args, **kwargs):
         self.set_state(self.State.DETACHED)
 
-    def on_output_changed(self, event):
-        if event.state:
-            self.set_state(self.State.OFF)
-        else:
-            self.set_state(self.State.ON)
+    # def on_output_changed(self, event):
+    #     if event.state:
+    #         self.set_state(self.State.OFF)
+    #     else:
+    #         self.set_state(self.State.ON)
 
     def on_error(self, *args, **kwargs):
         self.set_state(self.State.ERROR)
@@ -187,11 +187,14 @@ class StatusDisplay(BoxLayout):
             case _:
                 self.set_state(self.State.ERROR)
 
-    def on_ignite(self, event):
-        if event.state:
-            self.set_state(self.State.IGNITED)
-        else:
-            self.set_state(self.State.NOMINAL)
+    # def on_ignite(self, event):
+    #     print("ignite")
+    #     print(type(event))
+    #     if event.state:
+    #         # self.set_state(self.State.IGNITED)
+    #         pass
+    #     else:
+    #         self.set_state(self.State.NOMINAL)
 
     def on_value(self, *args, **kwargs):
         self.set_state(self.State.NOMINAL)
