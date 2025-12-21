@@ -3,10 +3,10 @@ from typing import TypedDict
 
 import kivy
 from kivy.clock import Clock
+from kivy.input.providers.mouse import MouseMotionEvent
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from kivy.input.providers.mouse import MouseMotionEvent
 from Phidget22.PhidgetException import PhidgetException
 
 import ltclogger as log
