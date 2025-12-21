@@ -52,7 +52,7 @@ class IgnitionPopup(Popup):
         from ltcbackend import Relay
 
         try:
-            Clock.schedule_once(self.abort, self.ignition_abort_timeout)
+            Clock.schedule_once(lambda _dt: self.abort(), self.ignition_abort_timeout)
             self.ignite(Relay.State.ON)
             self.state['popup_abort_lockin'] = True
             self.set_status_display_state(StatusDisplay.State.IGNITED)
