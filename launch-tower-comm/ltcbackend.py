@@ -187,31 +187,25 @@ class LTCbackend:
         self.sensors = [
             TemperatureSensor("Internal Temperature", 178346, 0, 40.0, 10.0),
             VoltageSensor("Ignition Battery", 178346, 1, 4.1 * 4, 3.6 * 4),
-            # VoltageSensor("Humidity", 178346, 3, 1000, 0),  # FIXME: type, maxmin
-            # TemperatureSensor("External Temperature", 178346, 4, 40.0, 10.0),
             VoltageSensor("Rocket Ready", 178346, 2, 5.0, 1.5),
             VoltageSensor("System Battery", 178346, 5, 15.0, 11.0),
             VoltageSensor("Solar Voltage", 178346, 6, 25.0, 11.0),
             VoltageSensor("Shore Power", 178346, 7, 20.0, 18.0),
         ]
 
-        for sensor in self.sensors:
-            sensor.add_callback(self.attach, 'attach')
-
-    def start(self, *args, **kwargs):
+    def start(self):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
-        self.ignition.openWaitForAttachment(1000)
-        self.ignition.setState(Relay.State.OFF)
-        self.shore.openWaitForAttachment(1000)
-        self.shore.setState(Relay.State.OFF)
+        self.ignition.open()
+        self.shore.open()
         for sensor in self.sensors:
-            sensor.openWaitForAttachment(5000)
+            sensor.open()
 
     def attach(self):
+        # TODO: Handle Possible Error
         self.ignite(Relay.State.OFF)
 
-    def close(self, *args, **kwargs):
+    def close(self):
         log.debug("Closing LTCBackend")
         try:
             self.ignite(Relay.State.OFF)
