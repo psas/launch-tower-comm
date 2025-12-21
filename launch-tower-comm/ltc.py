@@ -78,8 +78,6 @@ class LTCApp(App):
         self.bind(on_start=lambda _: backend.start())
 
         sens0 = VoltageSensorIndicator(backend.sensors[0])
-        # sens1 = IOIndicator(backend.sensors[3])
-        # sens5 = IOIndicator(backend.sensors[2])
         sens6 = VoltageSensorIndicator(backend.sensors[1])
         sens7 = VoltageSensorIndicator(backend.sensors[3])
         sens8 = VoltageSensorIndicator(backend.sensors[4])
