@@ -74,8 +74,8 @@ class LTCApp(App):
         status = StatusDisplay()
         backend = LTCbackend()
         # callbacks receive self arg, backend does not need
-        self.bind(on_stop=lambda _: backend.close)
-        self.bind(on_start=lambda _: backend.start)
+        self.bind(on_stop=lambda _: backend.close())
+        self.bind(on_start=lambda _: backend.start())
 
         sens0 = VoltageSensorIndicator(backend.sensors[0])
         # sens1 = IOIndicator(backend.sensors[3])
