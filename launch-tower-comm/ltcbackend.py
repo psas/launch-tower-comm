@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 from typing import Callable
 
 # Phidgets specific imports
@@ -75,6 +75,7 @@ class Relay(LTCPhidget, DigitalOutput):
         self.invert = invert  # invert == True ? Nominal closed : Nominal open
         self.channel = channel
 
+    @unique
     class State(Enum):
         ON = True
         OFF = False
@@ -193,7 +194,8 @@ class LTCbackend:
             VoltageSensor("Shore Power", 178346, 7, 20.0, 18.0),
         ]
 
-    def start(self):
+    def start(self, *args, **kwargs):
+        print("Starting")
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
         self.ignition.open()
@@ -205,7 +207,8 @@ class LTCbackend:
         # TODO: Handle Possible Error
         self.ignite(Relay.State.OFF)
 
-    def close(self):
+    def close(self, *args, **kwargs):
+        print("Closing")
         log.debug("Closing LTCBackend")
         try:
             self.ignite(Relay.State.OFF)
