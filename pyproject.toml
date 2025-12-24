@@ -9,13 +9,14 @@ license = {text = "GPL-3.0"}
 dynamic = ["version"]
 
 dependencies = [
-    "kivy",
+    "kivy[base]",
     "phidget22",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff",
+    "mypy",
 ]
 [tool.ruff]
 line-length = 100
