@@ -2,16 +2,15 @@ from contextlib import suppress
 from typing import TypedDict
 
 import kivy
+import ltclogger as log
 from kivy.clock import Clock
 from kivy.input.providers.mouse import MouseMotionEvent
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
-from Phidget22.PhidgetException import PhidgetException
-
-import ltclogger as log
 from ltcbackend import LTCbackend, Relay
 from ltcui import StatusDisplay
+from Phidget22.PhidgetException import PhidgetException
 
 kivy.require('1.0.5')
 
@@ -49,8 +48,6 @@ class IgnitionPopup(Popup):
         super().__init__(auto_dismiss=False, **kwargs)
 
     def on_button_ignite(self):
-        from ltcbackend import Relay
-
         try:
             Clock.schedule_once(lambda _dt: self.abort(), self.ignition_abort_timeout)
             self.ignite(Relay.State.ON)
@@ -61,15 +58,11 @@ class IgnitionPopup(Popup):
 
 
 class LTCctrl(Accordion):
-    StateType = TypedDict(
-        "StateType",
-        {
-            'shorepower': bool,
-            'ignition': bool,
-            'abort': bool,
-            'popup_abort_lockin': bool,
-        },
-    )
+    class StateType(TypedDict):
+        shorepower: bool
+        ignition: bool
+        abort: bool
+        popup_abort_lockin: bool
 
     def __init__(
         self,
@@ -94,9 +87,7 @@ class LTCctrl(Accordion):
         }
 
         # setup GUI
-        self.popup = IgnitionPopup(
-            self.set_status_display_state, ignite, self.abort, self.state
-        )
+        self.popup = IgnitionPopup(self.set_status_display_state, ignite, self.abort, self.state)
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
@@ -148,17 +139,12 @@ class LTCctrl(Accordion):
             self.accordion_unarmed.collapse = False
             self.set_status_display_state(StatusDisplay.State.DISARMED)
         else:
-            raise RuntimeError(
-                "Attempt to disarm was made while ignition relay was closed"
-            )
+            raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
 
     def abort(self):
         Clock.unschedule(self.abort)
 
-        if (
-            self.state['ignition'] is False
-            and self.state['popup_abort_lockin'] is not True
-        ):
+        if self.state['ignition'] is False and self.state['popup_abort_lockin'] is not True:
             self.arm(False)
         else:
             self.button_abort.state = 'down'
@@ -180,13 +166,12 @@ class LTCctrl(Accordion):
             self.popup.open()
 
     def on_button_shorepower(self, state: bool):
-        with suppress(PhidgetException):
-            try:
-                self.shorepower(Relay.State.ON if state else Relay.State.OFF)
-                self.set_status_display_state(StatusDisplay.State.NOMINAL)
-            except PhidgetException as e:
-                self.set_status_display_state(StatusDisplay.State.ERROR)
-                log.error(f"{e}")
+        try:
+            self.shorepower(Relay.State.ON if state else Relay.State.OFF)
+            self.set_status_display_state(StatusDisplay.State.NOMINAL)
+        except PhidgetException as e:
+            self.set_status_display_state(StatusDisplay.State.ERROR)
+            log.error(f"{e}")
 
 
 ######### Module test ########
