@@ -29,13 +29,12 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 '''
 
 import kivy
+import ltclogger as log
 from kivy.app import App
 from kivy.config import Config
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.widget import Widget
-
-import ltclogger as log
 from ltcbackend import LTCbackend
 from ltcctrl import LTCctrl
 from ltcui import (
@@ -84,8 +83,8 @@ class LTCApp(App):
         sens9 = VoltageSensorIndicator(backend.sensors[5])
         sens4 = RocketReadyIndicator(backend.sensors[2])
 
-        relay1 = RelayIndicator(backend.shore)
-        relay2 = RelayIndicator(backend.ignition)
+        shore_indicator = RelayIndicator(backend.shore)
+        ignition_indicator = RelayIndicator(backend.ignition)
 
         input_panel = InterfaceKitPanel()
         relay_panel = InterfaceKitPanel()
@@ -95,9 +94,9 @@ class LTCApp(App):
         input_panel.add_widget(sens7)
         input_panel.add_widget(sens0)
 
-        relay_panel.add_widget(relay2)
+        relay_panel.add_widget(ignition_indicator)
         relay_panel.add_widget(sens6)
-        relay_panel.add_widget(relay1)
+        relay_panel.add_widget(shore_indicator)
         relay_panel.add_widget(sens9)
 
         for sensor in backend.sensors:
