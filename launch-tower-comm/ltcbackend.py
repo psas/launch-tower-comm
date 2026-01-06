@@ -62,7 +62,7 @@ class LTCPhidget(Phidget):
 
 
 class Relay(LTCPhidget, DigitalOutput):
-    def __init__(self, name: str, devserial: int, channel: int, *, invert: bool=False):
+    def __init__(self, name: str, devserial: int, channel: int, *, invert: bool = False):
         super().__init__()
         self._callback['value'] = []
         self.setDeviceSerialNumber(devserial)
@@ -80,7 +80,7 @@ class Relay(LTCPhidget, DigitalOutput):
         ON = True
         OFF = False
 
-    def setState(self, state: State):
+    def setState(self, state: State):  # noqa: N802
         log.info(f"Setting {self.name} to {state}")
 
         for cb in self._callback['value']:
@@ -89,13 +89,7 @@ class Relay(LTCPhidget, DigitalOutput):
         super().setState(state.value)
 
     def nominal_value(self, val: bool):
-        if isinstance(val, bool):
-            if val == self.invert:
-                return False
-
-            return True
-
-        raise TypeError(f"expected bool, got: {val}")
+        return val != self.invert
 
 
 class TemperatureSensor(LTCPhidget, VoltageRatioInput):
@@ -124,9 +118,7 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
             cb(read)
 
     def nominal_value(self, val: float):
-        if self.lower < val < self.upper:
-            return True
-        return False
+        return self.lower < val < self.upper
 
     def set_type(self):
         try:
@@ -157,9 +149,7 @@ class VoltageSensor(LTCPhidget, VoltageInput):
             cb(read)
 
     def nominal_value(self, val: float):
-        if self.lower < val < self.upper:
-            return True
-        return False
+        return self.lower < val < self.upper
 
     def set_type(self):
         self.setSensorType(VoltageSensorType.SENSOR_TYPE_1135)
@@ -196,7 +186,7 @@ class LTCbackend:
 
     def start(self, *args, **kwargs):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
-        # Net.addServer('ltc', '10.0.3.2', 5001, '', 0)
+        Net.addServer('ltc', '10.0.0.1', 5661, '', 0)
         self.ignition.open()
         self.shore.open()
         for sensor in self.sensors:
