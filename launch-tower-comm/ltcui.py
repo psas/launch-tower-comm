@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum, unique
 
+import ltclogger as log
 from kivy.properties import ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from Phidget22.Phidget import Phidget
-
-import ltclogger as log
 from ltcbackend import Relay
+from Phidget22.Phidget import Phidget
 
 # TODO: Color Enum
 RED = (1, 0, 0, 1)
@@ -116,12 +115,16 @@ class VoltageSensorIndicator(IOIndicator):
 class RelayIndicator(IOIndicator):
     def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
+        self.sensor = sensor
 
-    def on_value(self, sensor_reading: Relay.State, *args, **kwargs):
-        self.ltc_label.text = sensor_reading.name
-        self.ltc_label.background_color = (
-            GREEN if self.nominal_value(sensor_reading.value) else RED
-        )
+    def on_value(self, sensor_reading: Relay.State):
+        if self.sensor.getAttached():
+            self.ltc_label.text = sensor_reading.name
+            self.ltc_label.background_color = (
+                GREEN if self.nominal_value(sensor_reading.value) else RED
+            )
+        else:
+            log.error("Could not set label state: device not attached")
 
 
 class RocketReadyIndicator(IOIndicator):
