@@ -20,16 +20,16 @@
                 font_size: 40
                 id: button_shorepower_on
                 text: 'Enable Shore Power'
-                on_release:  root.on_button_shorepower(True)
+                on_release:  root.on_button_shorepower(state=True)
             LTCButton:
                 font_size: 40
                 id: button_shorepower_off
                 text: 'Disable Shore Power'
-                on_release: root.on_button_shorepower(False)
+                on_release: root.on_button_shorepower(state=False)
             Button:
                 font_size: 40
                 text: 'Arm'
-                on_release: root.arm(True)
+                on_release: root.arm(state=True)
     LTCAccordionItem:
         font_size: 40
         id: accordian_armed

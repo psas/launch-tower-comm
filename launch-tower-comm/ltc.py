@@ -125,5 +125,6 @@ class LTCApp(App):
 
 
 if __name__ == '__main__':
+    log.set_default_level(10)  # level DEBUG
     log.info("Starting LTCCOM")
     LTCApp().run()

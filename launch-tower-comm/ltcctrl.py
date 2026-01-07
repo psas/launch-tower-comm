@@ -1,4 +1,3 @@
-from contextlib import suppress
 from typing import TypedDict
 
 import kivy
@@ -127,9 +126,9 @@ class LTCctrl(Accordion):
                 Clock.unschedule(self.abort)
                 # self.arm depends on self.state['ignition'] being correct
                 self.state['ignition'] = False
-                self.arm(False)
+                self.arm(state=False)
 
-    def arm(self, state: bool):
+    def arm(self, *, state: bool):
         if state:
             if self.state['shorepower'] is False:
                 self.accordion_armed.collapse = False
@@ -145,7 +144,7 @@ class LTCctrl(Accordion):
         Clock.unschedule(self.abort)
 
         if self.state['ignition'] is False and self.state['popup_abort_lockin'] is not True:
-            self.arm(False)
+            self.arm(state=False)
         else:
             self.button_abort.state = 'down'
             self.state['abort'] = True
@@ -165,7 +164,7 @@ class LTCctrl(Accordion):
         else:
             self.popup.open()
 
-    def on_button_shorepower(self, state: bool):
+    def on_button_shorepower(self, *, state: bool):
         try:
             self.shorepower(Relay.State.ON if state else Relay.State.OFF)
             self.set_status_display_state(StatusDisplay.State.NOMINAL)

@@ -1,5 +1,7 @@
+from collections.abc import Callable
 from enum import Enum, unique
-from typing import Callable
+
+import ltclogger as log
 
 # Phidgets specific imports
 from Phidget22.Devices.DigitalOutput import DigitalOutput
@@ -12,15 +14,12 @@ from Phidget22.Net import Net
 from Phidget22.Phidget import Phidget
 from Phidget22.PhidgetException import PhidgetException
 
-import ltclogger as log
-
-########### Phidgets Setup ########
-
 
 class LTCPhidget(Phidget):
     def __init__(self):
         super().__init__()
-        # TODO: can the remote specific events find a disconnected usb cable?
+        # detach fires both on network disconnect and USB cable disconnect.
+        # attach fires on open() and USB cable connect but not network reattach?
         self._callback = {
             'attach': [],
             'detach': [],
@@ -37,28 +36,29 @@ class LTCPhidget(Phidget):
         log.debug(f"Adding callback to {self.name}")
         self._callback[event_type].append(cb)
 
-    def _on_attach(self, *args, **kwargs):
-        log.verbose("attach event received")
+    def _on_attach(self, _device: Phidget):
+        log.verbose(f"{self.name} Attached")
         for cb in self._callback['attach']:
             cb()
 
-    def _on_detach(self, *args, **kwargs):
-        log.verbose("detach event received")
+    def _on_detach(self, _device: Phidget):
+        log.verbose(f"{self.name} Detached")
         for cb in self._callback['detach']:
             cb()
 
-    def _on_error(self, _device: Phidget, code: int, description: str, *args, **kwargs):
-        log.error(f"error code {code} received: {description}")
+    def _on_error(self, _device: Phidget, code: int, description: str):
+        log.error(f"{self.name} error {code}: {description}")
         for cb in self._callback['error']:
             cb(code)
 
-    def _on_property(self, name: str, *args, **kwargs):
-        log.verbose(f"property {name} changed")
-        try:
-            for cb in self._callback['value']:
-                cb(name)
-        except TypeError as e:
-            log.error(f"Error executing callback for {self.name}: {e}")
+    def _on_property(self, _device: Phidget, name: str):
+        # Why the callback can't just give us the value I'll never know. Here
+        # we reconstruct the getter method for the associated property and then
+        # get that propterty. Its TOCTOU but I am unaware of a better way.
+        value = getattr(self, 'get'+name)()
+        log.verbose(f"{self.name} property {name} -> {value}")
+        for cb in self._callback['property']:
+            cb(name, value)
 
 
 class Relay(LTCPhidget, DigitalOutput):
@@ -67,8 +67,6 @@ class Relay(LTCPhidget, DigitalOutput):
         self._callback['value'] = []
         self.setDeviceSerialNumber(devserial)
         self.setChannel(channel)
-
-        self._callback['value'] = self._callback['property']
 
         self.unit = ''
         self.name = name
@@ -83,12 +81,12 @@ class Relay(LTCPhidget, DigitalOutput):
     def setState(self, state: State):  # noqa: N802
         log.info(f"Setting {self.name} to {state}")
 
+        # FIXME: setState_async?
+        super().setState(state.value)
         for cb in self._callback['value']:
             cb(state)
 
-        super().setState(state.value)
-
-    def nominal_value(self, val: bool):
+    def nominal_value(self, *, val: bool):
         return val != self.invert
 
 
@@ -108,14 +106,9 @@ class TemperatureSensor(LTCPhidget, VoltageRatioInput):
         # Set the sensor type after attaching only
         self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, _device: Phidget, ratio: float, *args, **kwargs):
-        try:
-            read = self.getSensorValue()
-        except PhidgetException as e:
-            log.error(f"Could not read {self.name}: {e}")
-
+    def _on_voltage(self, _device: Phidget, ratio: float, _unit: str):
         for cb in self._callback['value']:
-            cb(read)
+            cb(ratio)
 
     def nominal_value(self, val: float):
         return self.lower < val < self.upper
@@ -143,10 +136,9 @@ class VoltageSensor(LTCPhidget, VoltageInput):
 
         self.add_callback(self.set_type, 'attach')
 
-    def _on_voltage(self, *args, **kwargs):
-        read = self.getSensorValue()
+    def _on_voltage(self, _device: Phidget, value: float, _unit: str):
         for cb in self._callback['value']:
-            cb(read)
+            cb(value)
 
     def nominal_value(self, val: float):
         return self.lower < val < self.upper
@@ -170,11 +162,6 @@ class LTCbackend:
         self.shore = Relay('Shorepower Relay', devserial=259173, channel=3, invert=True)
 
         # Interface Kit 8/8/8 with sensors attached - 1018
-        # Here, sensor[n] describes the nth sensor on the Interface Kit (IK),
-        # following the Phidget convention. If sensor positions on the IK are
-        # changed, the 'sensor' dictionary keys must be properly updated here.
-        self.inputWindspeed = 7  # make a sensor?
-
         self.sensors = [
             TemperatureSensor("Internal Temperature", 178346, 0, 40.0, 10.0),
             VoltageSensor("Ignition Battery", 178346, 1, 4.1 * 4, 3.6 * 4),
@@ -184,7 +171,7 @@ class LTCbackend:
             VoltageSensor("Shore Power", 178346, 7, 20.0, 18.0),
         ]
 
-    def start(self, *args, **kwargs):
+    def start(self):
         # Net.addServer('ltc', 'ltc.psas.lan', 5001, '', 0)
         Net.addServer('ltc', '10.0.0.1', 5661, '', 0)
         self.ignition.open()
@@ -196,7 +183,7 @@ class LTCbackend:
         # TODO: Handle Possible Error
         self.ignite(Relay.State.OFF)
 
-    def close(self, *args, **kwargs):
+    def close(self):
         log.debug("Closing LTCBackend")
         try:
             self.ignite(Relay.State.OFF)
@@ -223,9 +210,3 @@ class LTCbackend:
             self.shore.setState(state)
         except PhidgetException as e:
             log.error(f"{e}")
-
-
-# Relays 1014-2
-# Voltage 1135-0 x5
-# Temp 1124-0
-# missing external temp/himid?

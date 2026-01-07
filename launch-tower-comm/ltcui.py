@@ -56,16 +56,16 @@ class LTCLabel(Label):
                 else:
                     self.text = state.text
 
-    def on_attach(self, *args, **kwargs):
+    def on_attach(self):
         self.set_state(self.State.THINKING)
 
-    def on_detach(self, *args, **kwargs):
+    def on_detach(self):
         self.set_state(self.State.DETACHED)
 
-    def on_error(self, *args, **kwargs):
+    def on_error(self, _errno: int):
         self.set_state(self.State.ERROR)
 
-    def on_button(self, *args, **kwargs):
+    def on_button(self):
         self.set_state(self.State.THINKING)
 
 
@@ -87,11 +87,11 @@ class IOIndicator(BoxLayout):
         sensor.add_callback(self.on_detach, 'detach')
         sensor.add_callback(self.on_value, 'value')
 
-    def on_attach(self, *args, **kwargs):
+    def on_attach(self):
         self.ltc_label.background_color = GRAY
         self.ltc_label.set_state(LTCLabel.State.UNKNOWN)
 
-    def on_detach(self, *args, **kwargs):
+    def on_detach(self):
         self.ltc_label.set_state(LTCLabel.State.DETACHED)
 
 
@@ -99,7 +99,7 @@ class VoltageSensorIndicator(IOIndicator):
     def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
 
-    def on_value(self, sensor_reading: float, *args, **kwargs):
+    def on_value(self, sensor_reading: float):
         if isinstance(sensor_reading, float):
             self.ltc_label.set_state(LTCLabel.State.OK)
             self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
@@ -121,7 +121,7 @@ class RelayIndicator(IOIndicator):
         if self.sensor.getAttached():
             self.ltc_label.text = sensor_reading.name
             self.ltc_label.background_color = (
-                GREEN if self.nominal_value(sensor_reading.value) else RED
+                GREEN if self.nominal_value(val=sensor_reading.value) else RED
             )
         else:
             log.error("Could not set label state: device not attached")
@@ -131,7 +131,7 @@ class RocketReadyIndicator(IOIndicator):
     def __init__(self, sensor: Phidget, **kwargs):
         super().__init__(sensor, **kwargs)
 
-    def on_value(self, sensor_reading: float, *args, **kwargs):
+    def on_value(self, sensor_reading: float):
         if isinstance(sensor_reading, float):
             self.ltc_label.text = "High" if sensor_reading >= 2.0 else "Low"
             self.ltc_label.background_color = (
@@ -192,20 +192,20 @@ class StatusDisplay(BoxLayout):
         super().__init__(**kwargs)
         self.set_state(self.State.DISCONNECTED)
 
-    def on_attach(self, *args, **kwargs):
+    def on_attach(self):
         self.set_state(self.State.NOMINAL)
 
-    def on_detach(self, *args, **kwargs):
+    def on_detach(self):
         self.set_state(self.State.DISCONNECTED)
 
-    def on_error(self, errno: int, *args, **kwargs):
+    def on_error(self, errno: int):
         match errno:
             case 4103:
                 log.error("Sensor value out of range")
             case _:
                 self.set_state(self.State.ERROR)
 
-    def on_value(self, *args, **kwargs):
+    def on_value(self, _value):
         self.set_state(self.State.NOMINAL)
 
     def set_state(self, state: State, *args):

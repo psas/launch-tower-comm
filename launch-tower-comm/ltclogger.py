@@ -1,6 +1,16 @@
+'''Kivy takes control of the standard python logger so we invent our own'''
 import time
 from pathlib import Path
 
+levels = {
+    10: "DEBUG",
+    15: "VRBOS",
+    20: "INFO ",
+    25: "TERSE",
+    30: "WARN ",
+    40: "ERROR",
+    50: "CRITL"
+}
 
 class __LTCLogger:
     default_level = 20
@@ -15,7 +25,7 @@ class __LTCLogger:
 
         for i in range(1, 1000):
             try:
-                self.log = (logdir / filename).with_suffix(".txt").open('x')
+                self._log = (logdir / filename).with_suffix(".txt").open('x')
             except FileExistsError:  # noqa: PERF203 I can't see how to satisfy this and not TOCTOU
                 filename = f'{basename}_{i:03}'
             else:
@@ -24,26 +34,29 @@ class __LTCLogger:
             raise RuntimeError("No valid log filenames")
 
     def __del__(self):
-        self.log.close()
+        self._log.close()
 
-    def _set_default_level(self, level):
+    def set_default_level(self, level):
         self.level = level
 
-    def _log(self, text, level):
+    def log(self, text, level):
         if level >= self.level:
+            levelname = levels.get(level, level)
             timestamp = time.strftime("%Y-%m-%d %X")
-            self.log.write(f"{level}|{timestamp}|{text}\n")
+            message = f"{levelname}|{timestamp} | {text}"
+            self._log.write(message + '\n')
+            print(message)  # noqa: T201
 
 
 __globallogger = __LTCLogger()
 
 
 def set_default_level(level):
-    __globallogger._set_default_level(level)
+    __globallogger.set_default_level(level)
 
 
 def log(text, level=__globallogger.default_level):
-    __globallogger._log(text, level)
+    __globallogger.log(text, level)
 
 
 def debug(text):
