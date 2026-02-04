@@ -131,8 +131,8 @@ class RocketReadyIndicator(IOIndicator):
 
     def on_value(self, sensor_reading: float):
         if isinstance(sensor_reading, float):
-            self.ltc_label.text = "Yes" if not sensor_reading >= 2.0 else "No"
-            self.ltc_label.background_color = RED if self.nominal_value(sensor_reading) else GREEN
+            self.ltc_label.text = "Yes" if sensor_reading >= 2.0 else "No"
+            self.ltc_label.background_color = GREEN if self.nominal_value(sensor_reading) else RED
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
