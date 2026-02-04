@@ -103,9 +103,7 @@ class VoltageSensorIndicator(IOIndicator):
         if isinstance(sensor_reading, float):
             self.ltc_label.set_state(LTCLabel.State.OK)
             self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
-            self.ltc_label.background_color = (
-                GREEN if self.nominal_value(sensor_reading) else RED
-            )
+            self.ltc_label.background_color = GREEN if self.nominal_value(sensor_reading) else RED
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
@@ -133,10 +131,8 @@ class RocketReadyIndicator(IOIndicator):
 
     def on_value(self, sensor_reading: float):
         if isinstance(sensor_reading, float):
-            self.ltc_label.text = "High" if sensor_reading >= 2.0 else "Low"
-            self.ltc_label.background_color = (
-                GREEN if self.nominal_value(sensor_reading) else RED
-            )
+            self.ltc_label.text = "Yes" if not sensor_reading >= 2.0 else "No"
+            self.ltc_label.background_color = RED if self.nominal_value(sensor_reading) else GREEN
         else:
             log.error(
                 f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
