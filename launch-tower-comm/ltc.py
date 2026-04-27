@@ -69,6 +69,7 @@ class LTCApp(App):
     def build(self):
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
+        Builder.load_file("ltcui.kv")
 
         status = StatusDisplay()
         backend = LTCbackend()

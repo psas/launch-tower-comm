@@ -38,95 +38,9 @@
         HSeparator
 
 
-<StatusDisplay>:
-    state_info: state_info
-    state_message: state_message
-    orientation: 'vertical'
-
-    Label:
-        id: state_info
-        font_size: 60
-        text: "This is State."
-        size_hint_y: .7
-
-    Label:
-        id: state_message
-        font_size: 20
-        text: "This message is important."
-        size_hint_y: 0.25
-
-<InterfaceKitPanel>:
-    orientation: 'vertical'
-    pos_hint: {'x': 0, 'y': 0}
-    padding: 5
-
-    # COLUMN LABELS
-    BoxLayout:
-        orientation: 'horizontal'
-        padding: 5
-        spacing: 10
-
-        NameLabel:
-            text: 'DEVICE'
-            font_size: 20
-
-        VSeparator
-
-        NameLabel:
-            text: 'Status'
-            font_size: 20
-
-
-<IOIndicator>:
-    label_slot: label_slot
-    device_label: device_label
-    ltc_label: ltc_label
-
-    BoxLayout:
-        id: label_slot
-
-        orientation: 'horizontal'
-        padding: 5
-        spacing: 10
-
-        NameLabel:
-            id: device_label
-            text: 'device'
-
-        LTCLabel:
-            id: ltc_label
-            text: ' '
-            font_size: 30
-
-
-<LTCLabel>:
-    canvas:
-        Color:
-            rgba: self.background_color
-        BorderImage:
-            pos: self.pos
-            size: self.size
-            source: 'atlas://data/images/defaulttheme/button'
-        Color:
-            rgba: self.color
-        Rectangle:
-            texture: self.texture
-            size: self.texture_size
-            pos: int(self.center_x - self.texture_size[0] / 2.), int(self.center_y - self.texture_size[1] / 2.)
-
 
 ## kv lang Dynamic Classes.
 ### use them by their name (the part before the @)
-
-<VSeparator@Widget>:
-    size_hint_x: None
-    width: 10
-    canvas:
-        Color:
-            rgba: .8, .8, .8, .3
-        Rectangle:
-            size: 1, self.height
-            pos: self.center_x, self.y
 
 <HSeparator@Widget>:
     size_hint_y: 0.005
@@ -137,18 +51,3 @@
         Rectangle:
             size: self.width * 0.99, 2
             pos: self.x, self.center_y
-
-<NameLabel@Label>:
-    size_hint_y: 1
-    height: max(dp(45), self.texture_size[1] + dp(10))
-    text: ''
-    text_size: self.width, self.height
-    font_size: 30
-    valign: 'middle'
-    halign: 'center'
-    canvas.before:
-        Color:
-            rgba: .2, .2, .2, .8
-        Rectangle:
-            size: self.size
-            pos: self.pos
