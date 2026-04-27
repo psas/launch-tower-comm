@@ -12,8 +12,14 @@ from Phidget22.Phidget import Phidget
 # TODO: Color Enum
 RED = (1, 0, 0, 1)
 GREEN = (0, 1, 0, 1)
+SPRING_GREEN = (0, 1, 0.5, 1)
 WHITE = (1, 1, 1, 1)
-GRAY = (0.7, 0.7, 0.7, 1)
+LIGHT_GRAY = (0.7, 0.7, 0.7, 1)
+GRAY = (0.5, 0.5, 0.5, 1)
+DARK_GRAY = (0.1, 0.1, 0.1, 1)
+CYAN = (0, 1, 1, 1)
+YELLOW = (1, 1, 0, 1)
+BLACK = (0, 0, 0, 1)
 
 
 class LTCLabel(Label):
@@ -29,16 +35,16 @@ class LTCLabel(Label):
 
     @unique
     class State(StateField, Enum):
-        DETACHED = "Detached", (0.1, 0.1, 0.1, 1)
-        THINKING = "Thinking", (0, 1, 1, 1)
-        OK = "", (1, 1, 1, 1)
-        ON = "On", (1, 0, 0, 1)
-        OFF = "Off", (0, 1, 0.5, 1)
-        ERROR = "Error", (1, 1, 0, 1)
-        UNKNOWN = "Unknown", (0, 0, 0, 1)
+        DETACHED = "Detached", DARK_GRAY
+        THINKING = "", CYAN
+        OK = "", WHITE
+        ON = "On", RED
+        OFF = "Off", SPRING_GREEN
+        ERROR = "Error", YELLOW
+        UNKNOWN = "Unknown", BLACK
 
     # TODO: ref Error, on click pop up detailed description
-    background_color = ListProperty((1, 1, 1, 1))
+    background_color = ListProperty(WHITE)
 
     def __init__(self, **kwargs: object) -> None:
         # load from kv lang file first. Values in the kv will be applied after this method though.
@@ -155,32 +161,32 @@ class StatusDisplay(BoxLayout):
 
     @unique
     class State(StateField, Enum):
-        NOMINAL = "Nominal", "Shore power must be off to arm", (0.5, 0.5, 0.5, 1)
+        NOMINAL = "Nominal", "Shore power must be off to arm", GRAY
         ARMED = (
             "Armed",
             "Press abort to disarm and return to unarmed tab",
-            (1, 0, 0, 1),
+            RED,
         )
-        DISARMED = "Disarmed", "The igniter is now off and safe", (0.5, 0.5, 0.5, 1)
+        DISARMED = "Disarmed", "The igniter is now off and safe", GRAY
         IGNITED = (
             "Ignited",
             "Click Ignite again to disable Ignition power",
-            (0, 1, 0.5, 1),
+            SPRING_GREEN,
         )
         ERROR = (
             "Error",
             "An error occurred, \nPlease try again",
-            (1, 0, 0, 1),
+            RED,
         )
         DISCONNECTED = (
             "Disconnected",
             "Please leave a message or call again.",
-            (1, 1, 0, 1),
+            YELLOW,
         )
         ABORT_FAILED = (
             "Abort Failed",
             "The attempt to shut off the igniter failed.",
-            (1, 0, 0, 1),
+            RED,
         )
 
     # TODO: scrollable log
