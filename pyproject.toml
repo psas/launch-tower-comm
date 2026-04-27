@@ -58,5 +58,6 @@ ignore = [
 [tool.ruff.format]
 quote-style = "preserve"
 
-[tool.mypy]
-disable_error_code = ["import-not-found"]
+[[tool.mypy.overrides]]
+module = "kivy.*,Phidget22.*"
+ignore_missing_imports = true

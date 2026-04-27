@@ -1,12 +1,13 @@
-from typing import TypedDict
+from collections.abc import Callable
+from typing import Any, TypedDict, override
 
 import kivy
 import ltclogger as log
 from kivy.clock import Clock
 from kivy.input.providers.mouse import MouseMotionEvent
 from kivy.uix.accordion import Accordion, AccordionItem
-from kivy.uix.button import Button
 from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
 from ltcbackend import LTCbackend, Relay
 from ltcui import StatusDisplay
 from Phidget22.PhidgetException import PhidgetException
@@ -14,16 +15,9 @@ from Phidget22.PhidgetException import PhidgetException
 kivy.require('1.0.5')
 
 
-class LTCButton(Button):
-    def _do_press(self):
-        pass
-
-    def _do_release(self, *args):
-        pass
-
-
 class LTCAccordionItem(AccordionItem):
-    def on_touch_down(self, touch: MouseMotionEvent):
+    @override
+    def on_touch_down(self, touch: MouseMotionEvent) -> Any:
         if not self.collide_point(*touch.pos):
             return None
         return super().on_touch_down(touch)
@@ -34,19 +28,28 @@ class IgnitionPopup(Popup):
 
     def __init__(
         self,
-        set_status_display_state,
-        ignite=lambda: None,
-        abort=lambda: None,
-        state=None,
-        **kwargs,
-    ):
+        set_status_display_state: Callable[[StatusDisplay.State], None],
+        ignite: Callable[[Relay.State], None] = lambda _: None,
+        abort: Callable[[], None] = lambda: None,
+        state: 'LTCctrl.StateType | None' = None,
+        **kwargs: object,
+    ) -> None:
         self.ignite = ignite
         self.abort = abort
-        self.state = {} if state is None else state
+        self.state = (
+            {
+                'shorepower': None,
+                'ignition': None,
+                'abort': None,
+                'popup_abort_lockin': None,
+            }
+            if state is None
+            else state
+        )
         self.set_status_display_state = set_status_display_state
         super().__init__(auto_dismiss=False, **kwargs)
 
-    def on_button_ignite(self):
+    def on_button_ignite(self) -> None:
         try:
             Clock.schedule_once(lambda _dt: self.abort(), self.ignition_abort_timeout)
             self.ignite(Relay.State.ON)
@@ -58,18 +61,18 @@ class IgnitionPopup(Popup):
 
 class LTCctrl(Accordion):
     class StateType(TypedDict):
-        shorepower: bool
-        ignition: bool
-        abort: bool
-        popup_abort_lockin: bool
+        shorepower: bool | None
+        ignition: bool | None
+        abort: bool | None
+        popup_abort_lockin: bool | None
 
     def __init__(
         self,
-        ignite=lambda _: None,
-        shorepower=lambda _: None,
-        status=lambda _: None,
-        **kwargs,
-    ):
+        ignite: Callable[[Relay.State], None] = lambda _: None,
+        shorepower: Callable[[Relay.State], None] = lambda _: None,
+        status: Callable[[StatusDisplay.State], None] = lambda _: None,
+        **kwargs: object,
+    ) -> None:
         # setup callbacks
         self.ignite = ignite
         self.shorepower = shorepower
@@ -128,7 +131,7 @@ class LTCctrl(Accordion):
                 self.state['ignition'] = False
                 self.arm(state=False)
 
-    def arm(self, *, state: bool):
+    def arm(self, *, state: bool) -> None:
         if state:
             if self.state['shorepower'] is False:
                 self.accordion_armed.collapse = False
@@ -140,7 +143,7 @@ class LTCctrl(Accordion):
         else:
             raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
 
-    def abort(self):
+    def abort(self) -> None:
         Clock.unschedule(self.abort)
 
         if self.state['ignition'] is False and self.state['popup_abort_lockin'] is not True:
@@ -155,7 +158,7 @@ class LTCctrl(Accordion):
                 self.state['abort'] = False
                 self.set_status_display_state(StatusDisplay.State.ABORT_FAILED)
 
-    def on_button_ignite(self):
+    def on_button_ignite(self) -> None:
         if self.state['abort'] is True:
             # TODO: log that ignite can't happen becuase abort is in progress
             pass
@@ -164,7 +167,7 @@ class LTCctrl(Accordion):
         else:
             self.popup.open()
 
-    def on_button_shorepower(self, *, state: bool):
+    def on_button_shorepower(self, *, state: bool) -> None:
         try:
             self.shorepower(Relay.State.ON if state else Relay.State.OFF)
             self.set_status_display_state(StatusDisplay.State.NOMINAL)
@@ -181,7 +184,7 @@ if __name__ == '__main__':
     from kivy.app import App
 
     class LTCCtrlApp(App):
-        def build(self):
+        def build(self) -> Widget:
             try:
                 if sys.argv[1] == '-t':
                     ltc = LTCbackend()

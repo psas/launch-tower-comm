@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, unique
+from typing import Any
 
 import ltclogger as log
 from kivy.properties import ListProperty
@@ -39,8 +40,8 @@ class LTCLabel(Label):
     # TODO: ref Error, on click pop up detailed description
     background_color = ListProperty((1, 1, 1, 1))
 
-    def __init__(self, **kwargs):
-        # load from kv lang file first
+    def __init__(self, **kwargs: object) -> None:
+        # load from kv lang file first. Values in the kv will be applied after this method though.
         super().__init__(**kwargs)
         self.color = WHITE  # Set font color to white
         self.set_state(self.State.DETACHED)
@@ -74,7 +75,7 @@ class InterfaceKitPanel(BoxLayout):
 
 
 class IOIndicator(BoxLayout):
-    def __init__(self, sensor: Phidget, **kwargs):
+    def __init__(self, sensor: Phidget, **kwargs: object) -> None:
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
 
@@ -91,7 +92,8 @@ class IOIndicator(BoxLayout):
         self.ltc_label.background_color = GRAY
         self.ltc_label.set_state(LTCLabel.State.UNKNOWN)
 
-    def on_detach(self):
+    def on_detach(self) -> None:
+        log.debug(f"on_detach {self}")
         self.ltc_label.set_state(LTCLabel.State.DETACHED)
 
 
@@ -183,28 +185,28 @@ class StatusDisplay(BoxLayout):
 
     # TODO: scrollable log
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
         # load from the kv lang file
         super().__init__(**kwargs)
         self.set_state(self.State.DISCONNECTED)
 
-    def on_attach(self):
+    def on_attach(self) -> None:
         self.set_state(self.State.NOMINAL)
 
-    def on_detach(self):
+    def on_detach(self) -> None:
         self.set_state(self.State.DISCONNECTED)
 
-    def on_error(self, errno: int):
+    def on_error(self, errno: int) -> None:
         match errno:
             case 4103:
                 log.error("Sensor value out of range")
             case _:
                 self.set_state(self.State.ERROR)
 
-    def on_value(self, _value):
+    def on_value(self, _value: object) -> None:
         self.set_state(self.State.NOMINAL)
 
-    def set_state(self, state: State, *args):
+    def set_state(self, state: State, text: str = '') -> None:
         log.info(f"Setting StatusDisplay state to {state}")
         self.state_info.text = state.title
         self.state_info.color = state.color

@@ -28,6 +28,8 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
+from typing import override
+
 import kivy
 import ltclogger as log
 from kivy.app import App
@@ -66,7 +68,8 @@ class LTC(Widget):
 
 
 class LTCApp(App):
-    def build(self):
+    @override
+    def build(self) -> Widget:
         # The 'build' method is called when the app is run.
         Builder.load_file("ltcctrl.kv")
         Builder.load_file("ltcui.kv")
