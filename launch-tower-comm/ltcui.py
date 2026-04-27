@@ -210,7 +210,4 @@ class StatusDisplay(BoxLayout):
         log.info(f"Setting StatusDisplay state to {state}")
         self.state_info.text = state.title
         self.state_info.color = state.color
-        if args:
-            self.state_message.text = args[0].message
-        else:
-            self.state_message.text = state.message
+        self.state_message.text = text if text else state.message

@@ -55,7 +55,8 @@ class IgnitionPopup(Popup):
             self.ignite(Relay.State.ON)
             self.state['popup_abort_lockin'] = True
             self.set_status_display_state(StatusDisplay.State.IGNITED)
-        except PhidgetException:
+        except PhidgetException as e:
+            log.critical(e)
             self.abort()
 
 
@@ -173,7 +174,7 @@ class LTCctrl(Accordion):
             self.set_status_display_state(StatusDisplay.State.NOMINAL)
         except PhidgetException as e:
             self.set_status_display_state(StatusDisplay.State.ERROR)
-            log.error(f"{e}")
+            log.error(e)
 
 
 ######### Module test ########

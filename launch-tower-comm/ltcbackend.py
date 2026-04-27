@@ -34,7 +34,8 @@ class LTCPhidget(Phidget):
         self.setOnPropertyChangeHandler(self._on_property)
 
     def add_callback(self, cb: Callable[..., None], event_type: str) -> None:
-        log.debug(f"Adding callback to {self.name}")
+        cbname = f"{cb.__self__.__class__.__name__}.{cb.__name__}"
+        log.debug(f"Adding {event_type:6} callback to {self.name}: {cbname}")
         self._callback[event_type].append(cb)
 
     def _on_attach(self, _device: Phidget) -> None:
@@ -203,8 +204,8 @@ class LTCbackend:
         log.debug("Closing LTCBackend")
         try:
             self.ignite(Relay.State.OFF)
-        except PhidgetException:
-            log.info("Unable to turn off ignite on quit")
+        except PhidgetException as e:
+            log.critical(f"Unable to turn off ignite on quit: {e}")
         self.ignition.close()
         self.shore.close()
         for sensor in self.sensors:
@@ -222,7 +223,4 @@ class LTCbackend:
                 self.ignition.setState(state)
 
     def shorepower(self, state: Relay.State) -> None:
-        try:
-            self.shore.setState(state)
-        except PhidgetException as e:
-            log.error(f"{e}")
+        self.shore.setState(state)
