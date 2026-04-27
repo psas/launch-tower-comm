@@ -50,13 +50,14 @@ class LTCLabel(Label):
         # load from kv lang file first. Values in the kv will be applied after this method though.
         super().__init__(**kwargs)
         self.color = WHITE  # Set font color to white
-        self.set_state(self.State.DETACHED)
+        self.set_state(self.State.UNKNOWN)
 
     def set_state(self, state: State, text: str = '') -> None:
         self.background_color = state.color
         self.text = text if text else state.text
 
-    def on_button(self):
+    def on_button(self) -> None:
+        # FIXME: Use for something?
         self.set_state(self.State.THINKING)
 
 
@@ -74,15 +75,23 @@ class IOIndicator(BoxLayout):
 
         sensor.add_callback(self.on_attach, 'attach')
         sensor.add_callback(self.on_detach, 'detach')
+        sensor.add_callback(self.on_error, 'error')
         sensor.add_callback(self.on_value, 'value')
 
-    def on_attach(self):
-        self.ltc_label.background_color = GRAY
-        self.ltc_label.set_state(LTCLabel.State.UNKNOWN)
+    def on_attach(self) -> None:
+        log.debug(f"on_attach {self}")
+        self.ltc_label.set_state(LTCLabel.State.THINKING)
 
     def on_detach(self) -> None:
         log.debug(f"on_detach {self}")
         self.ltc_label.set_state(LTCLabel.State.DETACHED)
+
+    def on_error(self, errno: int) -> None:
+        log.debug(f"on_error {errno} {self}")
+        self.ltc_label.set_state(LTCLabel.State.ERROR, f"Error {errno}")
+
+    def on_value(self, value: Any) -> None:
+        raise NotImplementedError("IOIndicator should only be used through subclases")
 
 
 class VoltageSensorIndicator(IOIndicator):
