@@ -75,7 +75,8 @@ class Relay(LTCPhidget, DigitalOutput):
 
         self.unit = ''
         self.name = name
-        self.invert = invert  # invert == True ? Nominal closed : Nominal open
+        # invert == True ? Nominal closed : Nominal open
+        self.invert = self.State.OFF if invert else self.State.ON
         self.channel = channel
 
     @unique
@@ -174,7 +175,7 @@ class LTCbackend:
     def __init__(self) -> None:
         log.info("Starting Backend")
         # Interface Kit 0/0/4 with relays - 1014
-        self.ignition = Relay('Ignition Relay', devserial=259173, channel=0)
+        self.ignition = Relay('Ignition Relay', devserial=259173, channel=0, invert=True)
         self.ignition.add_callback(self._on_attach, 'attach')
         self.shore = Relay('Shorepower Relay', devserial=259173, channel=3, invert=True)
 
@@ -182,7 +183,7 @@ class LTCbackend:
         self.sensors = [
             TemperatureSensor("Internal Temperature", 178346, 0, 40.0, 10.0),
             VoltageSensor("Ignition Battery", 178346, 1, 4.1 * 4, 3.6 * 4),
-            VoltageSensor("Rocket Ready", 178346, 2, 5.0, 1.5),
+            VoltageSensor("Rocket Ready", 178346, 2, 5.0, 2.0),
             VoltageSensor("System Battery", 178346, 5, 15.0, 11.0),
             VoltageSensor("Solar Voltage", 178346, 6, 25.0, 11.0),
             VoltageSensor("Shore Power", 178346, 7, 20.0, 18.0),

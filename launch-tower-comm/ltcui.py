@@ -52,25 +52,9 @@ class LTCLabel(Label):
         self.color = WHITE  # Set font color to white
         self.set_state(self.State.DETACHED)
 
-    def set_state(self, state: State, text: str = ''):
-        match state:
-            case self.State.THINKING:
-                self.text = ""
-
-            case _:
-                if len(text) > 0:
-                    self.text = text
-                else:
-                    self.text = state.text
-
-    def on_attach(self):
-        self.set_state(self.State.THINKING)
-
-    def on_detach(self):
-        self.set_state(self.State.DETACHED)
-
-    def on_error(self, _errno: int):
-        self.set_state(self.State.ERROR)
+    def set_state(self, state: State, text: str = '') -> None:
+        self.background_color = state.color
+        self.text = text if text else state.text
 
     def on_button(self):
         self.set_state(self.State.THINKING)
@@ -85,9 +69,7 @@ class IOIndicator(BoxLayout):
         '''Indicator widget. Includes a name label, and status label.'''
         super().__init__(**kwargs)
 
-        self.nominal_value = sensor.nominal_value
-        self.name = sensor.name
-        self.unit = sensor.unit
+        self.sensor = sensor
         self.device_label.text = sensor.name
 
         sensor.add_callback(self.on_attach, 'attach')
@@ -104,47 +86,32 @@ class IOIndicator(BoxLayout):
 
 
 class VoltageSensorIndicator(IOIndicator):
-    def __init__(self, sensor: Phidget, **kwargs):
-        super().__init__(sensor, **kwargs)
+    def on_value(self, value: float) -> None:
+        if not isinstance(value, float):
+            raise TypeError
 
-    def on_value(self, sensor_reading: float):
-        if isinstance(sensor_reading, float):
-            self.ltc_label.set_state(LTCLabel.State.OK)
-            self.ltc_label.text = f"{sensor_reading:.1f} {self.unit}"
-            self.ltc_label.background_color = GREEN if self.nominal_value(sensor_reading) else RED
-        else:
-            log.error(
-                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
-            )
+        state = LTCLabel.State.ON if self.sensor.is_nominal(value) else LTCLabel.State.OFF
+        self.ltc_label.set_state(state, f"{value:.1f} {self.sensor.unit}")
 
 
 class RelayIndicator(IOIndicator):
-    def __init__(self, sensor: Phidget, **kwargs):
-        super().__init__(sensor, **kwargs)
-        self.sensor = sensor
+    def on_value(self, value: Relay.State) -> None:
+        if not isinstance(value, Relay.State):
+            raise TypeError
 
-    def on_value(self, sensor_reading: Relay.State):
-        if self.sensor.getAttached():
-            self.ltc_label.text = sensor_reading.name
-            self.ltc_label.background_color = (
-                GREEN if self.nominal_value(val=sensor_reading.value) else RED
-            )
-        else:
-            log.error("Could not set label state: device not attached")
+        state = LTCLabel.State.ON if self.sensor.is_nominal(value) else LTCLabel.State.OFF
+        self.ltc_label.set_state(state, value.name)
 
 
 class RocketReadyIndicator(IOIndicator):
-    def __init__(self, sensor: Phidget, **kwargs):
-        super().__init__(sensor, **kwargs)
+    def on_value(self, value: float) -> None:
+        if not isinstance(value, float):
+            raise TypeError
 
-    def on_value(self, sensor_reading: float):
-        if isinstance(sensor_reading, float):
-            self.ltc_label.text = "Yes" if sensor_reading >= 2.0 else "No"
-            self.ltc_label.background_color = GREEN if self.nominal_value(sensor_reading) else RED
+        if self.sensor.is_nominal(value):
+            self.ltc_label.set_state(LTCLabel.State.ON, "Yes")
         else:
-            log.error(
-                f"Unsupported type passed to {self.name} value callback: {type(sensor_reading)}"
-            )
+            self.ltc_label.set_state(LTCLabel.State.OFF, "No")
 
 
 class StatusDisplay(BoxLayout):
