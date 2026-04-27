@@ -94,13 +94,23 @@ class LTCctrl(Accordion):
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
-    def on_shorepower(self, state: Relay.State):
+    def on_shorepower_attach(self) -> None:
+        self.button_shorepower_off.disabled = False
+        self.button_shorepower_on.disabled = False
+
+    def on_shorepower_detach(self) -> None:
+        self.button_shorepower_off.disabled = True
+        self.button_shorepower_on.disabled = True
+        self.button_arm.disabled = True
+
+    def on_shorepower(self, state: Relay.State) -> None:
         """Callback function to set shorepower buttons state"""
         # This function is the only place where the shorepower buttons are set
         match state:
             case Relay.State.ON:
                 self.button_shorepower_off.state = 'normal'
                 self.button_shorepower_on.state = 'down'
+                self.button_arm.disabled = True
                 if self.state['ignition'] is True:
                     # TODO: log that shorepower was turned on while ignition is on
                     self.abort()
@@ -108,10 +118,16 @@ class LTCctrl(Accordion):
             case Relay.State.OFF:
                 self.button_shorepower_on.state = 'normal'
                 self.button_shorepower_off.state = 'down'
+                self.button_arm.disabled = False
 
         self.state['shorepower'] = state.value
 
-    def on_ignite(self, state: Relay.State):
+    def on_ignite_detach(self) -> None:
+        self.accordion_armed.collapse = True
+        self.accordion_unarmed.collapse = False
+        self.popup.dismiss()
+
+    def on_ignite(self, state: Relay.State) -> None:
         """Callback function to set the ignite button state"""
         # This function is the only place where the ignite button is set
 

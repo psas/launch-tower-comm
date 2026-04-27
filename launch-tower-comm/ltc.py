@@ -117,7 +117,10 @@ class LTCApp(App):
         backend.shore.add_callback(status.on_error, 'error')
 
         ctrl = LTCctrl(backend.ignite, backend.shorepower, status.set_state)
+        backend.shore.add_callback(ctrl.on_shorepower_attach, 'attach')
+        backend.shore.add_callback(ctrl.on_shorepower_detach, 'detach')
         backend.shore.add_callback(ctrl.on_shorepower, "value")
+        backend.ignition.add_callback(ctrl.on_ignite_detach, "detach")
         backend.ignition.add_callback(ctrl.on_ignite, "value")
 
         ltc = LTC()
