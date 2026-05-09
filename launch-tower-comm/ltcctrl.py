@@ -15,14 +15,6 @@ from Phidget22.PhidgetException import PhidgetException
 kivy.require('1.0.5')
 
 
-class LTCAccordionItem(AccordionItem):
-    @override
-    def on_touch_down(self, touch: MouseMotionEvent) -> Any:
-        if not self.collide_point(*touch.pos):
-            return None
-        return super().on_touch_down(touch)
-
-
 class IgnitionPopup(Popup):
     ignition_abort_timeout = 10
 

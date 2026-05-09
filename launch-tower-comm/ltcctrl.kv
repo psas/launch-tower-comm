@@ -1,4 +1,3 @@
-#: import LTCAccordionItem ltcctrl.LTCAccordionItem
 
 <ltcctrl>
     accordion_armed: accordian_armed
@@ -9,7 +8,7 @@
     button_abort: button_abort
     button_ignite: button_ignite
 
-    LTCAccordionItem:
+    AccordionItem:
         font_size: 40
         id: accordian_unarmed
         title: 'Unarmed'
@@ -34,7 +33,7 @@
                 text: 'Arm'
                 on_release: root.arm(state=True)
                 disabled: True
-    LTCAccordionItem:
+    AccordionItem:
         font_size: 40
         id: accordian_armed
         title: 'Armed'
