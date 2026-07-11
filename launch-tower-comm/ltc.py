@@ -28,6 +28,7 @@ written by Cyril Stoller, (C) 2011, under GPLv3.
 
 '''
 
+import sys
 from typing import override
 
 import kivy
@@ -37,7 +38,7 @@ from kivy.config import Config
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.widget import Widget
-from ltcbackend import LTCbackend
+from ltcbackend import LTCbackend, MockBackend
 from ltcctrl import LTCctrl
 from ltcui import (
     InterfaceKitPanel,
@@ -75,7 +76,8 @@ class LTCApp(App):
         Builder.load_file("ltcui.kv")
 
         status = StatusDisplay()
-        backend = LTCbackend()
+        backend = MockBackend() if len(sys.argv) > 1 and sys.argv[1] == '-m' else LTCbackend()
+
         # callbacks receive self arg, backend does not need
         self.bind(on_stop=lambda _: backend.close())
         self.bind(on_start=lambda _: backend.start())

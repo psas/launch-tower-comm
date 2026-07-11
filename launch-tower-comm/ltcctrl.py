@@ -191,15 +191,17 @@ if __name__ == '__main__':
     import sys
 
     from kivy.app import App
+    from ltcbackend import MockBackend
 
     class LTCCtrlApp(App):
         def build(self) -> Widget:
             try:
-                if sys.argv[1] == '-t':
-                    ltc = LTCbackend()
-                    return LTCctrl(ltc.ignite, ltc.shorepower)
-                return LTCctrl()
+                backend = LTCbackend() if sys.argv[1] == '-t' else MockBackend()
             except IndexError:
-                return LTCctrl()
+                backend = MockBackend()
+
+            self.bind(on_stop=lambda _: backend.close())
+            self.bind(on_start=lambda _: backend.start())
+            return LTCctrl(backend)
 
     LTCCtrlApp().run()

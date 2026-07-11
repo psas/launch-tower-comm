@@ -222,3 +222,61 @@ class LTCbackend:
 
     def shorepower(self, state: Relay.State) -> None:
         self.shore.setState(state)
+
+
+class MockRelay(CallbackFanout['Relay.State']):
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+        self._state = Relay.State.OFF
+
+    def open(self) -> None:
+        self._on_attach()
+        self._on_value(self._state)
+
+    def close(self) -> None:
+        self._on_detach()
+
+    def getState(self) -> Relay.State:  # noqa: N802
+        return self._state
+
+    def setState(self, state: Relay.State) -> None:  # noqa: N802
+        self._state = state
+        self._on_value(state)
+
+    def is_nominal(self, _val: Any) -> bool:
+        return False
+
+
+class MockSensor(CallbackFanout[float]):
+    def __init__(self, name: str, value: float, unit: str) -> None:
+        super().__init__(name)
+        self._value = value
+        self.unit = unit
+
+    def open(self) -> None:
+        self._on_attach()
+        self._on_value(self._value)
+
+    def close(self) -> None:
+        self._on_detach()
+
+
+class MockBackend(LTCbackend):
+    def __init__(self) -> None:
+        self.shore = MockRelay('Shore')
+        self.ignition = MockRelay('Ignition')
+        self.sensors: list[Phidget] = [
+            MockSensor("Internal Temperature", 25.0, "C"),
+            MockSensor("Ignition Battery", 19.0, "V"),
+            MockSensor("Rocket Ready", 2.0, "V"),
+            MockSensor("System Battery", 13.0, "V"),
+            MockSensor("Solar Voltage", 14.0, "V"),
+            MockSensor("Shore Power", 17.0, "V"),
+        ]
+
+    @override
+    def start(self) -> None:
+        self.shore.open()
+        self.ignition.open()
+        for sensor in self.sensors:
+            sensor.open()
