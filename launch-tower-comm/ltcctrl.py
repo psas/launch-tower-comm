@@ -61,18 +61,18 @@ class LTCctrl(Accordion):
 
     def __init__(
         self,
-        ignite: Callable[[Relay.State], None] = lambda _: None,
-        shorepower: Callable[[Relay.State], None] = lambda _: None,
+        backend: LTCbackend,
         status: Callable[[StatusDisplay.State], None] = lambda _: None,
         **kwargs: object,
     ) -> None:
-        # setup callbacks
-        self.ignite = ignite
-        self.shorepower = shorepower
+        self.backend = backend
         self.set_status_display_state = status
 
-        # setup internal state
-        # nothing explicitly depends on the arm state
+        backend.shore.add_callback(self._on_shorepower_attach, 'attach')
+        backend.shore.add_callback(self._on_shorepower_detach, 'detach')
+        backend.shore.add_callback(self._on_shorepower, "value")
+        backend.ignition.add_callback(self._on_ignite_detach, "detach")
+        backend.ignition.add_callback(self._on_ignite, "value")
 
         self.state: LTCctrl.StateType = {
             'shorepower': None,
@@ -82,20 +82,25 @@ class LTCctrl(Accordion):
         }
 
         # setup GUI
-        self.popup = IgnitionPopup(self.set_status_display_state, ignite, self.abort, self.state)
+        self.popup = IgnitionPopup(
+            self.set_status_display_state,
+            backend.ignite,
+            self.abort,
+            self.state,
+        )
         super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
 
-    def on_shorepower_attach(self) -> None:
+    def _on_shorepower_attach(self) -> None:
         self.button_shorepower_off.disabled = False
         self.button_shorepower_on.disabled = False
 
-    def on_shorepower_detach(self) -> None:
+    def _on_shorepower_detach(self) -> None:
         self.button_shorepower_off.disabled = True
         self.button_shorepower_on.disabled = True
         self.button_arm.disabled = True
 
-    def on_shorepower(self, state: Relay.State) -> None:
+    def _on_shorepower(self, state: Relay.State) -> None:
         """Callback function to set shorepower buttons state"""
         # This function is the only place where the shorepower buttons are set
         match state:
@@ -103,8 +108,8 @@ class LTCctrl(Accordion):
                 self.button_shorepower_off.state = 'normal'
                 self.button_shorepower_on.state = 'down'
                 self.button_arm.disabled = True
-                if self.state['ignition'] is True:
-                    # TODO: log that shorepower was turned on while ignition is on
+                if self.backend.ignition.getState():
+                    log.critical('Shorepower enabled while ignition is on!')
                     self.abort()
 
             case Relay.State.OFF:
@@ -114,12 +119,12 @@ class LTCctrl(Accordion):
 
         self.state['shorepower'] = state.value
 
-    def on_ignite_detach(self) -> None:
+    def _on_ignite_detach(self) -> None:
         self.accordion_armed.collapse = True
         self.accordion_unarmed.collapse = False
         self.popup.dismiss()
 
-    def on_ignite(self, state: Relay.State) -> None:
+    def _on_ignite(self, state: Relay.State) -> None:
         """Callback function to set the ignite button state"""
         # This function is the only place where the ignite button is set
 
@@ -161,7 +166,7 @@ class LTCctrl(Accordion):
             self.button_abort.state = 'down'
             self.state['abort'] = True
             try:
-                self.ignite(Relay.State.OFF)
+                self.backend.ignite(Relay.State.OFF)
             except PhidgetException:
                 self.button_abort.state = 'normal'
                 self.state['abort'] = False
@@ -178,7 +183,7 @@ class LTCctrl(Accordion):
 
     def on_button_shorepower(self, *, state: bool) -> None:
         try:
-            self.shorepower(Relay.State.ON if state else Relay.State.OFF)
+            self.backend.shorepower(Relay.State.ON if state else Relay.State.OFF)
             self.set_status_display_state(StatusDisplay.State.NOMINAL)
         except PhidgetException as e:
             self.set_status_display_state(StatusDisplay.State.ERROR)

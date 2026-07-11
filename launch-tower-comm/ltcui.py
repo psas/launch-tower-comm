@@ -54,7 +54,7 @@ class LTCLabel(Label):
 
     def set_state(self, state: State, text: str = '') -> None:
         self.background_color = state.color
-        self.text = text if text else state.text
+        self.text = text or state.text
 
     def on_button(self) -> None:
         # FIXME: Use for something?
@@ -192,4 +192,4 @@ class StatusDisplay(BoxLayout):
         log.info(f"Setting StatusDisplay state to {state}")
         self.state_info.text = state.title
         self.state_info.color = state.color
-        self.state_message.text = text if text else state.message
+        self.state_message.text = text or state.message

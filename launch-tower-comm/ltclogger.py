@@ -30,7 +30,7 @@ class __LTCLogger:
         for i in range(1, 1000):
             try:
                 self._log = (logdir / filename).with_suffix(".txt").open('x')
-            except FileExistsError:  # noqa: PERF203 I can't see how to satisfy this and not TOCTOU
+            except FileExistsError:
                 filename = f'{basename}_{i:03}'
             else:
                 break
