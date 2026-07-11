@@ -1,11 +1,10 @@
 from collections.abc import Callable
-from typing import Any, TypedDict, override
+from typing import TypedDict
 
 import kivy
 import ltclogger as log
 from kivy.clock import Clock
-from kivy.input.providers.mouse import MouseMotionEvent
-from kivy.uix.accordion import Accordion, AccordionItem
+from kivy.uix.accordion import Accordion
 from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 from ltcbackend import LTCbackend, Relay
@@ -28,16 +27,7 @@ class IgnitionPopup(Popup):
     ) -> None:
         self.ignite = ignite
         self.abort = abort
-        self.state = (
-            {
-                'shorepower': None,
-                'ignition': None,
-                'abort': None,
-                'popup_abort_lockin': None,
-            }
-            if state is None
-            else state
-        )
+        self.state = {'popup_abort_lockin': False} if state is None else state
         self.set_status_display_state = set_status_display_state
         super().__init__(auto_dismiss=False, **kwargs)
 
@@ -54,10 +44,7 @@ class IgnitionPopup(Popup):
 
 class LTCctrl(Accordion):
     class StateType(TypedDict):
-        shorepower: bool | None
-        ignition: bool | None
-        abort: bool | None
-        popup_abort_lockin: bool | None
+        popup_abort_lockin: bool
 
     def __init__(
         self,
@@ -75,10 +62,7 @@ class LTCctrl(Accordion):
         backend.ignition.add_callback(self._on_ignite, "value")
 
         self.state: LTCctrl.StateType = {
-            'shorepower': None,
-            'ignition': None,
-            'abort': None,
-            'popup_abort_lockin': None,
+            'popup_abort_lockin': False,
         }
 
         # setup GUI
@@ -117,8 +101,6 @@ class LTCctrl(Accordion):
                 self.button_shorepower_off.state = 'down'
                 self.button_arm.disabled = False
 
-        self.state['shorepower'] = state.value
-
     def _on_ignite_detach(self) -> None:
         self.accordion_armed.collapse = True
         self.accordion_unarmed.collapse = False
@@ -131,7 +113,6 @@ class LTCctrl(Accordion):
         match state:
             case Relay.State.ON:
                 self.button_ignite.state = 'down'
-                self.state['ignition'] = True
                 self.state['popup_abort_lockin'] = False
                 # if ignite happens showing it takes precedence over everything
                 self.accordion_armed.collapse = False
@@ -139,19 +120,16 @@ class LTCctrl(Accordion):
             case Relay.State.OFF:
                 self.button_ignite.state = 'normal'
                 self.button_abort.state = 'normal'
-                self.state['abort'] = False
                 Clock.unschedule(self.abort)
-                # self.arm depends on self.state['ignition'] being correct
-                self.state['ignition'] = False
                 self.arm(state=False)
 
     def arm(self, *, state: bool) -> None:
         if state:
-            if self.state['shorepower'] is False:
+            if not self.backend.shore.getState():
                 self.accordion_armed.collapse = False
                 self.set_status_display_state(StatusDisplay.State.ARMED)
             # TODO: else log that arm was attempted with sp true
-        elif not self.state['ignition']:
+        elif not self.backend.ignition.getState():
             self.accordion_unarmed.collapse = False
             self.set_status_display_state(StatusDisplay.State.DISARMED)
         else:
@@ -160,23 +138,18 @@ class LTCctrl(Accordion):
     def abort(self) -> None:
         Clock.unschedule(self.abort)
 
-        if self.state['ignition'] is False and self.state['popup_abort_lockin'] is not True:
+        if not self.backend.ignition.getState() and not self.state['popup_abort_lockin']:
             self.arm(state=False)
         else:
             self.button_abort.state = 'down'
-            self.state['abort'] = True
             try:
                 self.backend.ignite(Relay.State.OFF)
             except PhidgetException:
                 self.button_abort.state = 'normal'
-                self.state['abort'] = False
                 self.set_status_display_state(StatusDisplay.State.ABORT_FAILED)
 
     def on_button_ignite(self) -> None:
-        if self.state['abort'] is True:
-            # TODO: log that ignite can't happen becuase abort is in progress
-            pass
-        elif self.state['ignition'] is True:
+        if self.backend.ignition.getState():
             self.abort()
         else:
             self.popup.open()
