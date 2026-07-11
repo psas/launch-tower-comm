@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "launch-tower-comm"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = {text = "GPL-3.0"}
 dynamic = ["version"]
 
@@ -52,7 +52,6 @@ ignore = [
     "S101",  # assert - Should be eventually fixed but for now helps with type checking
     "ANN401",  # any-type - Should be eventually fixed but for now helps with type checking
     "D",  # pydocstyle - Should be turned back on but documentation is a large task
-    "ANN",
 ]
 
 [tool.ruff.format]
