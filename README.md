@@ -2,7 +2,7 @@
 
 ![Launch Tower Comm and friends](ground-control-software.png)
 
-Launch Tower Comm is the Portland State Aerospace Society's launch tower 
+Launch Tower Comm is the Portland State Aerospace Society's [launch tower](https://github.com/psas/launch-tower)
 control.
 
 It is run by [Kivy](http://kivy.org), a multi-touch GUI framework, and 
