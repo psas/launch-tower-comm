@@ -1,10 +1,10 @@
 from collections.abc import Callable
-from typing import TypedDict
 
 import kivy
 import ltclogger as log
 from kivy.clock import Clock
 from kivy.uix.accordion import Accordion
+from kivy.uix.button import Button
 from kivy.uix.popup import Popup
 from kivy.uix.widget import Widget
 from ltcbackend import LTCbackend, Relay
@@ -15,43 +15,19 @@ kivy.require('1.0.5')
 
 
 class IgnitionPopup(Popup):
-    ignition_abort_timeout = 10
-
-    def __init__(
-        self,
-        set_status_display_state: Callable[[StatusDisplay.State], None],
-        ignite: Callable[[Relay.State], None] = lambda _: None,
-        abort: Callable[[], None] = lambda: None,
-        state: 'LTCctrl.StateType | None' = None,
-        **kwargs: object,
-    ) -> None:
-        self.ignite = ignite
-        self.abort = abort
-        self.state = {'popup_abort_lockin': False} if state is None else state
-        self.set_status_display_state = set_status_display_state
+    def __init__(self, **kwargs: object) -> None:
         super().__init__(auto_dismiss=False, **kwargs)
-
-    def on_button_ignite(self) -> None:
-        try:
-            Clock.schedule_once(lambda _dt: self.abort(), self.ignition_abort_timeout)
-            self.ignite(Relay.State.ON)
-            self.state['popup_abort_lockin'] = True
-            self.set_status_display_state(StatusDisplay.State.IGNITED)
-        except PhidgetException as e:
-            log.critical(e)
-            self.abort()
 
 
 class LTCctrl(Accordion):
-    class StateType(TypedDict):
-        popup_abort_lockin: bool
-
     def __init__(
         self,
         backend: LTCbackend,
         status: Callable[[StatusDisplay.State], None] = lambda _: None,
         **kwargs: object,
     ) -> None:
+        super().__init__(**kwargs)
+
         self.backend = backend
         self.set_status_display_state = status
 
@@ -61,19 +37,22 @@ class LTCctrl(Accordion):
         backend.ignition.add_callback(self._on_ignite_detach, "detach")
         backend.ignition.add_callback(self._on_ignite, "value")
 
-        self.state: LTCctrl.StateType = {
-            'popup_abort_lockin': False,
-        }
+        self.popup = IgnitionPopup()
+        self.popup.button_ignite.bind(on_release=self._on_popup_ignite)
+        self.popup.button_cancel.bind(on_release=self._on_popup_cancel)
 
-        # setup GUI
-        self.popup = IgnitionPopup(
-            self.set_status_display_state,
-            backend.ignite,
-            self.abort,
-            self.state,
-        )
-        super().__init__(**kwargs)
         self.accordion_unarmed.collapse = False
+
+    def _on_popup_ignite(self, _: Button) -> None:
+        Clock.schedule_once(self.abort, 10)
+        try:
+            self.backend.ignite(Relay.State.ON)
+        except PhidgetException as e:
+            log.critical(e)
+            self.abort()
+
+    def _on_popup_cancel(self, _: Button) -> None:
+        self.abort()
 
     def _on_shorepower_attach(self) -> None:
         self.button_shorepower_off.disabled = False
@@ -95,7 +74,6 @@ class LTCctrl(Accordion):
                 if self.backend.ignition.getState():
                     log.critical('Shorepower enabled while ignition is on!')
                     self.abort()
-
             case Relay.State.OFF:
                 self.button_shorepower_on.state = 'normal'
                 self.button_shorepower_off.state = 'down'
@@ -109,14 +87,13 @@ class LTCctrl(Accordion):
     def _on_ignite(self, state: Relay.State) -> None:
         """Callback function to set the ignite button state"""
         # This function is the only place where the ignite button is set
-
         match state:
             case Relay.State.ON:
                 self.button_ignite.state = 'down'
-                self.state['popup_abort_lockin'] = False
                 # if ignite happens showing it takes precedence over everything
                 self.accordion_armed.collapse = False
                 self.popup.dismiss()
+                self.set_status_display_state(StatusDisplay.State.IGNITED)
             case Relay.State.OFF:
                 self.button_ignite.state = 'normal'
                 self.button_abort.state = 'normal'
@@ -128,25 +105,22 @@ class LTCctrl(Accordion):
             if not self.backend.shore.getState():
                 self.accordion_armed.collapse = False
                 self.set_status_display_state(StatusDisplay.State.ARMED)
-            # TODO: else log that arm was attempted with sp true
+            else:
+                raise RuntimeError("Attempting to arm while shorepower is on")
         elif not self.backend.ignition.getState():
             self.accordion_unarmed.collapse = False
             self.set_status_display_state(StatusDisplay.State.DISARMED)
         else:
             raise RuntimeError("Attempt to disarm was made while ignition relay was closed")
 
-    def abort(self) -> None:
+    def abort(self, _dt: float = 0.0) -> None:
         Clock.unschedule(self.abort)
-
-        if not self.backend.ignition.getState() and not self.state['popup_abort_lockin']:
-            self.arm(state=False)
-        else:
-            self.button_abort.state = 'down'
-            try:
-                self.backend.ignite(Relay.State.OFF)
-            except PhidgetException:
-                self.button_abort.state = 'normal'
-                self.set_status_display_state(StatusDisplay.State.ABORT_FAILED)
+        self.button_abort.state = 'down'
+        try:
+            self.backend.ignite(Relay.State.OFF)
+        except PhidgetException:
+            self.button_abort.state = 'normal'
+            self.set_status_display_state(StatusDisplay.State.ABORT_FAILED)
 
     def on_button_ignite(self) -> None:
         if self.backend.ignition.getState():

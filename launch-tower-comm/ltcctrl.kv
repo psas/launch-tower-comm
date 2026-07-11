@@ -54,6 +54,10 @@
 <IgnitionPopup>
     size: root.size
     title: 'With great power comes great responsibility'
+
+    button_ignite: button_ignite
+    button_cancel: button_cancel
+
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -63,11 +67,13 @@
             orientation: 'horizontal'
             Button:
                 font_size: 40
+                id: button_ignite
                 text: 'Ignite'
-                on_release: root.on_button_ignite(), root.dismiss()
+                on_release: root.dismiss()
             Label:
                 text: '                          '
             Button:
                 font_size: 40
+                id: button_cancel
                 text: 'Cancel'
-                on_release: root.abort(), root.dismiss()
+                on_release: root.dismiss()
