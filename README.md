@@ -2,8 +2,8 @@
 
 ![Launch Tower Comm and friends](ground-control-software.png)
 
-Launch Tower Comm is the Portland State Aerospace Society's launch tower 
-control.  
+Launch Tower Comm is the Portland State Aerospace Society's [launch tower](https://github.com/psas/launch-tower)
+control.
 
 It is run by [Kivy](http://kivy.org), a multi-touch GUI framework, and 
 [Phidgets](https://www.phidgets.com), "Unique and Easy to Use USB Interfaces."
@@ -12,109 +12,56 @@ It is run by [Kivy](http://kivy.org), a multi-touch GUI framework, and
 
 ---
 
-## How to use it if you don't have a launch tower
-
-If you have a remote Beagleboard or Raspberry Pi or similar connected to
-Phidget Interface Kit boards, and want to control and observe them remotely,
-this app could work for you.  
-
-We use it to control relays connected to a Beagleboard on our launch
-tower computer, and to display voltages and temperatures on the tower.
-
+# Getting Started (Debian)
 
 ## Dependencies
 
-The following list is not complete, in other words, each of the three items
-may require dependencies not listed here.
+### Phidget22
 
-* [Phidgets C library, Python module and Webservice](http://www.phidgets.com/docs/Software_Overview#Operating_System_Support)
-* [Kivy](http://kivy.org/#download)
-* At least one Phidgets Interfacekit connected throught the Phidgets webservice 
+In order to connect to the phidget devices you will need to install [Phidget22](https://www.phidgets.com).
 
+Go to the [installation page](https://www.phidgets.com/docs/OS_-_Linux) and make sure to select package install -> install script -> *Non-root* (This is very important and is not selected by default!)
 
-# Installation of Kivy and Twisted
+After that follow the instructions to set up the udev rules.
 
-## OS X 10.9 (Mavericks) 
+#### Additional Phidget22 Packages
 
-* Valid as of Jan 25th 2014
+The following phidget packages are recommended but not required
+- [phidget22admin](https://www.phidgets.com/docs/Phidget22admin_Guide): Very helpful to list information about connected devices on the command line, among other things.
+- phidget22networkserver + libphidget22extra: the beaglebone should have the server on it already, but for debugging purposes these may be helpful to have on your device as well.
 
-Install Homebrew and get it setup properly, follow the suggestions it might
-make.
+### Python Packages
 
-    brew install python
-    brew install virtualenvwrapper # might require additional setup
-    brew install sdl sd_image sdl_mixer sdl_ttf portmidi
-    brew install mercurial
+cd into the same directory as the project's `pyproject.toml` file and run
 
-    mkvirtualenv kivy
-    pip install cython
-    # pil might need a symlink to freetype, try it first
-    pip install pil 
-    pip install hg+http://bitbucket.org/pygame/pygame
-    pip install kivy
+```bash
+pip install .[dev]
+```
 
-At this point, grab a copy of the Kivy source that matches your installed
-version. Copy the examples somewhere and try to run one of them. If things
-don't work, get to googling.  If successful, you now need Twisted.
+note: You may need to replace the above with `pip install ".[dev]"` if not using bash because of the brackets.
 
-    pip install Twisted
+If kivy gives you problems after this point, try installing the [source dependencies](https://kivy.org/doc/stable/installation/installation-linux.html#linux-ppa).
+Kivy claims this is not required, but we have solved issues by doing this in the past.
 
+## Starting Up The GUI
 
-# Preparing A Debian GNU/Linux "Unstable" System
+- Plug in the LTC power supply and turn it on. Flip the switches behind the door labeled "Bell" to the on position.
+- Make sure the beaglebone is plugged into the interface kit (usb).
+- Connect via wifi or ethernet to the beaglebone.
+- Run the following command:
 
-The following procedure installs any software not available from
-regular Debian sources to the user's home directory ($HOME/local/), as
-opposed to regular system directories (/usr/lib, etc.).  System
-directories should only be installed to by dpkg, using .deb packages.  
+```bash
+./launch-tower-comm/ltc.py
+```
 
-1. Install Debian's Kivy package (*python-kivy*), Python Imaging
-   Library package (*python-pil*), and Twisted package
-   (*python-twisted*)  with apt-get.  Any dependencies (including the
-   Python runtime, PyGame, etc.) will be automagically resolved and
-   installed:
+The gui should open up and the Phidgets should be displaying their information.
 
-        # apt-get install python-kivy python-pil python-twisted
+## SSH into the Beaglebone
 
-2. Install Debian's libusb development support package (*libusb-dev*):
+If you ever need to get into the Beaglebone to perform maintenance or to configure the network server, the easiest way is to plug directly in via ethernet, wait for the connection to set up, and run
 
-        # apt-get install libusb-dev
+```bash
+ssh debian@10.0.0.1
+```
 
-3. Download the Phidgets libraries and web service tarballs from
-   http://www.phidgets.com/docs/OS_-_Linux
-
-4. Configure and install the libraries and web service.
-
-        $ tar xzf libphidget_2.1.8.20140319.tar.gz
-        $ tar xzf phidgetwebservice_2.1.8.20140319.tar.gz
-        $ cd libphidget-2.1.8.20140319
-        $ ./configure --prefix=$HOME/local/
-        [ ... time passes ... ]
-        $ make install
-        [ ... more time passes ... ]
-        $ cd ../phidgetwebservice-2.1.8.20140319/
-        $ export C_INCLUDE_PATH=$HOME/local/include
-        $ export LIBRARY_PATH=$HOME/local/lib
-        $ ./configure --prefix=$HOME/local/
-        [ ... sit still ... ]
-        $ make install
-        [ ... hold fast ... ]
-        $ export PATH=$HOME/local/bin:$PATH
-        $ export LD_LIBRARY_PATH=$HOME/local/lib
-
-5. Download the Phidgets Python library from
-   http://www.phidgets.com/docs/Language_-_Python
-
-6. Install the Phidgets Python library:
-
-        $ unzip PhidgetsPython_2.1.8.20140428.zip
-        $ cd PhidgetsPython
-        $ python setup.py install --prefix=$HOME/local
-        $ export PYTHONPATH=$HOME/local/lib/python2.7/site-packages
-
-7. Start the client:
-
-        launch-tower-comm/launch-tower-comm/start.sh
-
-8. Optionally, install the desktop launcher:
-
-        cp launch-tower-comm/launch-tower-comm/TowerComm.desktop ~/Desktop/
+Follow any prompts that pop up and enter the password "temppwd" and then you should be logged in to the shell.

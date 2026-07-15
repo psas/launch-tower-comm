@@ -3,6 +3,7 @@
 *.ini
 *.swp
 logs/
+*.egg-info
 
 # ignore runtime cruft
 *.out

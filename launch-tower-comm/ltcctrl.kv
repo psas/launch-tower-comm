@@ -1,55 +1,63 @@
-#: import LTCAccordionItem ltcctrl.LTCAccordionItem
-#: import LTCButton ltcctrl.LTCButton
 
 <ltcctrl>
     accordion_armed: accordian_armed
     accordion_unarmed: accordian_unarmed
     button_shorepower_off: button_shorepower_off
     button_shorepower_on: button_shorepower_on
+    button_arm: button_arm
     button_abort: button_abort
     button_ignite: button_ignite
-    
-    LTCAccordionItem:
+
+    AccordionItem:
         font_size: 40
         id: accordian_unarmed
         title: 'Unarmed'
+        disabled: True if root.accordion_unarmed.collapse else False
         BoxLayout:
             orientation: 'vertical'
-            LTCButton:
+            Button:
                 font_size: 40
                 id: button_shorepower_on
                 text: 'Enable Shore Power'
-                on_release:  root.on_button_shorepower(True)
-            LTCButton:
+                on_release:  root.on_button_shorepower(state=True)
+                disabled: True
+            Button:
                 font_size: 40
                 id: button_shorepower_off
                 text: 'Disable Shore Power'
-                on_release: root.on_button_shorepower(False)
+                on_release: root.on_button_shorepower(state=False)
+                disabled: True
             Button:
                 font_size: 40
+                id: button_arm
                 text: 'Arm'
-                on_release: root.arm(True)
-    LTCAccordionItem:
+                on_release: root.arm(state=True)
+                disabled: True
+    AccordionItem:
         font_size: 40
         id: accordian_armed
         title: 'Armed'
+        disabled: True if root.accordion_armed.collapse else False
         BoxLayout:
             orientation: 'vertical'
-            LTCButton:
+            Button:
                 font_size: 40
                 id: button_ignite
                 text: 'Ignite'
                 on_release: root.on_button_ignite()
-            LTCButton:
+            Button:
                 font_size: 40
                 id: button_abort
                 text: 'Abort'
                 on_release: root.abort()
 
-
 <IgnitionPopup>
     size: root.size
-    title: 'With great power comes great responsibility' 
+    title: 'With great power comes great responsibility'
+
+    button_ignite: button_ignite
+    button_cancel: button_cancel
+
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -59,14 +67,13 @@
             orientation: 'horizontal'
             Button:
                 font_size: 40
+                id: button_ignite
                 text: 'Ignite'
-                on_release: root.on_button_ignite(), root.dismiss()
+                on_release: root.dismiss()
             Label:
                 text: '                          '
             Button:
                 font_size: 40
+                id: button_cancel
                 text: 'Cancel'
-                on_release: root.abort(), root.dismiss()
-
-
-
+                on_release: root.dismiss()
