@@ -34,11 +34,11 @@ class CallbackFanout[V]:
             self.setOnDetachHandler(lambda _: self._on_detach())
             self.setOnErrorHandler(lambda _, code, desc: self._on_error(code, desc))
 
-            def on_property(self: Self, device: Phidget, name: str) -> None:
+            def on_property(self: Self, name: str) -> None:
                 # Why the callback can't just give us the value I'll never know. Here
                 # we reconstruct the getter method for the associated property and then
                 # get that propterty. Its TOCTOU but I am unaware of a better way.
-                value = getattr(device, 'get' + name)()
+                value = getattr(self, 'get' + name)()
                 self._on_property(name, value)
 
             self.setOnPropertyChangeHandler(on_property)
